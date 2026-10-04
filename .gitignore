@@ -1,0 +1,30 @@
+# --- secrets: never commit ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.p8
+
+# --- node / next ---
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- prisma ---
+app/prisma/dev.db
+app/src/generated/
+
+# --- tooling ---
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-error.log*
+.vercel
+
+# --- snowflake cli / cortex local artefacts ---
+.snowflake/
+cortex_project/
