@@ -5,6 +5,12 @@
 > - **Extra user.** Connectors authenticate as a third service user, `BBC_INGEST_SVC`, in addition to the engine and agent users (see [ADR-0003](../adr/0003-auth-and-identity.md)).
 > - **Day 2 file layout.** Raw payload contracts live in `contracts/schemas/raw/` (not `contracts/raw/`), next to the other schemas. `bbc sim init` writes reference batches as JSON (`.artifacts/sim/reference/*.json`), not CSV, because contracts and specs carry nested terms. The reference-version test is `snowflake/tests/02_reference.sql`.
 > - **Day 2 scope.** The RAW ingest procedures move to WP3, where the connector SDK that calls them is built. Serialized concurrent ledger appends are proven by spike S10 (`snowflake/spikes/s10_lock.py`), not by a 0-row SQL test. Policy activation is drafted by one user and activated by another (`bbc policy draft` as the builder, `bbc policy activate --as govadmin`), so separation of duties is exercised from WP2 on.
+> - **Day 3 decisions.**
+>   - Connectors and the engine reach Snowflake through the SQL API (`SqlApiClient` in `packages/shared`), not `snowflake-sdk` ([ADR-0004](../adr/0004-engine-and-drivers.md)).
+>   - Connectors hold no table privileges: they call `API.INGEST_BATCH`, which validates, de-duplicates, dead-letters and commits the cursor in one transaction.
+>   - Custody attribution counts only *attributable* excess life: readings inside the grower's contractual pre-cool window (`precool_max_hours`) are field heat nobody could avoid.
+>   - A reading covers `(reading_ts - interval, reading_ts]`, so it belongs to the assignment and holder in force just before `reading_ts`.
+>   - Physics parity (task 3.6) was run early by `snowflake/spikes/wp3_thermal_dryrun.py`, which executes the Dynamic Table SQL over simulated trips without creating objects.
 
 # BlueberryChain OS — Implementation Plan (final, implementation-ready)
 

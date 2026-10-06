@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/connectors/iot_webhook.json",
+  "title": "IoT webhook batch",
+  "description": "What a device platform POSTs to connector-iot at /v1/telemetry. The body is signed: X-BBC-Timestamp is Unix seconds and X-BBC-Signature is 'v1=' + hex(HMAC-SHA256(secret, timestamp + '.' + raw body)); requests older than 5 minutes are refused. The connector maps each message to one RAW.TELEMETRY row and computes its idempotency key, so a platform may resend a batch safely.",
+  "type": "object",
+  "required": [
+    "messages"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source": {
+      "type": "string",
+      "maxLength": 64,
+      "description": "Sending platform, for logs only."
+    },
+    "messages": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5000,
+      "items": {
+        "type": "object",
+        "required": [
+          "device_id",
+          "ts",
+          "interval_s",
+          "values"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "device_id": {
+            "$ref": "../common.json#/$defs/external_id"
+          },
+          "ts": {
+            "$ref": "../common.json#/$defs/timestamp"
+          },
+          "interval_s": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3600
+          },
+          "values": {
+            "$ref": "../raw/telemetry_reading.json#/properties/readings"
+          },
+          "provenance": {
+            "enum": [
+              "LIVE",
+              "SIMULATION_BACKFILL",
+              "SIMULATION_LIVE"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

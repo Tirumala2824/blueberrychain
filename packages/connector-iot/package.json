@@ -1,0 +1,36 @@
+{
+  "name": "@blueberrychain/connector-iot",
+  "version": "0.1.0",
+  "description": "Signed IoT telemetry webhook for BlueberryChain OS: verifies HMAC, maps readings to RAW.TELEMETRY rows, acknowledges after commit",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "bbc-connector-iot": "./dist/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node --env-file-if-exists=../../.env dist/main.js"
+  },
+  "dependencies": {
+    "@blueberrychain/connector-sdk": "workspace:*",
+    "@blueberrychain/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

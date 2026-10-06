@@ -1,6 +1,6 @@
 # ADR-0004: Engine runtime and Snowflake drivers
 
-- **Status:** Proposed (finalize after S8 and the Day 3 driver check)
+- **Status:** Proposed (SQL access decided on Day 3; finalize after S8)
 - **Date:** 2026-10-06
 - **Depends on:** ADR-0002 S8; ADR-0003
 
@@ -12,7 +12,11 @@
 - **Runtime:** a TypeScript Node process (`packages/engine`) with two loops in one process:
   - **lifecycle worker:** `API.CLAIM_WORK` lease → `API.ADVANCE_CASE` → agent escalation when `ADVANCE_CASE` asks for it;
   - **dispatcher:** `API.NEXT_ACTIONS` over `V_DISPATCHABLE` → read before → call target with the idempotency key → read back → `API.ACK_MUTATION`.
-- **SQL driver:** `snowflake-sdk` (Node), authenticating as `BBC_ENGINE_SVC` with its PAT. *Day 3 confirms the exact PAT option in this driver version.*
+- **SQL access (decided on Day 3): the Snowflake SQL API over HTTPS, not a driver.**
+  - `SqlApiClient` in `packages/shared` sends `POST /api/v2/statements` with the identity's PAT (`Authorization: Bearer`, `X-Snowflake-Authorization-Token-Type: PROGRAMMATIC_ACCESS_TOKEN`) and binds every value as TEXT. The Python CLI's persona calls use the same request shape (`snowcall.sqlapi_runner`).
+  - Retries reuse the request's `requestId` with `retry=true`, so Snowflake runs a statement at most once even when a response is lost. 202 responses are polled; multi-partition results are fetched in full.
+  - *Why not `snowflake-sdk`:* every call the engine and connectors make is one procedure call with bind variables, so a driver adds a native dependency and connection state for nothing. PAT authentication is identical to the persona path, which is already proven, and the client is ~150 lines with unit tests.
+  - Connectors authenticate as `BBC_INGEST_SVC`; the engine as `BBC_ENGINE_SVC`.
   - Connections are pooled.
   - The SQL is fixed (procedure calls with bind variables only).
 - **Agents:** the Cortex Agent REST API `POST /api/v2/databases/BBC_OS/schemas/AGENT/agents/<name>:run`, called as `BBC_AGENT_SVC` with a PAT and read as **SSE**, so the UI can show a live trace. The full event trace is recorded through `API.END_AGENT_RUN`.

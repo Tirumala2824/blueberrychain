@@ -37,4 +37,13 @@ export const AUTONOMY_LEVELS = [0, 1, 2, 3, 4] as const;
 export type AutonomyLevel = (typeof AUTONOMY_LEVELS)[number];
 
 export { contractsDir, schemaNames, validate, type ContractError } from "./contracts.js";
+export {
+  businessEventKey,
+  canonicalHash,
+  canonicalJson,
+  normalizeTs,
+  sha256Hex,
+  telemetryKey,
+} from "./canonical.js";
+export { SqlApiClient, SqlApiError, sqlApiConfigFromEnv, type Bind, type SqlApiConfig } from "./sqlapi.js";
 export type * from "./generated/index.js";

@@ -23,6 +23,9 @@ class FakeSnowflake:
         self.ref: dict[str, list[dict[str, Any]]] = {}
         self.policies: dict[str, dict[str, Any]] = {}
         self.gov_rows: dict[str, int] = {}
+        self.raw: dict[str, dict[str, dict[str, Any]]] = {"TELEMETRY": {}, "BUSINESS_EVENTS": {}}
+        self.ingest_errors: list[dict[str, Any]] = []
+        self.cursors: dict[tuple[str, str], str | None] = {}
         self.fail_on: str | None = None  # substring that makes a statement raise
 
     # --- Snowpark surface ---------------------------------------------------------
@@ -61,6 +64,8 @@ class FakeSnowflake:
             return []
         if q == "SELECT CURRENT_USER()":
             return [(self.user,)]
+        if "BBC_OS.RAW." in q:
+            return self._respond_raw(q, p)
         if "LEDGER.HEAD SET last_seq = last_seq + 1" in q:
             self.head["last_seq"] += 1
             return []
@@ -132,6 +137,34 @@ class FakeSnowflake:
                 self.gov_rows[table] = 0
             return []
         return self._respond_ref(q, p)
+
+    def _respond_raw(self, q: str, p: list[Any]) -> list[tuple]:
+        m = re.match(r"MERGE INTO BBC_OS\.RAW\.(TELEMETRY|BUSINESS_EVENTS) ", q)
+        if m:
+            table = self.raw[m.group(1)]
+            rows, connector_id = json.loads(p[0]), p[1]
+            inserted = 0
+            for row in rows:
+                if row["idempotency_key"] not in table:
+                    table[row["idempotency_key"]] = {**row, "connector_id": connector_id}
+                    inserted += 1
+            return [(inserted,)]
+        if q.startswith("INSERT INTO BBC_OS.RAW.INGEST_ERRORS"):
+            connector_id, target, dead = p
+            for d in json.loads(dead):
+                self.ingest_errors.append({"connector_id": connector_id, "target": target, **d})
+            return []
+        if q.startswith("MERGE INTO BBC_OS.RAW.CONNECTOR_STATE"):
+            connector_id, stream, cursor = p
+            self.cursors[(connector_id, stream)] = cursor
+            return []
+        if q.startswith("SELECT stream, cursor_value, updated_at FROM BBC_OS.RAW.CONNECTOR_STATE"):
+            return [
+                (stream, cursor, "2026-10-06T08:00:00+00:00")
+                for (connector, stream), cursor in sorted(self.cursors.items())
+                if connector == p[0]
+            ]
+        raise AssertionError(f"unhandled statement: {q}")
 
     def _entity_for(self, q: str) -> str:
         for name, ent in reference.ENTITIES.items():

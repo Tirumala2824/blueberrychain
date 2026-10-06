@@ -15,7 +15,7 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
-from bbc_toolkit import ledger, reference
+from bbc_toolkit import ingest, ledger, reference
 from bbc_toolkit.policy import check_policy
 
 HEAD = "BBC_OS.LEDGER.HEAD"
@@ -453,4 +453,112 @@ def proc_activate_policy(session: Any, policy_version: str, reason: str):
         "policy_version": policy_version,
         "previous_version": previous[0] if previous else None,
         "ledger_seq": entry.seq,
+    }
+
+
+# ---------------------------------------------------------------------------- ingest
+RAW = "BBC_OS.RAW"
+_FLATTEN = "FROM TABLE(FLATTEN(INPUT => PARSE_JSON(?))) f"
+_TS = f"TO_TIMESTAMP_TZ(f.value:{{col}}::STRING, '{ingest.SQL_TS_FORMAT}')"
+MERGE_SQL = {
+    "TELEMETRY": (
+        f"MERGE INTO {RAW}.TELEMETRY t USING ("
+        "SELECT f.value:device_id::STRING AS device_id, "
+        f"{_TS.format(col='reading_ts')} AS reading_ts, "
+        "f.value:interval_s::NUMBER(5,0) AS interval_s, f.value:readings AS readings, "
+        "f.value:idempotency_key::STRING AS idempotency_key, "
+        f"f.value:provenance::STRING AS provenance {_FLATTEN}"
+        ") s ON t.idempotency_key = s.idempotency_key "
+        "WHEN NOT MATCHED THEN INSERT "
+        "(device_id, reading_ts, interval_s, readings, idempotency_key, connector_id, provenance) "
+        "VALUES (s.device_id, s.reading_ts, s.interval_s, s.readings, s.idempotency_key, ?, "
+        "s.provenance)"
+    ),
+    "BUSINESS_EVENTS": (
+        f"MERGE INTO {RAW}.BUSINESS_EVENTS t USING ("
+        "SELECT f.value:source_system::STRING AS source_system, "
+        "f.value:entity_type::STRING AS entity_type, f.value:external_id::STRING AS external_id, "
+        f"{_TS.format(col='event_ts')} AS event_ts, f.value:payload AS payload, "
+        "f.value:idempotency_key::STRING AS idempotency_key, "
+        f"f.value:provenance::STRING AS provenance {_FLATTEN}"
+        ") s ON t.idempotency_key = s.idempotency_key "
+        "WHEN NOT MATCHED THEN INSERT "
+        "(source_system, entity_type, external_id, event_ts, payload, idempotency_key, "
+        "connector_id, provenance) "
+        "VALUES (s.source_system, s.entity_type, s.external_id, s.event_ts, s.payload, "
+        "s.idempotency_key, ?, s.provenance)"
+    ),
+}
+INSERT_ERRORS = (
+    f"INSERT INTO {RAW}.INGEST_ERRORS (connector_id, target, payload, errors) "
+    f"SELECT ?, ?, f.value:row, f.value:errors {_FLATTEN}"
+)
+MERGE_CURSOR = (
+    f"MERGE INTO {RAW}.CONNECTOR_STATE t USING (SELECT ? AS connector_id, ? AS stream, "
+    "? AS cursor_value) s ON t.connector_id = s.connector_id AND t.stream = s.stream "
+    "WHEN MATCHED THEN UPDATE SET cursor_value = s.cursor_value, updated_at = CURRENT_TIMESTAMP() "
+    "WHEN NOT MATCHED THEN INSERT (connector_id, stream, cursor_value) "
+    "VALUES (s.connector_id, s.stream, s.cursor_value)"
+)
+REJECTS_RETURNED = 100
+
+
+def proc_ingest_batch(
+    session: Any, target: str, connector_id: str, rows: Any, stream: str, cursor_value: str
+):
+    """Land a batch in RAW: validate, MERGE on idempotency key, dead-letter the rejects and
+    advance the connector cursor - all in one transaction, so a cursor never moves past
+    rows that were not committed."""
+    rows = _as_obj(rows)
+    problems = ingest.batch_problems(target, connector_id, rows, stream or "")
+    if problems:
+        return {"status": "INVALID", "errors": problems}
+    prepared = ingest.prepare(target, connector_id, rows)
+
+    _exec(session, "BEGIN")
+    try:
+        inserted = 0
+        if prepared.rows:
+            result = session.sql(
+                MERGE_SQL[target], params=[json.dumps(prepared.rows), connector_id]
+            ).collect()
+            inserted = int(next(iter(result[0]))) if result else 0
+        if prepared.rejected:
+            dead = [{"row": r["row"], "errors": r["errors"]} for r in prepared.rejected]
+            _exec(session, INSERT_ERRORS, [connector_id, target, json.dumps(dead)])
+        if stream:
+            _exec(session, MERGE_CURSOR, [connector_id, stream, cursor_value or None])
+        _exec(session, "COMMIT")
+    except Exception:
+        _exec(session, "ROLLBACK")
+        raise
+    return {
+        "status": "PARTIAL" if prepared.rejected else "OK",
+        "target": target,
+        "received": len(rows),
+        "inserted": inserted,
+        "duplicates": prepared.duplicates_in_batch + len(prepared.rows) - inserted,
+        "rejected": len(prepared.rejected),
+        "rejects": [
+            {"index": r["index"], "errors": r["errors"]}
+            for r in prepared.rejected[:REJECTS_RETURNED]
+        ],
+        "stream": stream or None,
+        "cursor_value": (cursor_value or None) if stream else None,
+    }
+
+
+def proc_get_connector_state(session: Any, connector_id: str):
+    rows = session.sql(
+        f"SELECT stream, cursor_value, updated_at FROM {RAW}.CONNECTOR_STATE "
+        "WHERE connector_id = ? ORDER BY stream",
+        params=[connector_id],
+    ).collect()
+    return {
+        "status": "OK",
+        "connector_id": connector_id,
+        "streams": {
+            str(r[0]): {"cursor_value": r[1], "updated_at": _key_str(r[2])}
+            for r in map(tuple, rows)
+        },
     }

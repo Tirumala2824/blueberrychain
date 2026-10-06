@@ -1,7 +1,7 @@
 /* Generated from contracts/schemas by scripts/generate-types.mjs - do not edit. */
 
 /**
- * One sensor reading. Pulp probes report pulp_c; reefer units report air temperatures, setpoint, mode, door and alarms. The sink MERGEs on idempotency_key = sha256(device_id|reading_ts) so retries never double-count reading minutes.
+ * One sensor reading. Pulp probes report pulp_c; reefer units report air temperatures, setpoint, mode, door and alarms. API.INGEST_BATCH MERGEs on idempotency_key (the canonical hash of {kind: TELEMETRY, device_id, reading_ts}; see bbc_toolkit.raw) so retries never double-count reading minutes.
  */
 export interface RAWTELEMETRYRow {
   /**

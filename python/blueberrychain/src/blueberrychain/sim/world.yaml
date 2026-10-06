@@ -72,12 +72,12 @@ products:
 customer_specs:
   - { customer_party_id: PARTY-SUMMIT,  product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 10, max_arrival_pulp_c: 2.0, organic_required: true }
   - { customer_party_id: PARTY-SUMMIT,  product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 10, max_arrival_pulp_c: 2.0, organic_required: true }
-  - { customer_party_id: PARTY-BAYLINE, product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: true }
-  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: true }
-  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: false }
-  - { customer_party_id: PARTY-HARBOR,  product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
-  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
-  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 4.4, organic_required: true }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 4.4, organic_required: true }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 4.4, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 5.0, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 5.0, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 5.0, organic_required: false }
   - { customer_party_id: PARTY-VFP,     product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
   - { customer_party_id: PARTY-VFP,     product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
   - { customer_party_id: PARTY-VFP,     product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
@@ -194,3 +194,24 @@ faults:
   probe_misplaced:           { defaults: { bias_c: -2.5 }, targets: lot }
   late_truck:                { defaults: { delay_h: 6.0 }, targets: shipment }
   paperwork_inconsistent:    { defaults: { field: pulp_temp_at_loading_c, claimed_value: 1.0 }, targets: lot }
+
+# Ground-truth thermal model (ADR-0006). The simulator's physics, not the estimator's:
+# bbc_engine only ever sees the probe readings these produce.
+thermal:
+  # Pulp follows its surroundings exponentially: dT/dt = (T_env - T) / tau.
+  pulp_tau_h: { FIELD: 1.5, PRECOOL: 0.6, COLD_STORE: 4.0, DOCK: 3.0, REEFER: 10.0, DC_COLD: 4.0, RECEIVING: 3.0 }
+  room_setpoint_c: 0.5           # packhouse cooler / cold store / DC cold room
+  reefer:
+    tau_air_fail_h: 3.0          # a loaded trailer drifts to ambient slowly when the compressor stops
+    tau_air_recover_h: 0.2       # a working unit brings return air back to setpoint quickly
+    tau_air_door_min: 5          # open doors: air reaches ambient within minutes
+    return_air_k: 0.15           # return air = supply + k * (pulp - supply) + leak
+    return_air_leak_c: 0.6
+    defrost_every_h: 6.0         # normal defrost cycles spike supply air, not pulp
+    defrost_min: 20
+    defrost_supply_rise_c: 8.0
+    stuck_defrost_air_c: 12.0    # heater left on: trailer air heads here
+    tau_air_defrost_h: 0.5
+  probe: { interval_s: 300, noise_c: 0.1, battery_drain_pct_per_day: 1.5 }
+  reefer_interval_s: 300
+  truth: { q10_sigma: 0.1 }      # each lot's true Q10 differs from the product's

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/raw/telemetry_reading.json",
   "title": "RAW.TELEMETRY row",
-  "description": "One sensor reading. Pulp probes report pulp_c; reefer units report air temperatures, setpoint, mode, door and alarms. The sink MERGEs on idempotency_key = sha256(device_id|reading_ts) so retries never double-count reading minutes.",
+  "description": "One sensor reading. Pulp probes report pulp_c; reefer units report air temperatures, setpoint, mode, door and alarms. API.INGEST_BATCH MERGEs on idempotency_key (the canonical hash of {kind: TELEMETRY, device_id, reading_ts}; see bbc_toolkit.raw) so retries never double-count reading minutes.",
   "type": "object",
   "required": [
     "device_id",

@@ -16,16 +16,17 @@
 | Carrier | **Sierra Reefer Lines**: truck TR-114, reefer unit RF-114 | Carrier contract: liable for excursions in its custody when the BOL states the setpoint; liability cap $50k per load; claims ≥ $500 |
 | Carrier | **Coastline Cold Freight** | Alternative carrier for re-routes |
 | Own DC | **Central Valley DC** (Tracy, CA) | Holds quality-adjusted replacement stock |
-| Customer (tier A) | **Summit Club Warehouse**, Salt Lake City DC | Requires **≥ 10 days** shelf life at receipt; on-time-in-full (OTIF) penalty 3% of line value |
-| Customer (tier B) | **Bayline Markets**, Sacramento DC | Requires ≥ 5 days at receipt; pays ~95% of the contract price |
-| Customer (tier C) | **Harbor Foodservice** (Oakland) | Requires ≥ 4 days |
+| Customer (tier A) | **Summit Club Warehouse**, Salt Lake City DC | Requires **≥ 10 days** shelf life at receipt and pulp **≤ 2.0 °C**; on-time-in-full (OTIF) penalty 3% of line value |
+| Customer (tier B) | **Bayline Markets**, Sacramento DC | Requires ≥ 5 days at receipt and pulp ≤ 4.4 °C (40 °F); pays ~95% of the contract price |
+| Customer (tier C) | **Harbor Foodservice** (Oakland) | Requires ≥ 4 days and pulp ≤ 5.0 °C (41 °F) |
 | Processor | **Valley Fruit Processing** (Fresno) | Accepts ≥ 1 day; ~$3.50 / kg |
 
 **Base prices (reference data, not code):** organic Emerald contract price **$11.20 / kg**.
 
 ## S-A: Reefer failure, clear winner (rule-decided, approval-gated)
-- **Fault:** `reefer_compressor_failure` on RF-114 / TR-114. Starts 2 h into the 15 h haul from the packhouse to the Summit Club Salt Lake City DC; lasts 3.8 h; ambient 24 °C.
-- **Load:** Lot **L-A** (4,200 kg organic Emerald), committed to a Summit Club order line.
+- **Fault:** `reefer_compressor_failure` on RF-114 / TR-114. Starts 30 min into the 15 h haul from the packhouse to the Summit Club Salt Lake City DC; lasts 3.8 h; ambient 24 °C.
+  - *Why 30 min:* in the simulator a loaded trailer's fruit takes about 40 min to cross 1.8 °C after the compressor stops, and the re-route window closes at the I-80 junction, 3 h into the haul. A start at 2 h would leave no time to decide.
+- **Load:** Lot **L-A** (4,200 kg organic Emerald), held 5 days in the packhouse cooler, then committed to a Summit Club order line.
 
 | Stage | Expected path (design intent, not scripted) |
 |---|---|
@@ -41,7 +42,7 @@
 
 ## S-B: Conflicting evidence, near-tie, tier-A customer (agent-escalated)
 - **Faults:**
-  - `precool_delay` of 5 h at the packhouse, so the fruit loads warm;
+  - `precool_delay` of 5 h after a hot-afternoon harvest (30 °C), followed by a rushed 1 h pre-cool, so the fruit loads warm;
   - `paperwork_inconsistent`: the inspection certificate claims pulp at **1.0 °C at 06:40**, while the pulp probe reads ~4 °C;
   - `door_open_dwell` of 40 min at the Central Valley DC dock.
 - **Load:** Lot **L-B** (3,600 kg organic Duke) for a Summit Club line. The shelf-life margin at ETA is close to the 10-day spec.

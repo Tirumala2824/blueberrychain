@@ -9,9 +9,10 @@ from blueberrychain.cli.test_sql import parse_tests
 TESTS_DIR = sqlgen.ROOT / "snowflake" / "tests"
 
 
-def test_hash_parity_file_is_current():
-    assert sqlgen.HASH_PARITY.read_text(encoding="utf-8") == sqlgen.hash_parity_sql(), (
-        "snowflake/tests/02_hash_parity.sql is stale: run `uv run python -m blueberrychain.sqlgen`"
+@pytest.mark.parametrize("path", sorted(sqlgen.GENERATED), ids=lambda p: p.name)
+def test_generated_sql_files_are_current(path: Path):
+    assert path.read_text(encoding="utf-8") == sqlgen.GENERATED[path](), (
+        f"snowflake/tests/{path.name} is stale: run `uv run python -m blueberrychain.sqlgen`"
     )
 
 

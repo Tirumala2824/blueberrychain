@@ -7,6 +7,7 @@ import sys
 
 from blueberrychain import __version__
 from blueberrychain.cli import deploy, governed_cmds, test_sql, world_cmds
+from blueberrychain.cli import sim_cmds as sim_telemetry
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -28,6 +29,11 @@ def build_parser() -> argparse.ArgumentParser:
     sim_cmds = sim.add_subparsers(dest="sim_command", required=True)
     world_cmds.add_sim_init(
         sim_cmds.add_parser("init", help="Validate the world and write reference batches.")
+    )
+    sim_telemetry.add_sim_telemetry(
+        sim_cmds.add_parser(
+            "telemetry", help="Send a scenario's device readings to the IoT webhook."
+        )
     )
 
     deploy_cmd = commands.add_parser("deploy", help="Deploy artifacts to Snowflake.")
@@ -73,6 +79,8 @@ def main(argv: list[str] | None = None) -> int:
         return test_sql.run(args)
     if args.command == "sim" and args.sim_command == "init":
         return world_cmds.run_sim_init(args)
+    if args.command == "sim" and args.sim_command == "telemetry":
+        return sim_telemetry.run_sim_telemetry(args)
     if args.command == "deploy" and args.deploy_kind == "python":
         return deploy.run(args)
     if args.command == "policy" and args.policy_command == "check":

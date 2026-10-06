@@ -3,6 +3,7 @@
 export type * as AuditVerdict from "./audit_verdict.js";
 export type * as Brief from "./brief.js";
 export type * as ClaimRecommendation from "./claim_recommendation.js";
+export type * as ConnectorsIotWebhook from "./connectors/iot_webhook.js";
 export type * as EvidencePack from "./evidence_pack.js";
 export type * as Finding from "./finding.js";
 export type * as MutationIntent from "./mutation_intent.js";

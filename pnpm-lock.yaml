@@ -8,6 +8,41 @@ importers:
 
   .: {}
 
+  packages/connector-iot:
+    dependencies:
+      '@blueberrychain/connector-sdk':
+        specifier: workspace:*
+        version: link:../connector-sdk
+      '@blueberrychain/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.1
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.7(@types/node@24.19.1)
+
+  packages/connector-sdk:
+    dependencies:
+      '@blueberrychain/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.1
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.7(@types/node@24.19.1)
+
   packages/shared:
     dependencies:
       ajv:
