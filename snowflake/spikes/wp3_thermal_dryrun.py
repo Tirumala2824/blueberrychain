@@ -49,7 +49,8 @@ def q(text: str) -> str:
     return "'" + text.replace("'", "''") + "'"
 
 
-def build_query(world, trip, messages) -> str:
+def build_ctes(world, trip, messages) -> list[str]:
+    """The thermal Dynamic Tables as CTEs over one simulated lot (reused by the WP6a dry run)."""
     lot = trip.lots[0]
     product = next(p for p in world["products"] if p["product_id"] == lot.product_id)
     probe = [m for m in messages if m["device_id"] == lot.probe_device_id]
@@ -98,6 +99,7 @@ def build_query(world, trip, messages) -> str:
         f"{product['ref_shelf_life_days']}::NUMBER(6,2) AS ref_shelf_life_days, "
         f"{product['tref_c']}::NUMBER(5,2) AS tref_c, {product['q10']}::NUMBER(6,3) AS q10, "
         f"{product['threshold_c']}::NUMBER(5,2) AS threshold_c, "
+        f"{product['tolerance_min']}::NUMBER(6,0) AS tolerance_min, "
         f"{product['unmonitored_assumed_temp_c']}::NUMBER(5,2) AS unmonitored_assumed_temp_c)",
         "ref_parties AS (SELECT column1 AS party_id, column2 AS party_type, column3 AS is_current "
         f"FROM VALUES\n{parties})",
@@ -114,11 +116,15 @@ def build_query(world, trip, messages) -> str:
             .replace("BBC_OS.REF.CONTRACTS", "ref_contracts")
         )
         ctes.append(f"{name} AS (\n{body}\n)")
+    return ctes
+
+
+def build_query(world, trip, messages) -> str:
     select = (
         "SELECT 'STATE' AS kind, OBJECT_CONSTRUCT(*) AS rec FROM LOT_THERMAL_STATE\n"
         "UNION ALL SELECT 'EXPOSURE', OBJECT_CONSTRUCT(*) FROM LOT_CUSTODY_EXPOSURE"
     )
-    return "WITH " + ",\n".join(ctes) + "\n" + select
+    return "WITH " + ",\n".join(build_ctes(world, trip, messages)) + "\n" + select
 
 
 def run_sql(sql: str, connection: str) -> list[dict]:

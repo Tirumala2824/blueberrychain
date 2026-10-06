@@ -41,6 +41,18 @@ export interface EvidencePack {
     eta_p50_at: string;
     eta_p90_at: string;
     /**
+     * The reefer unit's latest reading: is a fault still active?
+     */
+    reefer_state?: null | {
+      as_of: string;
+      mode?: string | null;
+      alarms: string[];
+      supply_air_c?: number | null;
+      return_air_c?: number | null;
+      setpoint_c?: number | null;
+      ambient_c?: number | null;
+    };
+    /**
      * Provenance handle minted by a tool for every item it returns. Agents may cite only evidence returned to the same run or present in the case's evidence pack.
      */
     evidence_id?: string;
@@ -77,6 +89,23 @@ export interface EvidencePack {
        * True when no pulp probe exists and reefer air is used as a flagged proxy.
        */
       proxy_air_only: boolean;
+      /**
+       * Pulp temperature at the last reading: where the outcome simulation starts.
+       */
+      last_pulp_c?: number | null;
+      last_reading_at?: string | null;
+      /**
+       * A GOV.HARD_LIMITS limit was exceeded (the assessment computes it): only hold, inspect or dispose remain.
+       */
+      food_safety_flag?: boolean;
+      /**
+       * Whether the shelf-life model is valid for this lot's thermal history.
+       */
+      model_validity?: "IN_RANGE" | "EXTRAPOLATING" | "UNCALIBRATED";
+      /**
+       * Standard deviation of the remaining-shelf-life estimate (calibration, else the product prior).
+       */
+      sigma_days?: number;
       /**
        * Canonical metric values for this lot (frozen). Must include REMAINING_SHELF_LIFE_DAYS, MONITORING_COVERAGE_PCT, TEMPERATURE_COMPLIANCE_PCT, VALUE_AT_RISK_USD.
        */
@@ -124,6 +153,23 @@ export interface EvidencePack {
        * True when no pulp probe exists and reefer air is used as a flagged proxy.
        */
       proxy_air_only: boolean;
+      /**
+       * Pulp temperature at the last reading: where the outcome simulation starts.
+       */
+      last_pulp_c?: number | null;
+      last_reading_at?: string | null;
+      /**
+       * A GOV.HARD_LIMITS limit was exceeded (the assessment computes it): only hold, inspect or dispose remain.
+       */
+      food_safety_flag?: boolean;
+      /**
+       * Whether the shelf-life model is valid for this lot's thermal history.
+       */
+      model_validity?: "IN_RANGE" | "EXTRAPOLATING" | "UNCALIBRATED";
+      /**
+       * Standard deviation of the remaining-shelf-life estimate (calibration, else the product prior).
+       */
+      sigma_days?: number;
       /**
        * Canonical metric values for this lot (frozen). Must include REMAINING_SHELF_LIFE_DAYS, MONITORING_COVERAGE_PCT, TEMPERATURE_COMPLIANCE_PCT, VALUE_AT_RISK_USD.
        */
@@ -255,6 +301,30 @@ export interface EvidencePack {
     transit_h_p90: number;
     min_shelf_life_days_at_receipt: number;
     capacity_kg?: number | null;
+    /**
+     * The receiver's maximum pulp temperature at receipt (null = none).
+     */
+    max_arrival_pulp_c?: number | null;
+    /**
+     * Incremental freight of the diversion from the current position.
+     */
+    freight_usd?: number | null;
+    /**
+     * Provenance handle minted by a tool for every item it returns. Agents may cite only evidence returned to the same run or present in the case's evidence pack.
+     */
+    evidence_id?: string;
+  }[];
+  /**
+   * Own facilities reachable for a QC hold (the INSPECT option), with the diversion's transit and freight.
+   */
+  inspection_sites?: {
+    /**
+     * Identifier issued by a source system or the world config (lot, shipment, order line, party, site, product, device, contract, document).
+     */
+    site_id: string;
+    transit_h_p50: number;
+    transit_h_p90: number;
+    freight_usd?: number | null;
     /**
      * Provenance handle minted by a tool for every item it returns. Agents may cite only evidence returned to the same run or present in the case's evidence pack.
      */

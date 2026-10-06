@@ -34,6 +34,26 @@
         "next_junction_site_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
         "eta_p50_at": { "$ref": "common.json#/$defs/timestamp" },
         "eta_p90_at": { "$ref": "common.json#/$defs/timestamp" },
+        "reefer_state": {
+          "description": "The reefer unit's latest reading: is a fault still active?",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["as_of", "alarms"],
+              "additionalProperties": false,
+              "properties": {
+                "as_of": { "$ref": "common.json#/$defs/timestamp" },
+                "mode": { "type": ["string", "null"] },
+                "alarms": { "type": "array", "items": { "type": "string" } },
+                "supply_air_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }] },
+                "return_air_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }] },
+                "setpoint_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }] },
+                "ambient_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }] }
+              }
+            }
+          ]
+        },
         "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
       }
     },
@@ -56,6 +76,11 @@
           "harvest_at": { "$ref": "common.json#/$defs/timestamp" },
           "primary_probe_device_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
           "proxy_air_only": { "type": "boolean", "description": "True when no pulp probe exists and reefer air is used as a flagged proxy." },
+          "last_pulp_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }], "description": "Pulp temperature at the last reading: where the outcome simulation starts." },
+          "last_reading_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+          "food_safety_flag": { "type": "boolean", "description": "A GOV.HARD_LIMITS limit was exceeded (the assessment computes it): only hold, inspect or dispose remain." },
+          "model_validity": { "enum": ["IN_RANGE", "EXTRAPOLATING", "UNCALIBRATED"], "description": "Whether the shelf-life model is valid for this lot's thermal history." },
+          "sigma_days": { "type": "number", "minimum": 0, "description": "Standard deviation of the remaining-shelf-life estimate (calibration, else the product prior)." },
           "values": {
             "type": "array",
             "description": "Canonical metric values for this lot (frozen). Must include REMAINING_SHELF_LIFE_DAYS, MONITORING_COVERAGE_PCT, TEMPERATURE_COMPLIANCE_PCT, VALUE_AT_RISK_USD.",
@@ -172,6 +197,25 @@
           "transit_h_p90": { "$ref": "common.json#/$defs/hours" },
           "min_shelf_life_days_at_receipt": { "$ref": "common.json#/$defs/days" },
           "capacity_kg": { "oneOf": [{ "$ref": "common.json#/$defs/kg" }, { "type": "null" }] },
+          "max_arrival_pulp_c": { "oneOf": [{ "$ref": "common.json#/$defs/celsius" }, { "type": "null" }], "description": "The receiver's maximum pulp temperature at receipt (null = none)." },
+          "freight_usd": { "oneOf": [{ "$ref": "common.json#/$defs/usd" }, { "type": "null" }], "description": "Incremental freight of the diversion from the current position." },
+          "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
+        }
+      }
+    },
+
+    "inspection_sites": {
+      "type": "array",
+      "description": "Own facilities reachable for a QC hold (the INSPECT option), with the diversion's transit and freight.",
+      "items": {
+        "type": "object",
+        "required": ["site_id", "transit_h_p50", "transit_h_p90"],
+        "additionalProperties": false,
+        "properties": {
+          "site_id": { "$ref": "common.json#/$defs/external_id" },
+          "transit_h_p50": { "$ref": "common.json#/$defs/hours" },
+          "transit_h_p90": { "$ref": "common.json#/$defs/hours" },
+          "freight_usd": { "oneOf": [{ "$ref": "common.json#/$defs/usd" }, { "type": "null" }] },
           "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
         }
       }

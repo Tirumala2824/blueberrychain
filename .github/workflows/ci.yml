@@ -1,0 +1,56 @@
+# Offline checks for every push and pull request: lint, types, unit and contract tests.
+# Nothing here touches Snowflake - the SQL invariant suites (`bbc test sql`) run against
+# the account, and the connector-sdk integration test skips without credentials.
+
+name: CI
+
+on:
+  push:
+    branches: [main, "rebuild/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    name: Python (engine, toolkit, CLI, simulator)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Install (Python from .python-version, locked dependencies)
+        run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check python
+      - name: Format
+        run: uv run ruff format --check python
+      - name: Tests (golden worked example, determinism, contracts, scenarios, drift guards)
+        run: uv run pytest
+      - name: Policy v1 is valid
+        run: uv run bbc policy check snowflake/seed/policy/v1.json
+
+  node:
+    name: TypeScript (contracts, connectors, mocks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version from package.json "packageManager"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck
+        run: pnpm -r typecheck
+      - name: Build
+        run: pnpm -r build
+      - name: Tests (incl. generated-types drift)
+        run: pnpm -r test

@@ -182,6 +182,7 @@ cost_rates:
   - { cost_rate_id: COST-EXPEDITE,        cost_type: EXPEDITE_PREMIUM,     scope_type: GLOBAL, scope_id: null,            rate: 25,   unit: PCT_OF_VALUE }
   - { cost_rate_id: COST-REROUTE-ADMIN,   cost_type: REROUTE_ADMIN,        scope_type: GLOBAL, scope_id: null,            rate: 150,  unit: USD_PER_EVENT }
   - { cost_rate_id: COST-REPLACEMENT,     cost_type: REPLACEMENT_TRANSFER, scope_type: SITE,   scope_id: SITE-CVDC-TRACY, rate: 400,  unit: USD_PER_EVENT }
+  - { cost_rate_id: COST-DETENTION-CVDC,  cost_type: DETENTION,            scope_type: SITE,   scope_id: SITE-CVDC-TRACY, rate: 100,  unit: USD_PER_HOUR }
 
 # Fault catalog: what judges can inject. Parameters only - outcomes emerge from the models.
 faults:

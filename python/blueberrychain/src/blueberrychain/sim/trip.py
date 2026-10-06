@@ -336,6 +336,12 @@ def _scenario_a(world, depart_at, lanes, overrides, cold_store_days) -> Trip:
     days = 5.0 if cold_store_days is None else cold_store_days
     haul_h = lanes["LANE-PACK-SLC"]["transit_h_p50"]
     harvest_at = depart_at - timedelta(hours=1.0 + 1.5 + days * 24 + 0.5)
+    p = _fault(
+        world,
+        "reefer_compressor_failure",
+        "TR-114",
+        {"start_after_h": 0.5, **overrides.get("reefer_compressor_failure", {})},
+    )
     b = (
         TripBuilder(harvest_at)
         .add("FIELD", 1.0, "PARTY-EMERALD-RIDGE", site_id="SITE-RANCH14-B7", ambient_c=19.0)
@@ -349,7 +355,9 @@ def _scenario_a(world, depart_at, lanes, overrides, cold_store_days) -> Trip:
             truck_id="TR-114",
             lane_id="LANE-PACK-SLC",
             shipment_id="SHP-A",
-            ambient_c=24.0,
+            ambient_c=float(
+                p["ambient_c"]
+            ),  # the outside temperature the failed unit drifts toward
         )
         .add("RECEIVING", 0.5, "PARTY-SUMMIT", site_id="SITE-SUMMIT-SLC", ambient_c=4.0)
     )
@@ -363,12 +371,6 @@ def _scenario_a(world, depart_at, lanes, overrides, cold_store_days) -> Trip:
         "P-A1",
         tuple(b.segments),
         "SITE-EMERALD-PACK",
-    )
-    p = _fault(
-        world,
-        "reefer_compressor_failure",
-        "TR-114",
-        {"start_after_h": 0.5, **overrides.get("reefer_compressor_failure", {})},
     )
     start = depart_at + timedelta(hours=p["start_after_h"])
     fault = Fault(

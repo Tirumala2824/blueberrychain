@@ -16,9 +16,10 @@ export interface ReferenceCostRate {
     | "EXPEDITE_PREMIUM"
     | "REROUTE_ADMIN"
     | "RETURN_FREIGHT"
-    | "REPLACEMENT_TRANSFER";
+    | "REPLACEMENT_TRANSFER"
+    | "DETENTION";
   scope_type: "GLOBAL" | "SITE" | "LANE";
   scope_id: string | null;
   rate: number;
-  unit: "USD_PER_EVENT" | "USD_PER_KG" | "USD_PER_LOAD" | "PCT_OF_VALUE";
+  unit: "USD_PER_EVENT" | "USD_PER_KG" | "USD_PER_LOAD" | "PCT_OF_VALUE" | "USD_PER_HOUR";
 }

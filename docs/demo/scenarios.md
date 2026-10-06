@@ -70,6 +70,60 @@
 
 **What it demonstrates:** recovering money as well as saving fruit; argument grounded in evidence; amounts that always come from the calculator.
 
+## Engine findings (Day 5)
+How each scenario was run:
+1. Simulate the scenario.
+2. Open the case where `DECISION.OPEN_CASES` would. The rule (`bbc_toolkit.cases`) is: more than the product tolerance (30 min) of counted breach minutes above 1.8 °C in the trailing 60-minute window, plus about 2 minutes of detection lag.
+   - The Python reference is `blueberrychain.sim.assess.detect`.
+   - `snowflake/spikes/wp6a_detection_dryrun.py` runs the procedure's SQL in Snowflake over the same trips and matches it at every cut-off.
+3. Seal the pack from front-door data only (`blueberrychain.sim.assess`).
+4. Evaluate with `bbc_engine`.
+
+Pinned by `python/blueberrychain/tests/test_assess.py`. These results are what the engine computed. Where they differ from the expected paths above, the expected paths stay as design intent and the difference is recorded here.
+
+### S-A (defaults: 3.8 h fault from 30 min, 24 °C ambient)
+- **Detection.**
+  - The breach run starts at 11:25 in Sierra's custody.
+  - The rule holds at 11:50: 35 breach minutes in the window, including an isolated 1.81 °C reading at 11:05. A window count, unlike a consecutive-run count, keeps such readings.
+  - The case opens at about 11:52, 1.87 h after departure and about 70 minutes before the junction closes the re-route window.
+  - All attributable excess belongs to Sierra.
+- **Understanding (differs from the design).**
+  - Five days in the packhouse cooler left **15.1 days** of shelf life, against Summit's 10-day spec, so shelf life is not what threatens the order.
+  - The threat is Summit's **2.0 °C arrival limit**. At decision time the compressor is still failing, and the fault may persist for 0.5–4 h (prior 0.7).
+  - Doing nothing is therefore a gamble: P(accept) 0.66, E[NRV] $40.3k.
+- **Recommendation (differs from the design): NEAR_TIE → Recovery Strategist, not a rule.**
+
+  | Option | Risk-adjusted score | Why |
+  |---|---|---|
+  | Inspect at Central Valley DC (refill Summit from DC stock) | $45,204 | Unloads the fruit within 1.5 h; costs inspection, handling and a waiting truck |
+  | Re-route to Bayline (refill Summit from DC stock) | $44,978 | About 2% rejection risk on Bayline's 4.4 °C limit while the fault is active |
+
+  - The margin is $226, against a threshold of $1,356. Neither option dominates the other, so this is a genuine judgment call.
+  - Expedite is SPEC_INFEASIBLE.
+
+### S-A fault-parameter variants (judge-chosen)
+| Fault parameters | Case opens | Engine result |
+|---|---|---|
+| Duration 1.2 h | 1.87 h | **Rule: do nothing.** The fruit recovers before arrival ($47,040; P(accept) 1.00) |
+| Ambient 30 °C | 1.78 h | **Rule: inspect at the DC.** Harbor is SPEC_INFEASIBLE and Bayline's P(accept) drops to 0.84; margin $3.85k |
+| Ambient 35 °C | 1.70 h | **Rule: inspect at the DC.** Every re-route is SPEC_INFEASIBLE |
+| Ambient 15–18 °C | 2.12 h | **Rule: re-route to Bayline + refill Summit from DC stock** ($45,611; P(accept) 1.00). This is the design's expected path: a mild fault leaves Bayline safe, and inspecting is dominated |
+| Ambient 12 °C | 2.37 h | The mildest fault is detected last, leaving 38 min to the junction. Dispatch lead (15 min) plus approval buffer (30 min) makes **every diversion WINDOW_CLOSED**. The best remaining option is "continue and inspect on arrival" ($45,227 vs $44,401 for doing nothing), which escalates as STRATEGIC_CUSTOMER |
+
+The 12 °C row is the case for pre-authorizing re-routes: the approval buffer alone closes the window. It is a policy question (autonomy thresholds), not an engine one.
+
+### S-B (defaults)
+- **Detection.**
+  - The fruit loaded warm: pulp never fell below 6.2 °C at the packhouse.
+  - The grower's own readings don't count before the cold chain starts, so the breach run starts at the 10:05 reading, the first in Coastline's custody.
+  - The case opens at about 10:37, 0.62 h after departure.
+  - **99% of the attributable excess belongs to the grower**, Emerald Ridge, so no carrier claim notice is attached.
+- **Recommendation.** It escalates on `MODEL_OUT_OF_RANGE` (in the 30 °C field the pulp passed the shelf-life model's 20 °C validity limit) and `STRATEGIC_CUSTOMER`.
+  - The top option is to inspect at the DC and short the Summit line, because there is no organic Duke replacement stock.
+  - Re-routing to Harbor is close behind, but inspection dominates it.
+- **Until Day 9.** `EVIDENCE_CONFLICT` and `CAUSE_AMBIGUOUS` need the certificate and the incident note, so the Excursion Forensics path waits for the document pipeline.
+- **Known limit of the v1 detection rule.** A lot that leaves pre-cooling warm is caught only once a carrier holds it. Catching it at the packhouse would need a pre-shipment option set (hold the load), which v1 doesn't generate.
+
 ## Running and resetting
 - `bbc demo reset --seed <n>`: re-simulates the world from the seed. Nothing is restored from a snapshot of outcomes.
 - `bbc demo run --scenario S-A|S-B|S-C [--fault-start …] [--duration …] [--ambient …]`.

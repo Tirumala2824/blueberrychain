@@ -15,7 +15,7 @@ import json
 from datetime import UTC, datetime
 from typing import Any
 
-from bbc_toolkit import ingest, ledger, reference
+from bbc_toolkit import cases, ingest, ledger, reference
 from bbc_toolkit.policy import check_policy
 
 HEAD = "BBC_OS.LEDGER.HEAD"
@@ -562,4 +562,139 @@ def proc_get_connector_state(session: Any, connector_id: str):
             str(r[0]): {"cursor_value": r[1], "updated_at": _key_str(r[2])}
             for r in map(tuple, rows)
         },
+    }
+
+
+# ------------------------------------------------------------------- decision store
+def allocate_ids(session: Any, kind: str, n: int) -> list[str]:
+    """Reserve ``n`` contiguous ids of one kind (CASE, PACK, OPTION, ...). Must run inside the
+    caller's transaction: the counter row's lock is held until commit, so blocks never overlap
+    and a rolled-back block is reused."""
+    if n <= 0:
+        return []
+    _exec(session, cases.ALLOCATE_SQL, [n, kind])
+    row = _one(session, cases.ALLOCATED_SQL, [kind])
+    if row is None:
+        raise RuntimeError(f"DECISION.ID_COUNTERS has no {kind} row")
+    last = int(row[0]) - 1  # next_value is the first id not yet handed out
+    return [cases.format_id(kind, i) for i in range(last - n + 1, last + 1)]
+
+
+def proc_open_cases(session: Any):
+    """DECISION.OPEN_CASES - run by the detection task when thermal buckets change.
+
+    One transaction: take the gateway lock, consume the bucket stream, evaluate the rule for
+    the lots it touched, then open / join / extend cases with their ledger entries."""
+    row = _one(session, cases.ACTIVE_POLICY_SQL)
+    if row is None or row[0] is None:
+        return {"status": "INVALID", "errors": ["no ACTIVE policy: detection needs its parameters"]}
+    run_id = "DET-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
+    actor = _current_user(session)
+    _exec(session, "BEGIN")
+    try:
+        _exec(session, cases.LOCK_SQL, [f"OPEN_CASES {run_id}"])
+        _exec(session, cases.CONSUME_SQL, [run_id])
+        detections = [
+            cases.Detection.from_row(r)
+            for r in session.sql(cases.DETECT_SQL, params=[run_id]).collect()
+        ]
+        open_cases = [
+            cases.OpenCase(str(r[0]), str(r[1]), str(r[2]), frozenset(_as_obj(r[3]) or []))
+            for r in session.sql(cases.OPEN_CASES_SQL).collect()
+        ]
+        todo = cases.plan(detections, open_cases)
+        opened, joined = [], []
+        ids = allocate_ids(session, "CASE", len(todo.opens))
+        for case_id, (episode, lots) in zip(ids, todo.opens, strict=True):
+            payload = cases.case_payload(case_id, episode, lots, run_id)
+            first = min(lots, key=lambda d: (cases.iso(d.onset_at), d.lot_id))
+            latest = max(cases.iso(d.detected_at) for d in lots)
+            _exec(
+                session,
+                cases.INSERT_CASE_SQL,
+                [
+                    case_id,
+                    payload["severity"],
+                    episode,
+                    first.shipment_id,
+                    payload["onset_at"],
+                    cases.iso(first.detected_at),
+                    latest,
+                    first.holder_party_id,
+                    first.holder_type,
+                    ledger.canonical_json(payload),
+                    first.policy_version,
+                    actor,
+                ],
+            )
+            for d in lots:
+                _exec(
+                    session,
+                    cases.INSERT_CASE_LOT_SQL,
+                    [
+                        case_id,
+                        d.lot_id,
+                        cases.iso(d.onset_at),
+                        cases.iso(d.detected_at),
+                        cases.iso(d.detected_at),
+                        d.breach_min_in_window,
+                        d.max_pulp_c,
+                        d.holder_party_id,
+                    ],
+                )
+            entry = ledger_append(
+                session,
+                entry_type="CASE_OPENED",
+                case_id=case_id,
+                actor=actor,
+                record_ref=f"{cases.DECISION}.CASES#{case_id}",
+                payload=payload,
+            )
+            opened.append(
+                {
+                    "case_id": case_id,
+                    "lots": [d.lot_id for d in lots],
+                    "episode_key": episode,
+                    "ledger_seq": entry.seq,
+                }
+            )
+        for case_id, d in todo.joins:
+            _exec(
+                session,
+                cases.INSERT_CASE_LOT_SQL,
+                [
+                    case_id,
+                    d.lot_id,
+                    cases.iso(d.onset_at),
+                    cases.iso(d.detected_at),
+                    cases.iso(d.detected_at),
+                    d.breach_min_in_window,
+                    d.max_pulp_c,
+                    d.holder_party_id,
+                ],
+            )
+            _exec(session, cases.JOIN_CASE_SQL, [cases.iso(d.detected_at), case_id])
+            entry = ledger_append(
+                session,
+                entry_type="CASE_LOT_ADDED",
+                case_id=case_id,
+                actor=actor,
+                record_ref=f"{cases.DECISION}.CASE_LOTS#{case_id}/{d.lot_id}",
+                payload={"case_id": case_id, "run_id": run_id, **d.lot_payload()},
+            )
+            joined.append({"case_id": case_id, "lot_id": d.lot_id, "ledger_seq": entry.seq})
+        for case_id, d in todo.extends:
+            _exec(session, cases.EXTEND_CASE_SQL, [cases.iso(d.detected_at), case_id])
+            _exec(session, cases.EXTEND_LOT_SQL, [cases.iso(d.detected_at), case_id, d.lot_id])
+        _exec(session, "COMMIT")
+    except Exception:
+        _exec(session, "ROLLBACK")
+        raise
+    return {
+        "status": "OK",
+        "run_id": run_id,
+        "detected": len(detections),
+        "opened": opened,
+        "joined": joined,
+        "extended": sorted({case_id for case_id, _ in todo.extends}),
     }

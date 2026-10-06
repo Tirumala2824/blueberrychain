@@ -20,6 +20,7 @@
         "next_junction_site_id": "SITE-JCT-I80-SAC",
         "eta_p50_at": "2026-10-07T06:00:00Z",
         "eta_p90_at": "2026-10-07T08:00:00Z",
+        "reefer_state": { "as_of": "2026-10-06T07:50:00Z", "mode": "CONTINUOUS", "alarms": ["COMPRESSOR_FAULT"], "supply_air_c": 14.2, "return_air_c": 13.1, "setpoint_c": 0.5 },
         "evidence_id": "EV:PACK:PACK-00000031#/shipment"
       },
       "lots": [
@@ -33,6 +34,11 @@
           "harvest_at": "2026-10-05T13:00:00Z",
           "primary_probe_device_id": "P-A1",
           "proxy_air_only": false,
+          "last_pulp_c": 4.6,
+          "last_reading_at": "2026-10-06T07:54:00Z",
+          "food_safety_flag": false,
+          "model_validity": "IN_RANGE",
+          "sigma_days": 0.8,
           "values": [
             { "name": "REMAINING_SHELF_LIFE_DAYS", "value": 9.0, "unit": "days", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0" },
             { "name": "MONITORING_COVERAGE_PCT", "value": 96.0, "unit": "%", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/1" },
@@ -70,8 +76,8 @@
         { "lot_id": "L-CV-0912", "site_id": "SITE-CVDC-TRACY", "product_id": "BB-EMERALD-ORG-12x6", "organic": true, "kg_available": 38000, "remaining_shelf_life_days": 14.2, "snapshot_at": "2026-10-06T06:00:00Z", "evidence_id": "EV:PACK:PACK-00000031#/candidate_inventory/0" }
       ],
       "candidate_destinations": [
-        { "site_id": "SITE-BAYLINE-SAC", "party_id": "PARTY-BAYLINE", "channel": "REGIONAL", "customer_tier": "B", "price_usd_per_kg": 10.6400, "transit_h_p50": 6, "transit_h_p90": 7.5, "min_shelf_life_days_at_receipt": 5, "capacity_kg": 12000, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/0" },
-        { "site_id": "SITE-VFP-FRESNO", "party_id": "PARTY-VFP", "channel": "PROCESSOR", "customer_tier": null, "price_usd_per_kg": 3.5000, "transit_h_p50": 4, "transit_h_p90": 5, "min_shelf_life_days_at_receipt": 1, "capacity_kg": null, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/1" }
+        { "site_id": "SITE-BAYLINE-SAC", "party_id": "PARTY-BAYLINE", "channel": "REGIONAL", "customer_tier": "B", "price_usd_per_kg": 10.6400, "transit_h_p50": 6, "transit_h_p90": 7.5, "min_shelf_life_days_at_receipt": 5, "capacity_kg": 12000, "max_arrival_pulp_c": 4.4, "freight_usd": 1200.0, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/0" },
+        { "site_id": "SITE-VFP-FRESNO", "party_id": "PARTY-VFP", "channel": "PROCESSOR", "customer_tier": null, "price_usd_per_kg": 3.5000, "transit_h_p50": 4, "transit_h_p90": 5, "min_shelf_life_days_at_receipt": 1, "capacity_kg": null, "max_arrival_pulp_c": null, "freight_usd": 600.0, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/1" }
       ],
       "documents": [
         {
@@ -83,6 +89,9 @@
             { "claim_key": "pulp_temp_at_loading_c", "value": 1.0, "unit": "C", "claimed_at": "2026-10-06T01:40:00Z", "consistency": { "verdict": "CONSISTENT", "sensor_value": 0.9, "delta": 0.1, "rule_id": "TEMP_AT_TIME@1" }, "evidence_id": "EV:DOC:DOC-SFI-044812#pulp_temp_at_loading_c" }
           ]
         }
+      ],
+      "inspection_sites": [
+        { "site_id": "SITE-CVDC-TRACY", "transit_h_p50": 1.5, "transit_h_p90": 2.0, "freight_usd": 500.0, "evidence_id": "EV:PACK:PACK-00000031#/inspection_sites/0" }
       ],
       "data_gaps": [],
       "deadline_inputs": {
@@ -99,6 +108,9 @@
     { "why": "a case always concerns at least one lot", "base": 0, "set": { "/lots": [] } },
     { "why": "document claim keys are snake_case", "base": 0, "set": { "/documents/0/claims/0/claim_key": "PulpTemp" } },
     { "why": "every frozen value needs its metric version", "base": 0, "delete": ["/lots/0/values/0/metric_version"] },
-    { "why": "destination channels are a frozen vocabulary", "base": 0, "set": { "/candidate_destinations/0/channel": "BLACK_MARKET" } }
+    { "why": "destination channels are a frozen vocabulary", "base": 0, "set": { "/candidate_destinations/0/channel": "BLACK_MARKET" } },
+    { "why": "a lot's food-safety flag is a boolean", "base": 0, "set": { "/lots/0/food_safety_flag": "no" } },
+    { "why": "inspection sites say how far they are", "base": 0, "delete": ["/inspection_sites/0/transit_h_p50"] },
+    { "why": "reefer alarms are a list", "base": 0, "set": { "/shipment/reefer_state/alarms": "COMPRESSOR_FAULT" } }
   ]
 }

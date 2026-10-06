@@ -17,6 +17,44 @@
 >   - `apps/dev-stack` runs both mocks, the IoT webhook and the SAP and carrier connectors in one process, against a shared in-memory RAW or Snowflake.
 >   - The semantic view is generated from `snowflake/semantic/excursion_recovery.yaml`; governed metrics carry a definition hash in the policy's `metric_registry`. v1 is the live layer; decision metrics join with the case tables (WP6).
 >   - Stock records that reach zero stay in the stock list (as in SAP), so snapshots report a sold-out lot as 0.
+> - **Day 5 decisions (evaluation engine, `python/bbc_engine`).**
+>   - **Downside term.** The score uses the **ES10 tail mean** (the mean of the worst 10% of sampled NRVs), not P10. With about 2% rejections, P10 can sit above the mean and hide the loss. `objective@1`: S = E[NRV] − λ·(E[NRV] − ES10) − κ·tier-A shortfall kg.
+>   - **Order recovery.** It is solved by **exact enumeration**, not `scipy.optimize.milp`. The optimum is the same at this size (a few lines × a few lots), and the engine stays dependency-free Python.
+>   - **Near-tie.**
+>     - It compares the top option with its best *real* alternative: one the top option doesn't weakly dominate. Dominated or equivalent options are no trade-off.
+>     - Threshold = max($1,000, 3% of the top score) (`near_tie_margin_usd`, `near_tie_margin_pct`).
+>     - The Brief's `margin_top2_usd` still reports the plain gap to the runner-up.
+>   - **HIGH_EXPOSURE.** It fires at a value at risk of $100k (router-rule parameter), so a single-truck case doesn't escalate on size alone.
+>   - **Costs.**
+>     - New cost type `DETENTION` (`USD_PER_HOUR` at the inspection site) prices the truck waiting through a QC hold.
+>     - HOLD (inspect on arrival) carries the inspection and handling cost.
+>     - Option costs use only the contract's cost keys: re-route admin counts as freight, DC handling as inspection.
+>   - **Evidence-pack additions.**
+>     - `shipment.reefer_state`: mode, alarms, supply/return air, setpoint, ambient.
+>     - Per lot: `last_pulp_c`, `last_reading_at`, `food_safety_flag`, `model_validity`, `sigma_days`.
+>     - Per destination: `max_arrival_pulp_c`, `freight_usd`.
+>     - `inspection_sites`.
+>   - **INSPECT is valued as information at the own DC.** The engine inspects, picks the onward sale the *observed* shelf life supports, then realises the outcome with the *true* shelf life.
+>     - The DC has lanes to every buyer, so inspecting doesn't lose the re-route. It costs the inspection, the handling and the waiting truck.
+>     - The worked example's option C ("the 4 h delay closes the re-route window") applies only when no own site is reachable.
+>   - **Golden test** (`python/bbc_engine/tests/test_golden.py`, numbers pinned in `golden/worked_example.json`).
+>     - The worked example is the contract-fixture pack with the reefer fault cleared. It is rule-decided: re-route to Bayline and refill the club line from DC stock, $44.6k vs $24.3k for doing nothing. Expedite is SPEC_INFEASIBLE.
+>     - With the fault still active (the fixture as written), the engine rule-decides INSPECT at the DC instead: six more hours in a failing trailer make Bayline's 4.4 °C limit a coin flip.
+>   - **Autonomy** (`bbc_engine.autonomy`, used by `EVALUATE_POLICY` in WP6b).
+>     - Every matching decision-rights rule applies: any DENY denies, and the roles of all matching APPROVE rules accumulate.
+>     - An AUTO rule *with conditions* marks a protective action, which skips the thresholds. The unconditional catch-all defers to the thresholds.
+>     - The threshold metric `action_value_usd` = revenue change vs plan + costs + claimed amounts. Decision-rights value bands use the gross value committed.
+>     - Under policy v1 only REVERSIBLE actions sit inside the L3 thresholds. So a re-route (COMPENSATABLE) always needs the Quality manager, plus Sales above $25k, and the action registry's "3 inside thresholds" for REROUTE never applies.
+>   - **Scenario findings** (S-A is a near-tie, not a rule decision; detection time can close the re-route window) are in [docs/demo/scenarios.md](../demo/scenarios.md#engine-findings-day-5).
+> - **Day 5 decisions (decision store and detection, WP6a).**
+>   - **Lifecycle tables** keep each contract document whole as VARIANT (validated by the writing procedure), plus the key columns that joins, the inbox and the semantic view need. `DETECTION_LOG` records what each detection run consumed from the stream.
+>   - **Ids** come from `DECISION.ID_COUNTERS`, which hands out contiguous blocks inside the writer's transaction, not from sequences: the engine numbers a whole option set at once. `GATEWAY_LOCK` serializes `OPEN_CASES` as well as `MUTATE`.
+>   - **`OPEN_CASES` is a Python handler** (`bbc_toolkit.snow.proc_open_cases`), not SQL, so cases and their ledger entries commit together. A lot joining an open case is ledgered as `CASE_LOT_ADDED`; an extension isn't a new fact and isn't ledgered.
+>   - **The detection rule** (`bbc_toolkit.cases`): counted breach minutes in the trailing `detection_window_min` above the product tolerance.
+>     - A reading counts when it is outside the pre-cool window, and the lot is already cold or a non-grower holds it.
+>     - A lot that leaves pre-cooling warm is therefore caught at the first handoff, not at the packhouse.
+>     - The plan's second trigger (heat exposure using up a share of remaining shelf life) has no v1 policy parameter and isn't implemented.
+>   - **Policy-evaluation outcomes** are `AUTO | APPROVE | HUMAN_INITIATE | OBSERVE_ONLY | DENY`. `SHADOW` is a flag, and any matching SHADOW decision-rights rule sets it.
 
 # BlueberryChain OS — Implementation Plan (final, implementation-ready)
 

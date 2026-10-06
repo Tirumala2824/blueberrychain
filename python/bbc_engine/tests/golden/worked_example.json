@@ -1,0 +1,110 @@
+{
+  "decision": "OPT-00000103",
+  "brief_hash": "ec9abebecf4127a50a068fd0c4001c1eec944e91dcfb28b4c09f93ee139c4706",
+  "options": [
+    {
+      "key": "DEFAULT",
+      "option_id": "OPT-00000101",
+      "feasible": true,
+      "rank": 7,
+      "risk_adjusted_usd": 20100.35,
+      "expected_nrv_usd": 24307.14,
+      "nrv_p10_usd": 24204.38,
+      "nrv_p90_usd": 24204.38,
+      "expected_recovery_usd": 12877.37,
+      "p_accept": 0.0045,
+      "seed": 35148973576208
+    },
+    {
+      "key": "EXPEDITE",
+      "option_id": "OPT-00000102",
+      "feasible": false,
+      "rank": null,
+      "risk_adjusted_usd": 25567.47,
+      "expected_nrv_usd": 29768.11,
+      "nrv_p10_usd": 29656.36,
+      "nrv_p90_usd": 29656.36,
+      "expected_recovery_usd": 18456.8,
+      "p_accept": 0.0065,
+      "seed": 179296388844013
+    },
+    {
+      "key": "REROUTE:SITE-BAYLINE-SAC:PLAN",
+      "option_id": "OPT-00000103",
+      "feasible": true,
+      "rank": 1,
+      "risk_adjusted_usd": 44617.2,
+      "expected_nrv_usd": 44617.2,
+      "nrv_p10_usd": 44617.2,
+      "nrv_p90_usd": 44617.2,
+      "expected_recovery_usd": 2589.2,
+      "p_accept": 1.0,
+      "seed": 135628813709615
+    },
+    {
+      "key": "REROUTE:SITE-BAYLINE-SAC:SHORT",
+      "option_id": "OPT-00000104",
+      "feasible": true,
+      "rank": 3,
+      "risk_adjusted_usd": 40368.28,
+      "expected_nrv_usd": 44568.28,
+      "nrv_p10_usd": 44568.28,
+      "nrv_p90_usd": 44568.28,
+      "expected_recovery_usd": 2641.48,
+      "p_accept": 1.0,
+      "seed": 43181566098994
+    },
+    {
+      "key": "DOWNGRADE:SITE-VFP-FRESNO:PLAN",
+      "option_id": "OPT-00000105",
+      "feasible": true,
+      "rank": 4,
+      "risk_adjusted_usd": 30411.04,
+      "expected_nrv_usd": 30411.04,
+      "nrv_p10_usd": 30411.04,
+      "nrv_p90_usd": 30411.04,
+      "expected_recovery_usd": 17771.04,
+      "p_accept": 1.0,
+      "seed": 120858965355267
+    },
+    {
+      "key": "DOWNGRADE:SITE-VFP-FRESNO:SHORT",
+      "option_id": "OPT-00000106",
+      "feasible": true,
+      "rank": 5,
+      "risk_adjusted_usd": 26162.12,
+      "expected_nrv_usd": 30362.12,
+      "nrv_p10_usd": 30362.12,
+      "nrv_p90_usd": 30362.12,
+      "expected_recovery_usd": 17823.32,
+      "p_accept": 1.0,
+      "seed": 28982338011648
+    },
+    {
+      "key": "INSPECT:SITE-CVDC-TRACY",
+      "option_id": "OPT-00000107",
+      "feasible": true,
+      "rank": 2,
+      "risk_adjusted_usd": 44424.41,
+      "expected_nrv_usd": 44440.75,
+      "nrv_p10_usd": 44448.01,
+      "nrv_p90_usd": 44448.01,
+      "expected_recovery_usd": 2777.77,
+      "p_accept": 1.0,
+      "seed": 198937811182334
+    },
+    {
+      "key": "HOLD",
+      "option_id": "OPT-00000108",
+      "feasible": true,
+      "rank": 6,
+      "risk_adjusted_usd": 25801.86,
+      "expected_nrv_usd": 30001.85,
+      "nrv_p10_usd": 29985.07,
+      "nrv_p90_usd": 29985.07,
+      "expected_recovery_usd": 18208.33,
+      "p_accept": 0.001,
+      "seed": 122570946247912
+    }
+  ]
+}

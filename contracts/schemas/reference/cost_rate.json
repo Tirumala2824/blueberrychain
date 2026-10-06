@@ -26,7 +26,8 @@
         "EXPEDITE_PREMIUM",
         "REROUTE_ADMIN",
         "RETURN_FREIGHT",
-        "REPLACEMENT_TRANSFER"
+        "REPLACEMENT_TRANSFER",
+        "DETENTION"
       ]
     },
     "scope_type": {
@@ -55,7 +56,8 @@
         "USD_PER_EVENT",
         "USD_PER_KG",
         "USD_PER_LOAD",
-        "PCT_OF_VALUE"
+        "PCT_OF_VALUE",
+        "USD_PER_HOUR"
       ]
     }
   }
