@@ -1,0 +1,25 @@
+{
+  "schema": "raw/payloads/lot.json",
+  "valid": [
+    {
+      "lot_id": "L-A",
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "grower_party_id": "PARTY-EMERALD-RIDGE",
+      "harvest_site_id": "SITE-RANCH14-B7",
+      "packhouse_site_id": "SITE-EMERALD-PACK",
+      "harvest_at": "2026-10-05T13:00:00Z",
+      "packed_at": "2026-10-05T19:30:00Z",
+      "kg": 4200,
+      "organic": true
+    }
+  ],
+  "invalid": [
+    {
+      "why": "mass is never negative",
+      "base": 0,
+      "set": {
+        "/kg": -5
+      }
+    }
+  ]
+}

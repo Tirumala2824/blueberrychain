@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_document_evidence.json",
+  "title": "GET_DOCUMENT_EVIDENCE input",
+  "description": "R3 - linked documents with extracted claims, consistency verdicts, narratives (untrusted text) and sensor metadata.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "doc_types",
+    "include_narratives"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "doc_types": {
+      "type": "array",
+      "items": {
+        "$ref": "../common.json#/$defs/doc_type"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "include_narratives": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schema": "reference/site.json",
+  "valid": [
+    {
+      "site_id": "SITE-RANCH14-B7",
+      "party_id": "PARTY-EMERALD-RIDGE",
+      "site_type": "RANCH_BLOCK",
+      "name": "Ranch 14 Block 7",
+      "city": "Kingsburg",
+      "state": "CA",
+      "lat": 36.514,
+      "lon": -119.554
+    },
+    {
+      "site_id": "SITE-EMERALD-PACK",
+      "party_id": "PARTY-EMERALD-RIDGE",
+      "site_type": "PACKHOUSE",
+      "name": "Emerald Ridge Packhouse",
+      "city": "Kingsburg",
+      "state": "CA",
+      "lat": 36.521,
+      "lon": -119.548,
+      "sap_plant": "2100"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "longitude is bounded",
+      "base": 0,
+      "set": {
+        "/lon": 300
+      }
+    }
+  ]
+}

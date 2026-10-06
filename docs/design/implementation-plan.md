@@ -3,6 +3,8 @@
 > **Errata:**
 > - **Schema rename.** The lifecycle schema written `CASE` below is **`DECISION`** in the implementation, because `CASE` is a reserved word in Snowflake SQL. Read `CASE.<object>` as `DECISION.<object>` (see [ADR-0007](../adr/0007-naming.md)).
 > - **Extra user.** Connectors authenticate as a third service user, `BBC_INGEST_SVC`, in addition to the engine and agent users (see [ADR-0003](../adr/0003-auth-and-identity.md)).
+> - **Day 2 file layout.** Raw payload contracts live in `contracts/schemas/raw/` (not `contracts/raw/`), next to the other schemas. `bbc sim init` writes reference batches as JSON (`.artifacts/sim/reference/*.json`), not CSV, because contracts and specs carry nested terms. The reference-version test is `snowflake/tests/02_reference.sql`.
+> - **Day 2 scope.** The RAW ingest procedures move to WP3, where the connector SDK that calls them is built. Serialized concurrent ledger appends are proven by spike S10 (`snowflake/spikes/s10_lock.py`), not by a 0-row SQL test. Policy activation is drafted by one user and activated by another (`bbc policy draft` as the builder, `bbc policy activate --as govadmin`), so separation of duties is exercised from WP2 on.
 
 # BlueberryChain OS — Implementation Plan (final, implementation-ready)
 

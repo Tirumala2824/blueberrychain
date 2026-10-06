@@ -19,7 +19,7 @@
 | S6 30-day Time Travel | Operational recovery; zero-copy-clone tamper demo (replay doesn't depend on it) | 30 | | | |
 | S7 Cortex models available | Agent models; Auditor independence (`GOV.MODEL_REGISTRY`) | ≥ 1 Claude + a second family | | | |
 | S8 Agent REST with a PAT + SSE | Engine `cortex-agent` provider (live trace) | 200 + `text/event-stream` | | | |
-| S9 Generic tool: JSON-string args, required params, default-role execution, ungranted tool refused | All 18 agent tools; case-scoped capability | Payload decoded; caller = `BBC_AGENT_SVC`; NOT_GRANTED refused | | | |
+| S9 Generic tool: JSON-string args, required params, default-role execution, ungranted tool refused | All 18 agent tools; case-scoped capability. Also separation of duties in `API.ACTIVATE_POLICY` and `API.DECIDE_APPROVAL`, which read `CURRENT_USER()` inside owner's-rights procedures | Payload decoded; caller = `BBC_AGENT_SVC` (so `CURRENT_USER()` in an owner's-rights procedure is the caller, not the owner); NOT_GRANTED refused | | | |
 | S10 Single-row UPDATE lock serializes writers | `LEDGER.HEAD`, `DECISION.GATEWAY_LOCK` | n = 1, 2; ~8 s apart | | | |
 
 ## Decision

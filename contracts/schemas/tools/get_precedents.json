@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_precedents.json",
+  "title": "GET_PRECEDENTS input",
+  "description": "A2 - structurally similar sealed cases (sealed before the pack as_of) with decisions and outcomes. Structured retrieval, not RAG.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "focus",
+    "k"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "focus": {
+      "enum": [
+        "DISPOSITION",
+        "CAUSATION",
+        "CLAIM"
+      ]
+    },
+    "k": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10
+    }
+  }
+}

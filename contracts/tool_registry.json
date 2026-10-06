@@ -1,0 +1,223 @@
+{
+  "description": "Agent tool registry - the single source for tool categories, agent bindings and write behavior. The agent-spec compiler and the grants script read this file; tests assert it matches the schemas.",
+  "version": "1.0.0",
+  "agents": [
+    "EXCURSION_FORENSICS",
+    "RECOVERY_STRATEGIST",
+    "CLAIMS_RECOVERY",
+    "EVIDENCE_AUDITOR"
+  ],
+  "tools": [
+    {
+      "id": "R1",
+      "name": "GET_CASE_CONTEXT",
+      "category": "READ",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "RECOVERY_STRATEGIST",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_CASE_CONTEXT",
+      "input_schema": "schemas/tools/get_case_context.json"
+    },
+    {
+      "id": "R2",
+      "name": "GET_TELEMETRY_WINDOW",
+      "category": "READ",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_TELEMETRY_WINDOW",
+      "input_schema": "schemas/tools/get_telemetry_window.json"
+    },
+    {
+      "id": "R3",
+      "name": "GET_DOCUMENT_EVIDENCE",
+      "category": "READ",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_DOCUMENT_EVIDENCE",
+      "input_schema": "schemas/tools/get_document_evidence.json"
+    },
+    {
+      "id": "R4",
+      "name": "GET_PARTY_CONTEXT",
+      "category": "READ",
+      "allowed_agents": [
+        "RECOVERY_STRATEGIST",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_PARTY_CONTEXT",
+      "input_schema": "schemas/tools/get_party_context.json"
+    },
+    {
+      "id": "R5",
+      "name": "GET_SCORED_OPTIONS",
+      "category": "READ",
+      "allowed_agents": [
+        "RECOVERY_STRATEGIST",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_SCORED_OPTIONS",
+      "input_schema": "schemas/tools/get_scored_options.json"
+    },
+    {
+      "id": "R6",
+      "name": "GET_ARTIFACT_FOR_AUDIT",
+      "category": "READ",
+      "allowed_agents": [
+        "EVIDENCE_AUDITOR"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_ARTIFACT_FOR_AUDIT",
+      "input_schema": "schemas/tools/get_artifact_for_audit.json"
+    },
+    {
+      "id": "A1",
+      "name": "ANALYZE_CAUSAL_SIGNATURES",
+      "category": "ANALYSIS",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.ANALYZE_CAUSAL_SIGNATURES",
+      "input_schema": "schemas/tools/analyze_causal_signatures.json"
+    },
+    {
+      "id": "A2",
+      "name": "GET_PRECEDENTS",
+      "category": "ANALYSIS",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "RECOVERY_STRATEGIST",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_PRECEDENTS",
+      "input_schema": "schemas/tools/get_precedents.json"
+    },
+    {
+      "id": "A3",
+      "name": "GET_MODEL_VALIDITY",
+      "category": "ANALYSIS",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "RECOVERY_STRATEGIST"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.GET_MODEL_VALIDITY",
+      "input_schema": "schemas/tools/get_model_validity.json"
+    },
+    {
+      "id": "A4",
+      "name": "COMPUTE_CLAIM_BASIS",
+      "category": "ANALYSIS",
+      "allowed_agents": [
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.COMPUTE_CLAIM_BASIS",
+      "input_schema": "schemas/tools/compute_claim_basis.json"
+    },
+    {
+      "id": "S1",
+      "name": "SIMULATE_OPTION_VARIANTS",
+      "category": "SIMULATION",
+      "allowed_agents": [
+        "RECOVERY_STRATEGIST"
+      ],
+      "behavior": "WRITE_VARIANT_OPTIONS",
+      "procedure": "BBC_OS.AGENT.SIMULATE_OPTION_VARIANTS",
+      "input_schema": "schemas/tools/simulate_option_variants.json"
+    },
+    {
+      "id": "S2",
+      "name": "SIMULATE_CLAIM_VARIANTS",
+      "category": "SIMULATION",
+      "allowed_agents": [
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "WRITE_VARIANT_OPTIONS",
+      "procedure": "BBC_OS.AGENT.SIMULATE_CLAIM_VARIANTS",
+      "input_schema": "schemas/tools/simulate_claim_variants.json"
+    },
+    {
+      "id": "C1",
+      "name": "SUBMIT_CAUSATION_FINDING",
+      "category": "RECOMMENDATION",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS"
+      ],
+      "behavior": "WRITE_PROPOSAL",
+      "procedure": "BBC_OS.AGENT.SUBMIT_CAUSATION_FINDING",
+      "input_schema": "schemas/tools/submit_causation_finding.json"
+    },
+    {
+      "id": "C2",
+      "name": "SUBMIT_RECOMMENDATION",
+      "category": "RECOMMENDATION",
+      "allowed_agents": [
+        "RECOVERY_STRATEGIST"
+      ],
+      "behavior": "WRITE_PROPOSAL",
+      "procedure": "BBC_OS.AGENT.SUBMIT_RECOMMENDATION",
+      "input_schema": "schemas/tools/submit_recommendation.json"
+    },
+    {
+      "id": "C3",
+      "name": "SUBMIT_CLAIM_RECOMMENDATION",
+      "category": "RECOMMENDATION",
+      "allowed_agents": [
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "WRITE_PROPOSAL",
+      "procedure": "BBC_OS.AGENT.SUBMIT_CLAIM_RECOMMENDATION",
+      "input_schema": "schemas/tools/submit_claim_recommendation.json"
+    },
+    {
+      "id": "M1",
+      "name": "REQUEST_EVIDENCE",
+      "category": "MUTATION",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "GOVERNED_MUTATION",
+      "procedure": "BBC_OS.AGENT.REQUEST_EVIDENCE",
+      "input_schema": "schemas/tools/request_evidence.json"
+    },
+    {
+      "id": "G1",
+      "name": "VALIDATE_SUBMISSION",
+      "category": "GOVERNANCE",
+      "allowed_agents": [
+        "EXCURSION_FORENSICS",
+        "RECOVERY_STRATEGIST",
+        "CLAIMS_RECOVERY"
+      ],
+      "behavior": "READ",
+      "procedure": "BBC_OS.AGENT.VALIDATE_SUBMISSION",
+      "input_schema": "schemas/tools/validate_submission.json"
+    },
+    {
+      "id": "G2",
+      "name": "SUBMIT_AUDIT_VERDICT",
+      "category": "GOVERNANCE",
+      "allowed_agents": [
+        "EVIDENCE_AUDITOR"
+      ],
+      "behavior": "WRITE_VERDICT",
+      "procedure": "BBC_OS.AGENT.SUBMIT_AUDIT_VERDICT",
+      "input_schema": "schemas/tools/submit_audit_verdict.json"
+    }
+  ]
+}

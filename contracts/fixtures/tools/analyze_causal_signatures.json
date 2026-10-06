@@ -1,0 +1,27 @@
+{
+  "schema": "tools/analyze_causal_signatures.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "lot_id": "L-B",
+      "tests": [
+        "WARM_LOADING",
+        "PRECOOL_DELAY",
+        "REEFER_PULLDOWN_FAILURE",
+        "DOCK_DWELL"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "tests are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/tests": [
+          "VIBES"
+        ]
+      }
+    }
+  ]
+}

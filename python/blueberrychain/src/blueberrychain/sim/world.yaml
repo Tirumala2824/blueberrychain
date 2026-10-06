@@ -1,0 +1,196 @@
+# BlueberryChain OS - simulated world (ADR-0006).
+# Fictional companies; real places and blueberry varieties. This file is the
+# single source for reference data: `bbc sim init` validates every record
+# against contracts/schemas/reference/*.json and writes the batches that
+# API.APPLY_REFERENCE_CHANGE loads. Outcomes are never configured here - only
+# the world and the fault catalog.
+
+meta:
+  name: central-valley-blueberries
+  version: "1"
+  seed: 20261006
+  currency: USD
+  clock_factor: 60           # simulated seconds per real second in live mode
+
+parties:
+  - { party_id: PARTY-BHM, party_type: OWN, name: Blue Harvest Marketing Co., sap_business_partner: "1000" }
+  - { party_id: PARTY-EMERALD-RIDGE, party_type: GROWER, name: Emerald Ridge Farms, sap_business_partner: "300101" }
+  - { party_id: PARTY-VALLEY-CREST, party_type: GROWER, name: Valley Crest Growers, sap_business_partner: "300102" }
+  - { party_id: PARTY-SIERRA, party_type: CARRIER, name: Sierra Reefer Lines, sap_business_partner: "400201" }
+  - { party_id: PARTY-COASTLINE, party_type: CARRIER, name: Coastline Cold Freight, sap_business_partner: "400202" }
+  - party_id: PARTY-SUMMIT
+    party_type: CUSTOMER
+    name: Summit Club Warehouse
+    customer_tier: A
+    sap_business_partner: "100301"
+    account_notes: >-
+      Club-format retailer. Rejects on any receipt below spec. Flagged two late deliveries last quarter;
+      buyer has said a third service failure triggers a supplier review.
+  - { party_id: PARTY-BAYLINE, party_type: CUSTOMER, name: Bayline Markets, customer_tier: B, sap_business_partner: "100302",
+      account_notes: "Regional grocer. Accepts short-notice organic volume at regional pricing." }
+  - { party_id: PARTY-HARBOR, party_type: CUSTOMER, name: Harbor Foodservice, customer_tier: C, sap_business_partner: "100303" }
+  - { party_id: PARTY-VFP, party_type: PROCESSOR, name: Valley Fruit Processing, sap_business_partner: "100304" }
+
+sites:
+  - { site_id: SITE-RANCH14-B7, party_id: PARTY-EMERALD-RIDGE, site_type: RANCH_BLOCK, name: "Ranch 14 Block 7", city: Kingsburg, state: CA, lat: 36.514, lon: -119.554 }
+  - { site_id: SITE-EMERALD-PACK, party_id: PARTY-EMERALD-RIDGE, site_type: PACKHOUSE, name: Emerald Ridge Packhouse, city: Kingsburg, state: CA, lat: 36.521, lon: -119.548, sap_plant: "2100" }
+  - { site_id: SITE-VALLEYCREST-B2, party_id: PARTY-VALLEY-CREST, site_type: RANCH_BLOCK, name: "Valley Crest Block 2", city: Visalia, state: CA, lat: 36.330, lon: -119.292 }
+  - { site_id: SITE-CVDC-TRACY, party_id: PARTY-BHM, site_type: DC, name: Central Valley DC, city: Tracy, state: CA, lat: 37.739, lon: -121.425, sap_plant: "1000", dock_capacity_kg_per_day: 250000 }
+  - { site_id: SITE-SUMMIT-SLC, party_id: PARTY-SUMMIT, site_type: CUSTOMER_DC, name: Summit Club Salt Lake City DC, city: Salt Lake City, state: UT, lat: 40.760, lon: -111.891, dock_capacity_kg_per_day: 120000 }
+  - { site_id: SITE-BAYLINE-SAC, party_id: PARTY-BAYLINE, site_type: CUSTOMER_DC, name: Bayline Sacramento DC, city: Sacramento, state: CA, lat: 38.582, lon: -121.494, dock_capacity_kg_per_day: 40000 }
+  - { site_id: SITE-HARBOR-OAK, party_id: PARTY-HARBOR, site_type: CUSTOMER_DC, name: Harbor Foodservice Oakland, city: Oakland, state: CA, lat: 37.804, lon: -122.271, dock_capacity_kg_per_day: 20000 }
+  - { site_id: SITE-VFP-FRESNO, party_id: PARTY-VFP, site_type: PROCESSOR, name: Valley Fruit Processing Plant, city: Fresno, state: CA, lat: 36.738, lon: -119.787 }
+  - { site_id: SITE-JCT-I80-SAC, party_id: PARTY-BHM, site_type: JUNCTION, name: "I-80 / I-5 junction, Sacramento", city: Sacramento, state: CA, lat: 38.601, lon: -121.507 }
+
+lanes:
+  - { lane_id: LANE-PACK-SLC,     origin_site_id: SITE-EMERALD-PACK,   dest_site_id: SITE-SUMMIT-SLC,  mode: REEFER_TRUCK, transit_h_p50: 15.0, transit_h_p90: 18.0, distance_mi: 760, cost_per_load_usd: 3800 }
+  - { lane_id: LANE-PACK-CVDC,    origin_site_id: SITE-EMERALD-PACK,   dest_site_id: SITE-CVDC-TRACY,  mode: REEFER_TRUCK, transit_h_p50: 3.0,  transit_h_p90: 4.0,  distance_mi: 150, cost_per_load_usd: 900 }
+  - { lane_id: LANE-PACK-JCT,     origin_site_id: SITE-EMERALD-PACK,   dest_site_id: SITE-JCT-I80-SAC, mode: REEFER_TRUCK, transit_h_p50: 3.0,  transit_h_p90: 3.5,  distance_mi: 180, cost_per_load_usd: 1000 }
+  - { lane_id: LANE-JCT-SLC,      origin_site_id: SITE-JCT-I80-SAC,    dest_site_id: SITE-SUMMIT-SLC,  mode: REEFER_TRUCK, transit_h_p50: 12.0, transit_h_p90: 14.5, distance_mi: 580, cost_per_load_usd: 2900 }
+  - { lane_id: LANE-JCT-BAYLINE,  origin_site_id: SITE-JCT-I80-SAC,    dest_site_id: SITE-BAYLINE-SAC, mode: REEFER_TRUCK, transit_h_p50: 0.5,  transit_h_p90: 1.0,  distance_mi: 10,  cost_per_load_usd: 250 }
+  - { lane_id: LANE-JCT-HARBOR,   origin_site_id: SITE-JCT-I80-SAC,    dest_site_id: SITE-HARBOR-OAK,  mode: REEFER_TRUCK, transit_h_p50: 2.0,  transit_h_p90: 3.0,  distance_mi: 90,  cost_per_load_usd: 700 }
+  - { lane_id: LANE-JCT-CVDC,     origin_site_id: SITE-JCT-I80-SAC,    dest_site_id: SITE-CVDC-TRACY,  mode: REEFER_TRUCK, transit_h_p50: 1.5,  transit_h_p90: 2.0,  distance_mi: 75,  cost_per_load_usd: 500 }
+  - { lane_id: LANE-JCT-VFP,      origin_site_id: SITE-JCT-I80-SAC,    dest_site_id: SITE-VFP-FRESNO,  mode: REEFER_TRUCK, transit_h_p50: 3.0,  transit_h_p90: 4.0,  distance_mi: 175, cost_per_load_usd: 900 }
+  - { lane_id: LANE-CVDC-SLC,     origin_site_id: SITE-CVDC-TRACY,     dest_site_id: SITE-SUMMIT-SLC,  mode: REEFER_TRUCK, transit_h_p50: 13.0, transit_h_p90: 16.0, distance_mi: 720, cost_per_load_usd: 3500 }
+  - { lane_id: LANE-CVDC-BAYLINE, origin_site_id: SITE-CVDC-TRACY,     dest_site_id: SITE-BAYLINE-SAC, mode: REEFER_TRUCK, transit_h_p50: 1.5,  transit_h_p90: 2.0,  distance_mi: 60,  cost_per_load_usd: 450 }
+  - { lane_id: LANE-CVDC-HARBOR,  origin_site_id: SITE-CVDC-TRACY,     dest_site_id: SITE-HARBOR-OAK,  mode: REEFER_TRUCK, transit_h_p50: 1.5,  transit_h_p90: 2.5,  distance_mi: 60,  cost_per_load_usd: 450 }
+  - { lane_id: LANE-CVDC-VFP,     origin_site_id: SITE-CVDC-TRACY,     dest_site_id: SITE-VFP-FRESNO,  mode: REEFER_TRUCK, transit_h_p50: 2.5,  transit_h_p90: 3.5,  distance_mi: 130, cost_per_load_usd: 700 }
+  - { lane_id: LANE-VCREST-CVDC,  origin_site_id: SITE-VALLEYCREST-B2, dest_site_id: SITE-CVDC-TRACY,  mode: REEFER_TRUCK, transit_h_p50: 3.5,  transit_h_p90: 4.5,  distance_mi: 190, cost_per_load_usd: 1000 }
+
+products:
+  # Shelf-life model: consumed life = sum(Q10^((T - Tref)/10) * dt); threshold_c from the baseline (1.8 C).
+  - { product_id: BB-EMERALD-ORG-12x6, variety: Emerald, pack: "12 x 6 oz clamshell", organic: true,  sap_material: BB-EM-ORG-6OZ,
+      ref_shelf_life_days: 21, tref_c: 0.0, q10: 3.0, threshold_c: 1.8, tolerance_min: 30, unmonitored_assumed_temp_c: 2.0,
+      validity_min_temp_c: -1.0, validity_max_temp_c: 20.0, prior_sigma_days: 1.0, kg_per_pallet: 1050 }
+  - { product_id: BB-DUKE-ORG-12x6, variety: Duke, pack: "12 x 6 oz clamshell", organic: true, sap_material: BB-DK-ORG-6OZ,
+      ref_shelf_life_days: 18, tref_c: 0.0, q10: 3.2, threshold_c: 1.8, tolerance_min: 30, unmonitored_assumed_temp_c: 2.0,
+      validity_min_temp_c: -1.0, validity_max_temp_c: 20.0, prior_sigma_days: 1.2, kg_per_pallet: 1050 }
+  - { product_id: BB-DUKE-CONV-12x6, variety: Duke, pack: "12 x 6 oz clamshell", organic: false, sap_material: BB-DK-CNV-6OZ,
+      ref_shelf_life_days: 18, tref_c: 0.0, q10: 3.2, threshold_c: 1.8, tolerance_min: 30, unmonitored_assumed_temp_c: 2.0,
+      validity_min_temp_c: -1.0, validity_max_temp_c: 20.0, prior_sigma_days: 1.2, kg_per_pallet: 1050 }
+
+customer_specs:
+  - { customer_party_id: PARTY-SUMMIT,  product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 10, max_arrival_pulp_c: 2.0, organic_required: true }
+  - { customer_party_id: PARTY-SUMMIT,  product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 10, max_arrival_pulp_c: 2.0, organic_required: true }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: true }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: true }
+  - { customer_party_id: PARTY-BAYLINE, product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 5,  max_arrival_pulp_c: 3.0, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
+  - { customer_party_id: PARTY-HARBOR,  product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 4,  max_arrival_pulp_c: 4.0, organic_required: false }
+  - { customer_party_id: PARTY-VFP,     product_id: BB-EMERALD-ORG-12x6, min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
+  - { customer_party_id: PARTY-VFP,     product_id: BB-DUKE-ORG-12x6,    min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
+  - { customer_party_id: PARTY-VFP,     product_id: BB-DUKE-CONV-12x6,   min_shelf_life_days_at_receipt: 1,  max_arrival_pulp_c: null, organic_required: false }
+
+contracts:
+  - contract_id: CTR-SIERRA-2026
+    party_id: PARTY-SIERRA
+    contract_type: CARRIER_TRANSPORT
+    effective_from: 2026-01-01
+    terms: { liability_cap_usd: 50000, claim_window_days: 270, claim_min_usd: 500, requires_bol_setpoint: true, temp_tolerance_c: 1.0, notice_window_h: 72 }
+    clause_text: |
+      7.1 Temperature control. Carrier shall maintain the return-air temperature within 1.0 C of the setpoint stated on the bill of lading for the full period the goods are in Carrier's custody, and shall operate the refrigeration unit in continuous mode unless the bill of lading states otherwise.
+      7.2 Liability. Carrier is liable for loss of or damage to the goods caused by a failure to comply with 7.1 while the goods are in Carrier's custody, up to USD 50,000 per load. Carrier is not liable where the goods were tendered above the setpoint stated on the bill of lading.
+      7.3 Notice and claims. Shipper shall give notice of a suspected temperature loss within 72 hours of delivery or of the shipper becoming aware of the loss, and shall file any claim within 270 days of delivery. Claims under USD 500 will not be considered.
+      7.4 Mitigation. Shipper shall take reasonable steps to mitigate any loss, including diversion or salvage sale; the salvage value obtained reduces the amount claimed.
+  - contract_id: CTR-COASTLINE-2026
+    party_id: PARTY-COASTLINE
+    contract_type: CARRIER_TRANSPORT
+    effective_from: 2026-01-01
+    terms: { liability_cap_usd: 40000, claim_window_days: 270, claim_min_usd: 500, requires_bol_setpoint: true, temp_tolerance_c: 1.0, notice_window_h: 48 }
+    clause_text: |
+      9.1 Carrier shall maintain the setpoint stated on the bill of lading within 1.0 C while the goods are in its custody.
+      9.2 Liability for temperature damage caused by Carrier is limited to USD 40,000 per load. Notice must be given within 48 hours; claims must be filed within 270 days and be at least USD 500.
+  - contract_id: CTR-EMERALD-SUPPLY-2026
+    party_id: PARTY-EMERALD-RIDGE
+    contract_type: GROWER_SUPPLY
+    effective_from: 2026-03-01
+    terms: { price_usd_per_kg: 8.40, precool_max_hours: 4, precool_target_c: 1.0, quality_deduction_cap_pct: 30 }
+    clause_text: |
+      4.2 Pre-cooling. Grower shall bring fruit to a pulp temperature of 1.0 C or below within 4 hours of harvest and hold it at or below that temperature until tendered to the carrier.
+      4.3 Quality deductions. Where fruit fails the buyer's receipt specification because of a breach of 4.2, the buyer may deduct the resulting loss from the grower settlement, up to 30% of the lot value.
+  - contract_id: CTR-VALLEYCREST-SUPPLY-2026
+    party_id: PARTY-VALLEY-CREST
+    contract_type: GROWER_SUPPLY
+    effective_from: 2026-03-01
+    terms: { price_usd_per_kg: 8.20, precool_max_hours: 4, precool_target_c: 1.0, quality_deduction_cap_pct: 25 }
+    clause_text: |
+      5.1 Grower shall pre-cool fruit to 1.0 C pulp within 4 hours of harvest. Losses caused by a breach may be deducted from settlement up to 25% of lot value.
+  - contract_id: CTR-SUMMIT-2026
+    party_id: PARTY-SUMMIT
+    contract_type: CUSTOMER_SALES
+    effective_from: 2026-01-01
+    terms: { price_usd_per_kg: 11.20, otif_penalty_pct: 3, rejection_penalty_usd_per_kg: 0.25, substitution_allowed: true, diversion_allowed: true }
+    clause_text: |
+      3.1 Product shall arrive with at least 10 days of remaining shelf life and a pulp temperature at or below 2.0 C.
+      3.4 Deliveries that are late, short or rejected incur a charge of 3% of the line value; rejected product additionally incurs USD 0.25 per kg handling.
+      3.6 Supplier may substitute product of the same variety, pack and organic status from another lot.
+  - contract_id: CTR-BAYLINE-2026
+    party_id: PARTY-BAYLINE
+    contract_type: CUSTOMER_SALES
+    effective_from: 2026-01-01
+    terms: { price_usd_per_kg: 10.64, otif_penalty_pct: 2, rejection_penalty_usd_per_kg: 0.10, substitution_allowed: true, diversion_allowed: true }
+    clause_text: |
+      2.1 Product shall arrive with at least 5 days of remaining shelf life. Short-notice volume is accepted at the regional price list.
+  - contract_id: CTR-HARBOR-2026
+    party_id: PARTY-HARBOR
+    contract_type: CUSTOMER_SALES
+    effective_from: 2026-01-01
+    terms: { price_usd_per_kg: 9.80, otif_penalty_pct: 0, rejection_penalty_usd_per_kg: 0.0, substitution_allowed: true, diversion_allowed: true }
+    clause_text: |
+      1.3 Foodservice grade; product with at least 4 days of shelf life is accepted.
+
+channel_prices:
+  - { product_id: BB-EMERALD-ORG-12x6, channel: CONTRACT,    price_usd_per_kg: 11.20, effective_from: 2026-01-01 }
+  - { product_id: BB-EMERALD-ORG-12x6, channel: REGIONAL,    price_usd_per_kg: 10.64, effective_from: 2026-01-01 }
+  - { product_id: BB-EMERALD-ORG-12x6, channel: FOODSERVICE, price_usd_per_kg: 9.80,  effective_from: 2026-01-01 }
+  - { product_id: BB-EMERALD-ORG-12x6, channel: PROCESSOR,   price_usd_per_kg: 3.50,  effective_from: 2026-01-01 }
+  - { product_id: BB-EMERALD-ORG-12x6, channel: DONATION,    price_usd_per_kg: 0.80,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-ORG-12x6,    channel: CONTRACT,    price_usd_per_kg: 10.80, effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-ORG-12x6,    channel: REGIONAL,    price_usd_per_kg: 10.26, effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-ORG-12x6,    channel: FOODSERVICE, price_usd_per_kg: 9.40,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-ORG-12x6,    channel: PROCESSOR,   price_usd_per_kg: 3.40,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-ORG-12x6,    channel: DONATION,    price_usd_per_kg: 0.80,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-CONV-12x6,   channel: CONTRACT,    price_usd_per_kg: 7.90,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-CONV-12x6,   channel: REGIONAL,    price_usd_per_kg: 7.50,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-CONV-12x6,   channel: FOODSERVICE, price_usd_per_kg: 6.90,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-CONV-12x6,   channel: PROCESSOR,   price_usd_per_kg: 2.60,  effective_from: 2026-01-01 }
+  - { product_id: BB-DUKE-CONV-12x6,   channel: DONATION,    price_usd_per_kg: 0.60,  effective_from: 2026-01-01 }
+
+sensors:
+  # Scenario devices (named in docs/demo/scenarios.md) ...
+  - { device_id: P-A1,   device_type: PULP_PROBE,  owner_party_id: PARTY-BHM,      placement: CORE_PULP,  calibrated_on: 2026-09-12, accuracy_c: 0.3 }
+  - { device_id: P-B1,   device_type: PULP_PROBE,  owner_party_id: PARTY-BHM,      placement: CORE_PULP,  calibrated_on: 2026-09-12, accuracy_c: 0.3 }
+  - { device_id: RF-114, device_type: REEFER_UNIT, owner_party_id: PARTY-SIERRA,   placement: RETURN_AIR, calibrated_on: 2026-06-01, accuracy_c: 0.5 }
+  - { device_id: RF-207, device_type: REEFER_UNIT, owner_party_id: PARTY-COASTLINE, placement: RETURN_AIR, calibrated_on: 2026-05-15, accuracy_c: 0.5 }
+fleet_sensors:
+  # ... plus a pool expanded by `bbc sim init` (P-001..P-040 probes, reefer units per truck).
+  probe_pool: { prefix: P-, count: 40, owner_party_id: PARTY-BHM, placement: CORE_PULP, calibrated_on: 2026-09-12, accuracy_c: 0.3 }
+  trucks:
+    - { truck_id: TR-114, carrier_party_id: PARTY-SIERRA,    reefer_device_id: RF-114 }
+    - { truck_id: TR-118, carrier_party_id: PARTY-SIERRA,    reefer_device_id: RF-118 }
+    - { truck_id: TR-121, carrier_party_id: PARTY-SIERRA,    reefer_device_id: RF-121 }
+    - { truck_id: TR-207, carrier_party_id: PARTY-COASTLINE, reefer_device_id: RF-207 }
+    - { truck_id: TR-211, carrier_party_id: PARTY-COASTLINE, reefer_device_id: RF-211 }
+    - { truck_id: TR-215, carrier_party_id: PARTY-COASTLINE, reefer_device_id: RF-215 }
+
+cost_rates:
+  - { cost_rate_id: COST-INSPECTION-CVDC, cost_type: INSPECTION,           scope_type: SITE,   scope_id: SITE-CVDC-TRACY, rate: 350,  unit: USD_PER_EVENT }
+  - { cost_rate_id: COST-TRANSLOAD,       cost_type: TRANSLOAD,            scope_type: GLOBAL, scope_id: null,            rate: 600,  unit: USD_PER_EVENT }
+  - { cost_rate_id: COST-DISPOSAL,        cost_type: DISPOSAL,             scope_type: GLOBAL, scope_id: null,            rate: 0.12, unit: USD_PER_KG }
+  - { cost_rate_id: COST-HANDLING,        cost_type: HANDLING,             scope_type: GLOBAL, scope_id: null,            rate: 0.05, unit: USD_PER_KG }
+  - { cost_rate_id: COST-EXPEDITE,        cost_type: EXPEDITE_PREMIUM,     scope_type: GLOBAL, scope_id: null,            rate: 25,   unit: PCT_OF_VALUE }
+  - { cost_rate_id: COST-REROUTE-ADMIN,   cost_type: REROUTE_ADMIN,        scope_type: GLOBAL, scope_id: null,            rate: 150,  unit: USD_PER_EVENT }
+  - { cost_rate_id: COST-REPLACEMENT,     cost_type: REPLACEMENT_TRANSFER, scope_type: SITE,   scope_id: SITE-CVDC-TRACY, rate: 400,  unit: USD_PER_EVENT }
+
+# Fault catalog: what judges can inject. Parameters only - outcomes emerge from the models.
+faults:
+  reefer_compressor_failure: { defaults: { start_after_h: 2.0, duration_h: 3.8, ambient_c: 24.0 }, targets: truck }
+  defrost_stuck:             { defaults: { start_after_h: 4.0, duration_h: 1.5 }, targets: truck }
+  setpoint_error:            { defaults: { setpoint_c: 5.0 }, targets: truck }
+  door_open_dwell:           { defaults: { site_id: SITE-CVDC-TRACY, minutes: 40, ambient_c: 22.0 }, targets: shipment }
+  precool_delay:             { defaults: { hours: 5.0 }, targets: lot }
+  probe_dropout:             { defaults: { start_after_h: 3.0, duration_h: 2.0 }, targets: lot }
+  probe_misplaced:           { defaults: { bias_c: -2.5 }, targets: lot }
+  late_truck:                { defaults: { delay_h: 6.0 }, targets: shipment }
+  paperwork_inconsistent:    { defaults: { field: pulp_temp_at_loading_c, claimed_value: 1.0 }, targets: lot }

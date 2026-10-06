@@ -16,7 +16,7 @@
 | Carrier | **Sierra Reefer Lines**: truck TR-114, reefer unit RF-114 | Carrier contract: liable for excursions in its custody when the BOL states the setpoint; liability cap $50k per load; claims ≥ $500 |
 | Carrier | **Coastline Cold Freight** | Alternative carrier for re-routes |
 | Own DC | **Central Valley DC** (Tracy, CA) | Holds quality-adjusted replacement stock |
-| Customer (tier A) | **Summit Club Warehouse**, Reno DC | Requires **≥ 10 days** shelf life at receipt; on-time-in-full (OTIF) penalty 3% of line value |
+| Customer (tier A) | **Summit Club Warehouse**, Salt Lake City DC | Requires **≥ 10 days** shelf life at receipt; on-time-in-full (OTIF) penalty 3% of line value |
 | Customer (tier B) | **Bayline Markets**, Sacramento DC | Requires ≥ 5 days at receipt; pays ~95% of the contract price |
 | Customer (tier C) | **Harbor Foodservice** (Oakland) | Requires ≥ 4 days |
 | Processor | **Valley Fruit Processing** (Fresno) | Accepts ≥ 1 day; ~$3.50 / kg |
@@ -24,7 +24,7 @@
 **Base prices (reference data, not code):** organic Emerald contract price **$11.20 / kg**.
 
 ## S-A: Reefer failure, clear winner (rule-decided, approval-gated)
-- **Fault:** `reefer_compressor_failure` on RF-114 / TR-114. Starts 2 h into the 30 h haul from the packhouse to the Summit Club Reno DC; lasts 3.8 h; ambient 24 °C.
+- **Fault:** `reefer_compressor_failure` on RF-114 / TR-114. Starts 2 h into the 15 h haul from the packhouse to the Summit Club Salt Lake City DC; lasts 3.8 h; ambient 24 °C.
 - **Load:** Lot **L-A** (4,200 kg organic Emerald), committed to a Summit Club order line.
 
 | Stage | Expected path (design intent, not scripted) |

@@ -1,0 +1,36 @@
+{
+  "schema": "tools/get_telemetry_window.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "lot_id": "L-A",
+      "from_ts": "2026-10-06T02:00:00Z",
+      "to_ts": "2026-10-06T08:00:00Z",
+      "resolution": "BUCKET_15M",
+      "channels": [
+        "PULP",
+        "SUPPLY_AIR",
+        "RETURN_AIR",
+        "SETPOINT",
+        "DOOR"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "resolution is a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/resolution": "1S"
+      }
+    },
+    {
+      "why": "all parameters are required (Cortex generic-tool binding)",
+      "base": 0,
+      "delete": [
+        "/channels"
+      ]
+    }
+  ]
+}

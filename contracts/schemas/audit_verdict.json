@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/audit_verdict.json",
+  "title": "Audit verdict (payload)",
+  "description": "What the Evidence Integrity Auditor submits through SUBMIT_AUDIT_VERDICT. Any CONTRADICTED statement forces FAIL; every sentence of the artifact that carries a number or factual claim must be covered (checked deterministically); the auditor's model must differ from the author's when the model registry requires independence.",
+  "type": "object",
+  "required": ["statements", "overall", "required_fixes"],
+  "additionalProperties": false,
+  "properties": {
+    "statements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["span", "statement", "verdict", "evidence_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "span": {
+            "type": "object",
+            "required": ["start", "end"],
+            "additionalProperties": false,
+            "properties": {
+              "start": { "type": "integer", "minimum": 0 },
+              "end": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "statement": { "type": "string", "maxLength": 1000 },
+          "verdict": { "enum": ["SUPPORTED", "UNSUPPORTED", "CONTRADICTED"] },
+          "evidence_ids": { "$ref": "common.json#/$defs/citations" }
+        }
+      }
+    },
+    "overall": { "enum": ["PASS", "FAIL"] },
+    "required_fixes": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "maxItems": 20 }
+  },
+  "if": {
+    "properties": {
+      "statements": {
+        "type": "array",
+        "contains": { "type": "object", "properties": { "verdict": { "const": "CONTRADICTED" } } }
+      }
+    }
+  },
+  "then": {
+    "properties": { "overall": { "const": "FAIL" } }
+  }
+}

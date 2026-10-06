@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/validate_submission.json",
+  "title": "VALIDATE_SUBMISSION input",
+  "description": "G1 - dry-run of C1-C3 with the same validator code path; writes nothing.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "submission_type",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "submission_type": {
+      "enum": [
+        "FINDING",
+        "RECOMMENDATION",
+        "CLAIM_RECOMMENDATION"
+      ]
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "submission_type": {
+            "const": "FINDING"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "../finding.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "submission_type": {
+            "const": "RECOMMENDATION"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "../recommendation.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "submission_type": {
+            "const": "CLAIM_RECOMMENDATION"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "../claim_recommendation.json"
+          }
+        }
+      }
+    }
+  ]
+}

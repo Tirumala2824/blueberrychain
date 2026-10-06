@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_telemetry_window.json",
+  "title": "GET_TELEMETRY_WINDOW input",
+  "description": "R2 - time-series evidence for a lot or its reefer. Window must lie between harvest and the pack as_of; at most 2,000 points; RAW resolution only for windows up to 6 h.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "lot_id",
+    "from_ts",
+    "to_ts",
+    "resolution",
+    "channels"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "lot_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "from_ts": {
+      "$ref": "../common.json#/$defs/timestamp"
+    },
+    "to_ts": {
+      "$ref": "../common.json#/$defs/timestamp"
+    },
+    "resolution": {
+      "enum": [
+        "RAW",
+        "BUCKET_15M",
+        "BUCKET_60M"
+      ]
+    },
+    "channels": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "PULP",
+          "SUPPLY_AIR",
+          "RETURN_AIR",
+          "SETPOINT",
+          "DOOR",
+          "ALARM",
+          "MODE"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

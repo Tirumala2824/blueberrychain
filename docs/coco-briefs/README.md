@@ -17,3 +17,4 @@ Every Snowflake work package (Track B) is built in **Cortex Code (CoCo)** from a
 | Work package | Brief | Status |
 |---|---|---|
 | WP1 Foundation + capability spikes | [WP1-foundation-spikes.md](WP1-foundation-spikes.md) | Ready to run |
+| WP2 RAW, REF, GOV, ledger | [WP2-raw-ref-gov-ledger.md](WP2-raw-ref-gov-ledger.md) | Ready once WP1 is validated |

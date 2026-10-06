@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/mutation_record.json",
+  "title": "Mutation record",
+  "description": "The governed record of one mutation: the nine required steps (validate, authorize, execute, before/after state, decision evidence, actor, timestamps, metric snapshot, approvals). Written by DECISION.MUTATE and the dispatcher acknowledgement; mirrored into the ledger.",
+  "type": "object",
+  "required": ["mutation_id", "intent", "status", "validation", "autonomy_level", "policy_eval_id",
+               "approval_ids", "authorization_hash", "observed_before", "observed_after",
+               "metric_snapshot", "actor_chain", "timestamps", "external_ref", "attempts",
+               "last_error", "compensated_by"],
+  "additionalProperties": false,
+  "properties": {
+    "mutation_id": { "$ref": "common.json#/$defs/mutation_id" },
+    "intent": { "$ref": "mutation_intent.json" },
+    "status": { "$ref": "common.json#/$defs/mutation_status" },
+    "validation": {
+      "type": "object",
+      "required": ["passed", "errors"],
+      "additionalProperties": false,
+      "properties": {
+        "passed": { "type": "boolean" },
+        "errors": { "type": "array", "items": { "$ref": "common.json#/$defs/error" } }
+      }
+    },
+    "autonomy_level": { "$ref": "common.json#/$defs/autonomy_level" },
+    "policy_eval_id": { "$ref": "common.json#/$defs/eval_id" },
+    "approval_ids": { "type": "array", "items": { "$ref": "common.json#/$defs/approval_id" } },
+    "authorization_hash": {
+      "oneOf": [{ "$ref": "common.json#/$defs/sha256" }, { "type": "null" }],
+      "description": "Hash of intent + policy_eval_id + approval_ids. V_DISPATCHABLE recomputes it; a row edited outside the gateway never dispatches."
+    },
+    "observed_before": { "type": ["object", "null"] },
+    "observed_after": { "type": ["object", "null"] },
+    "metric_snapshot": {
+      "type": "object",
+      "required": ["frozen", "live", "drift"],
+      "additionalProperties": false,
+      "properties": {
+        "frozen": { "type": "array", "items": { "$ref": "common.json#/$defs/value" } },
+        "live": { "type": "array", "items": { "$ref": "common.json#/$defs/value" } },
+        "drift": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "frozen", "live", "delta", "within_tolerance"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "type": "string" },
+              "frozen": { "type": ["number", "null"] },
+              "live": { "type": ["number", "null"] },
+              "delta": { "type": ["number", "null"] },
+              "within_tolerance": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "actor_chain": {
+      "type": "object",
+      "required": ["decider_kind", "decider_id", "executor_user", "executor_role", "approvers"],
+      "additionalProperties": false,
+      "properties": {
+        "decider_kind": { "$ref": "common.json#/$defs/decider_kind" },
+        "decider_id": { "type": "string", "maxLength": 128 },
+        "agent_run_id": { "oneOf": [{ "$ref": "common.json#/$defs/run_id" }, { "type": "null" }] },
+        "model": { "type": ["string", "null"], "maxLength": 64 },
+        "spec_version": { "oneOf": [{ "$ref": "common.json#/$defs/version" }, { "type": "null" }] },
+        "executor_user": { "type": "string", "maxLength": 128 },
+        "executor_role": { "type": "string", "maxLength": 128 },
+        "approvers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["user", "role", "approval_id"],
+            "additionalProperties": false,
+            "properties": {
+              "user": { "type": "string", "maxLength": 128 },
+              "role": { "type": "string", "maxLength": 128 },
+              "approval_id": { "$ref": "common.json#/$defs/approval_id" }
+            }
+          }
+        }
+      }
+    },
+    "timestamps": {
+      "type": "object",
+      "required": ["proposed_at"],
+      "additionalProperties": false,
+      "properties": {
+        "proposed_at": { "$ref": "common.json#/$defs/timestamp" },
+        "evaluated_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "approved_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "authorized_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "dispatched_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "acked_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "verified_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "target_reported_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] }
+      }
+    },
+    "external_ref": { "type": ["string", "null"], "maxLength": 128 },
+    "attempts": { "type": "integer", "minimum": 0 },
+    "last_error": { "oneOf": [{ "$ref": "common.json#/$defs/error" }, { "type": "null" }] },
+    "compensated_by": { "oneOf": [{ "$ref": "common.json#/$defs/mutation_id" }, { "type": "null" }] }
+  }
+}

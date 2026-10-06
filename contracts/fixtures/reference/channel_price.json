@@ -1,0 +1,26 @@
+{
+  "schema": "reference/channel_price.json",
+  "valid": [
+    {
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "channel": "CONTRACT",
+      "price_usd_per_kg": 11.2,
+      "effective_from": "2026-01-01"
+    },
+    {
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "channel": "REGIONAL",
+      "price_usd_per_kg": 10.64,
+      "effective_from": "2026-01-01"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "channels are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/channel": "AUCTION"
+      }
+    }
+  ]
+}

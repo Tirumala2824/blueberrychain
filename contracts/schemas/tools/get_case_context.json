@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_case_context.json",
+  "title": "GET_CASE_CONTEXT input",
+  "description": "R1 - situation for the current decision point (frozen pack values, custody timeline, affected orders, escalation reasons, deadline, latest finding, D2 responses).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "sections"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "HEADER",
+          "LOTS",
+          "CUSTODY",
+          "ORDERS",
+          "FINDING",
+          "ESCALATION",
+          "RESPONSES",
+          "ALL"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

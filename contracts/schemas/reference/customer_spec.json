@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/customer_spec.json",
+  "title": "Reference: customer spec",
+  "description": "What a customer requires at receipt for a product.",
+  "type": "object",
+  "required": [
+    "customer_party_id",
+    "product_id",
+    "min_shelf_life_days_at_receipt",
+    "max_arrival_pulp_c",
+    "organic_required"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "customer_party_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "product_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "min_shelf_life_days_at_receipt": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 60
+    },
+    "max_arrival_pulp_c": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "organic_required": {
+      "type": "boolean"
+    }
+  }
+}

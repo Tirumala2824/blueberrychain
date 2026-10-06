@@ -1,0 +1,26 @@
+{
+  "schema": "reference/party.json",
+  "valid": [
+    {
+      "party_id": "PARTY-BHM",
+      "party_type": "OWN",
+      "name": "Blue Harvest Marketing Co.",
+      "sap_business_partner": "1000"
+    },
+    {
+      "party_id": "PARTY-EMERALD-RIDGE",
+      "party_type": "GROWER",
+      "name": "Emerald Ridge Farms",
+      "sap_business_partner": "300101"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "party types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/party_type": "PARTNER"
+      }
+    }
+  ]
+}

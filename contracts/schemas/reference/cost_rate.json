@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/cost_rate.json",
+  "title": "Reference: cost rate",
+  "description": "A cost the evaluation engine prices options with.",
+  "type": "object",
+  "required": [
+    "cost_rate_id",
+    "cost_type",
+    "scope_type",
+    "scope_id",
+    "rate",
+    "unit"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "cost_rate_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "cost_type": {
+      "enum": [
+        "INSPECTION",
+        "TRANSLOAD",
+        "DISPOSAL",
+        "HANDLING",
+        "EXPEDITE_PREMIUM",
+        "REROUTE_ADMIN",
+        "RETURN_FREIGHT",
+        "REPLACEMENT_TRANSFER"
+      ]
+    },
+    "scope_type": {
+      "enum": [
+        "GLOBAL",
+        "SITE",
+        "LANE"
+      ]
+    },
+    "scope_id": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "rate": {
+      "type": "number",
+      "minimum": 0
+    },
+    "unit": {
+      "enum": [
+        "USD_PER_EVENT",
+        "USD_PER_KG",
+        "USD_PER_LOAD",
+        "PCT_OF_VALUE"
+      ]
+    }
+  }
+}

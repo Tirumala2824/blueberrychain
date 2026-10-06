@@ -1,0 +1,27 @@
+{
+  "schema": "raw/payloads/inspection_result.json",
+  "valid": [
+    {
+      "inspection_id": "QI-5501",
+      "lot_id": "L-A",
+      "site_id": "SITE-BAYLINE-SAC",
+      "inspection_type": "RECEIPT",
+      "inspected_at": "2026-10-06T19:00:00Z",
+      "pulp_c": 1.4,
+      "defects_pct": 1.5,
+      "decay_pct": 0.5,
+      "remaining_shelf_life_days_observed": 8.4,
+      "accepted": true,
+      "inspector": "M. Chen"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "percentages are bounded",
+      "base": 0,
+      "set": {
+        "/defects_pct": 140
+      }
+    }
+  ]
+}

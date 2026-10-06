@@ -1,0 +1,25 @@
+{
+  "schema": "audit_verdict.json",
+  "valid": [
+    {
+      "statements": [
+        { "span": { "start": 0, "end": 84 }, "statement": "Pulp stayed above 3 C for 5 h after harvest.", "verdict": "SUPPORTED", "evidence_ids": ["EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M"] },
+        { "span": { "start": 85, "end": 160 }, "statement": "The reefer held supply air at setpoint.", "verdict": "SUPPORTED", "evidence_ids": ["EV:SIG:REEFER_PULLDOWN_FAILURE@1"] }
+      ],
+      "overall": "PASS",
+      "required_fixes": []
+    },
+    {
+      "statements": [
+        { "span": { "start": 0, "end": 40 }, "statement": "The reefer alarm was ignored for 3 hours.", "verdict": "CONTRADICTED", "evidence_ids": ["EV:TEL:L-A:2026-10-06T04:00Z-2026-10-06T08:00Z:RAW"] }
+      ],
+      "overall": "FAIL",
+      "required_fixes": ["Remove the claim about an ignored alarm: no alarm was raised in that window."]
+    }
+  ],
+  "invalid": [
+    { "why": "a CONTRADICTED statement forces FAIL", "base": 1, "set": { "/overall": "PASS" } },
+    { "why": "overall is PASS or FAIL", "base": 0, "set": { "/overall": "MOSTLY_PASS" } },
+    { "why": "an audit must check at least one statement", "base": 0, "set": { "/statements": [] } }
+  ]
+}

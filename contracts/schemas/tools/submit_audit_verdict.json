@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/submit_audit_verdict.json",
+  "title": "SUBMIT_AUDIT_VERDICT input",
+  "description": "G2 - the Auditor's verdict on an artifact (veto only; cannot edit content).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "artifact_id",
+    "verdict"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "artifact_id": {
+      "$ref": "../common.json#/$defs/artifact_id"
+    },
+    "verdict": {
+      "$ref": "../audit_verdict.json"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/channel_price.json",
+  "title": "Reference: channel price",
+  "description": "Price per kg by sales channel (contract prices live on customer contracts).",
+  "type": "object",
+  "required": [
+    "product_id",
+    "channel",
+    "price_usd_per_kg",
+    "effective_from"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "product_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "channel": {
+      "$ref": "../common.json#/$defs/sales_channel"
+    },
+    "price_usd_per_kg": {
+      "$ref": "../common.json#/$defs/usd_per_kg"
+    },
+    "effective_from": {
+      "$ref": "../common.json#/$defs/date"
+    }
+  }
+}

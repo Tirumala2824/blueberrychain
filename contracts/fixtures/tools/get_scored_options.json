@@ -1,0 +1,20 @@
+{
+  "schema": "tools/get_scored_options.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "include_infeasible": true,
+      "include_variants": false
+    }
+  ],
+  "invalid": [
+    {
+      "why": "flags are booleans",
+      "base": 0,
+      "set": {
+        "/include_infeasible": "yes"
+      }
+    }
+  ]
+}

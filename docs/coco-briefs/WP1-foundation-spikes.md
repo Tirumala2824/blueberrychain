@@ -9,6 +9,16 @@
 - The session uses connection `pndvhar-pt70809` (role ACCOUNTADMIN). The old `BLUEBERRY_CHAIN` database and its objects are **not touched**.
 - **Cost:** everything runs on X-Small warehouses with 60-second auto-suspend. A resource monitor (`BBC_MONITOR`, 50 credits / month, notify at 75%, suspend at 100%) is attached to both new warehouses. Change `CREDIT_QUOTA` in `00_account.sql` first if you want a different cap.
 
+## Step 0: Pre-flight (catches the wrong account before anything runs)
+Ask CoCo to **execute** this and show the result:
+```sql
+SELECT CURRENT_ORGANIZATION_NAME() AS org, CURRENT_ACCOUNT_NAME() AS account,
+       CURRENT_USER() AS usr, CURRENT_ROLE() AS role;
+```
+**Expected:** org `PNDVHAR`, account `PT70809`, user `DURGAPRASAD17`, role `ACCOUNTADMIN`. If any value differs, stop and switch CoCo's connection to `pndvhar-pt70809`.
+
+**Plan Mode only *proposes* statements.** After reviewing each plan, approve its **execution**. A WP1 run that stops at the plan leaves the account unchanged.
+
 ## Step 1: Foundation (`snowflake/modules/00_account.sql`)
 Prompt for CoCo:
 > Run `snowflake/modules/00_account.sql` against connection pndvhar-pt70809, section by section, in Plan Mode. Validate each statement first. If a statement fails because of a syntax or privilege detail on this account, propose the smallest fix, apply it to the file in the repo, then run it. Don't skip any statement. At the end, list every change you made to the file.
@@ -28,6 +38,14 @@ The script creates:
 - `GRANT USE AI FUNCTIONS ON ACCOUNT`: the prior build needed it. If this account rejects it, keep only the `CORTEX_USER` grants.
 - `CREATE AUTHENTICATION POLICY … PAT_POLICY = (…)`: the exact option names.
 - `DATA_RETENTION_TIME_IN_DAYS = 30`: if the edition refuses it, use 1. That is spike S6's fallback.
+
+**Post-flight for step 1.** Ask CoCo to execute:
+```sql
+SHOW DATABASES LIKE 'BBC_OS';
+SHOW ROLES LIKE 'BBC_%';
+SHOW USERS LIKE 'BBC_%';
+```
+**Expected:** 1 database; 9 new roles (the 5 old `BBC_*_ROLE` roles also appear, which is fine); 8 users.
 
 ## Step 2: Tokens (`snowflake/modules/00b_tokens.sql`), *not* in CoCo
 1. Run it in a **Snowsight worksheet**, or with `snow sql -c pndvhar-pt70809 -f snowflake/modules/00b_tokens.sql`. Each statement shows a token secret **once**.

@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/shipment.json",
+  "title": "Shipment",
+  "description": "A planned or active shipment with its lots and BOL setpoint. Source: TMS.",
+  "type": "object",
+  "required": [
+    "shipment_id",
+    "carrier_party_id",
+    "origin_site_id",
+    "destination_site_id",
+    "planned_departure_at",
+    "planned_arrival_at",
+    "reefer_device_id",
+    "bol_setpoint_c",
+    "lots",
+    "status"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "shipment_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "carrier_party_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "origin_site_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "destination_site_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "planned_departure_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "planned_arrival_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "reefer_device_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bol_setpoint_c": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/celsius"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lots": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "lot_id",
+          "kg"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "lot_id": {
+            "$ref": "../../common.json#/$defs/external_id"
+          },
+          "kg": {
+            "$ref": "../../common.json#/$defs/kg"
+          }
+        }
+      }
+    },
+    "status": {
+      "enum": [
+        "PLANNED",
+        "LOADING",
+        "IN_TRANSIT",
+        "AT_DOCK",
+        "DELIVERED",
+        "REJECTED",
+        "CANCELLED"
+      ]
+    }
+  }
+}

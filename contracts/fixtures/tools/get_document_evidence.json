@@ -1,0 +1,26 @@
+{
+  "schema": "tools/get_document_evidence.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "doc_types": [
+        "INSPECTION_CERT",
+        "BOL",
+        "INCIDENT_NOTE"
+      ],
+      "include_narratives": true
+    }
+  ],
+  "invalid": [
+    {
+      "why": "document types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/doc_types": [
+          "EMAIL"
+        ]
+      }
+    }
+  ]
+}

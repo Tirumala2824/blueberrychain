@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/simulate_claim_variants.json",
+  "title": "SIMULATE_CLAIM_VARIANTS input",
+  "description": "S2 - claim-amount variants with expected recovery; never above claimable or cap; settlement band from GOV.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "counterparty_id",
+    "basis",
+    "variants"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "counterparty_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "basis": {
+      "$ref": "../common.json#/$defs/claim_basis"
+    },
+    "variants": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "FULL",
+          "CAPPED",
+          "SETTLEMENT_BAND"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

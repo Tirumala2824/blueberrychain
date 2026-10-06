@@ -1,0 +1,51 @@
+{
+  "schema": "tools/submit_recommendation.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "recommendation": {
+        "option_id": "OPT-00000142",
+        "rejected_alternatives": [
+          {
+            "option_id": "OPT-00000141",
+            "reason": "Continuing to Summit risks rejection at receipt: the arrival shelf-life margin is within the model's error band."
+          },
+          {
+            "option_id": "OPT-00000143",
+            "reason": "Re-routing to Harbor Foodservice preserves less value and the case is not urgent enough to give up the tier-A line."
+          }
+        ],
+        "trade_off": "Inspect at Central Valley DC costs a 4 h delay and the inspection fee, but resolves the conflicting certificate before committing a tier-A delivery.",
+        "robustness": {
+          "stable": true,
+          "simulation_call_seqs": [
+            7,
+            8
+          ]
+        },
+        "would_change_if": "Inspection showed less than 10.5 days remaining, or the Harbor window closed before inspection.",
+        "deviation_reason": "The top risk-adjusted option (continue) relies on a certificate the probe contradicts.",
+        "confidence": "MEDIUM",
+        "confidence_reasons": [
+          "Near-tie on risk-adjusted value",
+          "Model IN_RANGE"
+        ],
+        "citations": [
+          "EV:OPT:OPT-00000141",
+          "EV:OPT:OPT-00000142",
+          "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the embedded recommendation must itself be valid",
+      "base": 0,
+      "set": {
+        "/recommendation/confidence": "CERTAIN"
+      }
+    }
+  ]
+}

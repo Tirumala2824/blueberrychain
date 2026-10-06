@@ -1,0 +1,175 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/common.json",
+  "title": "Common definitions",
+  "description": "Shared identifiers, units, enums and value objects for the BlueberryChain OS decision contract. Money is USD with 2-decimal precision, prices USD/kg with 4 decimals, mass kg with 3 decimals; storage types enforce precision.",
+  "$defs": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "date": { "type": "string", "format": "date" },
+    "usd": { "type": "number", "description": "US dollars, 2-decimal precision." },
+    "usd_per_kg": { "type": "number", "minimum": 0, "description": "US dollars per kg, 4-decimal precision." },
+    "kg": { "type": "number", "minimum": 0, "description": "Kilograms, 3-decimal precision." },
+    "celsius": { "type": "number", "minimum": -40, "maximum": 60 },
+    "days": { "type": "number" },
+    "hours": { "type": "number", "minimum": 0 },
+    "probability": { "type": "number", "minimum": 0, "maximum": 1 },
+    "share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+
+    "external_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$",
+      "description": "Identifier issued by a source system or the world config (lot, shipment, order line, party, site, product, device, contract, document)."
+    },
+    "case_id": { "type": "string", "pattern": "^CASE-[0-9]{8,12}$" },
+    "option_id": { "type": "string", "pattern": "^OPT-[0-9]{8,12}$" },
+    "pack_id": { "type": "string", "pattern": "^PACK-[0-9]{8,12}$" },
+    "rec_id": { "type": "string", "pattern": "^REC-[0-9]{8,12}$" },
+    "finding_id": { "type": "string", "pattern": "^FND-[0-9]{8,12}$" },
+    "eval_id": { "type": "string", "pattern": "^EVAL-[0-9]{8,12}$" },
+    "approval_id": { "type": "string", "pattern": "^APR-[0-9]{8,12}$" },
+    "mutation_id": { "type": "string", "pattern": "^MUT-[0-9]{8,12}$" },
+    "plan_id": { "type": "string", "pattern": "^PLAN-[0-9]{8,12}$" },
+    "claim_id": { "type": "string", "pattern": "^CLM-[0-9]{8,12}$" },
+    "run_id": { "type": "string", "pattern": "^RUN-[0-9]{8,12}$" },
+    "artifact_id": {
+      "type": "string",
+      "pattern": "^(FND|REC)-[0-9]{8,12}$",
+      "description": "An AI-written artifact awaiting audit: a causation finding or a recommendation."
+    },
+    "evidence_id": {
+      "type": "string",
+      "pattern": "^EV:(PACK|TEL|DOC|SIG|OPT|PREC|CTR|PARTY|RSP|MV|LOSS):[^\\s]{1,200}$",
+      "description": "Provenance handle minted by a tool for every item it returns. Agents may cite only evidence returned to the same run or present in the case's evidence pack."
+    },
+
+    "decision_point": { "enum": ["D1", "D2"], "description": "D1 = recovery (hours); D2 = settlement (after the salvage outcome is known)." },
+    "decider_kind": { "enum": ["RULE", "AGENT", "HUMAN", "FALLBACK"] },
+    "confidence": { "enum": ["HIGH", "MEDIUM", "LOW"] },
+    "freshness": { "enum": ["OK", "STALE"] },
+    "autonomy_level": { "type": "integer", "minimum": 0, "maximum": 4 },
+    "holder_type": { "enum": ["GROWER", "PACKHOUSE", "CARRIER", "DC", "CUSTOMER", "PROCESSOR"] },
+    "customer_tier": { "enum": ["A", "B", "C"] },
+
+    "lifecycle_stage": {
+      "enum": ["EVENT", "DETECTION", "UNDERSTANDING", "OPTIONS", "EVALUATION", "RECOMMENDATION",
+               "GOVERNANCE", "APPROVAL", "EXECUTION", "OUTCOME", "AUDIT"]
+    },
+    "case_state": {
+      "enum": ["OPEN", "ASSESSED", "FORENSICS_PENDING", "FINDING_RECORDED", "OPTIONS_SCORED",
+               "STRATEGY_PENDING", "CLAIMS_PENDING", "RECOMMENDED", "AUDIT_PENDING", "AUDITED",
+               "AUTO_APPROVED", "PENDING_APPROVAL", "APPROVED", "ALTERNATIVE_CHOSEN", "REJECTED",
+               "DENIED", "SHADOW_RECORDED", "EXECUTING", "EXECUTED", "EXECUTION_FAILED",
+               "FALLBACK_EXECUTED", "AWAITING_OUTCOME", "OUTCOME_RECORDED", "CLAIM_OPEN",
+               "SETTLED", "ABSORBED", "SEALED"]
+    },
+
+    "disposition": { "enum": ["CONTINUE", "EXPEDITE", "REROUTE", "DOWNGRADE", "INSPECT", "HOLD", "DISPOSE"] },
+    "order_recovery_action": { "enum": ["KEEP", "FILL_FROM", "PARTIAL", "SHORT", "REPROMISE"] },
+    "financial_action": {
+      "enum": ["NONE", "CLAIM_NOTICE", "FILE_CLAIM", "GROWER_DEDUCTION", "ABSORB", "DEFER",
+               "ACCEPT_OFFER", "COUNTER", "APPEAL"]
+    },
+    "claim_basis": { "enum": ["CARRIER_TEMPERATURE", "GROWER_PRECOOL", "GROWER_QUALITY"] },
+    "cause": {
+      "enum": ["REEFER_MALFUNCTION", "SETPOINT_MISMATCH", "WARM_LOADING", "PRECOOL_DELAY",
+               "DOCK_DWELL", "DOOR_EVENTS", "DEFROST_ARTIFACT", "SENSOR_FAULT", "UNKNOWN"]
+    },
+    "escalation_reason": {
+      "enum": ["NO_FEASIBLE_OPTION", "NEAR_TIE", "HIGH_EXPOSURE", "EVIDENCE_CONFLICT",
+               "STRATEGIC_CUSTOMER", "MULTI_PARTY_LIABILITY", "CAUSE_AMBIGUOUS",
+               "MODEL_OUT_OF_RANGE", "QUALITATIVE_SIGNAL", "PRECEDENT_CONFLICT", "NOVEL"]
+    },
+    "elimination_code": {
+      "enum": ["FOOD_SAFETY", "SPEC_INFEASIBLE", "WINDOW_CLOSED", "CAPACITY",
+               "ORGANIC_INTEGRITY", "CONTRACT_PROHIBITS", "INVENTORY_STALE", "INSUFFICIENT_EVIDENCE"]
+    },
+    "policy_outcome": { "enum": ["AUTO", "APPROVE", "DENY", "SHADOW"] },
+    "action_type": {
+      "enum": ["STOCK_BLOCK", "STOCK_UNBLOCK", "REQUEST_EVIDENCE", "WITHDRAW_REQUEST",
+               "CLAIM_NOTICE", "WITHDRAW_NOTICE", "SO_CHANGE", "SO_REVERT",
+               "REPLACEMENT_ALLOCATION", "DEALLOCATE", "REROUTE", "REROUTE_BACK",
+               "REPROMISE_NOTICE", "CORRECTION_NOTICE", "SO_CREATE", "CANCEL_SO",
+               "DISPOSE", "FILE_CLAIM", "WITHDRAW_CLAIM", "GROWER_DEDUCTION", "ABSORB",
+               "REVERSAL_POSTING", "CASE_STATE"]
+    },
+    "reversibility": { "enum": ["REVERSIBLE", "COMPENSATABLE", "IRREVERSIBLE"] },
+    "target_system": { "enum": ["SAP", "TMS", "CARRIER", "CUSTOMER_EDI", "EMAIL", "INTERNAL"] },
+    "mutation_status": {
+      "enum": ["PROPOSED", "VALIDATED", "PENDING_APPROVAL", "AUTHORIZED", "REJECTED", "EXPIRED",
+               "PREPARED", "DISPATCHED", "ACKED", "VERIFIED", "ABORTED_PRECONDITION", "CONFLICT",
+               "FAILED", "COMPENSATING", "COMPENSATED", "SHADOW"]
+    },
+    "evidence_type": {
+      "enum": ["REEFER_DOWNLOAD", "BOL_COPY", "REINSPECTION", "PHOTOS", "TEMP_RECORDER_FILE"]
+    },
+    "doc_type": {
+      "enum": ["INSPECTION_CERT", "BOL", "RECEIVING_REPORT", "REEFER_DOWNLOAD", "INCIDENT_NOTE",
+               "CLAIM_CORRESPONDENCE", "CONTRACT"]
+    },
+    "consistency_verdict": { "enum": ["CONSISTENT", "CONFLICT", "UNVERIFIABLE"] },
+    "sales_channel": { "enum": ["CONTRACT", "REGIONAL", "FOODSERVICE", "PROCESSOR", "DONATION"] },
+
+    "value": {
+      "type": "object",
+      "description": "A self-describing number handed to an agent or stored as decision evidence.",
+      "required": ["name", "value", "unit", "grain", "as_of", "freshness", "metric_version", "evidence_id"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "value": { "type": ["number", "string", "boolean", "null"] },
+        "unit": { "type": "string", "maxLength": 32 },
+        "grain": { "type": "string", "maxLength": 64 },
+        "as_of": { "$ref": "#/$defs/timestamp" },
+        "data_age_min": { "type": ["number", "null"], "minimum": 0 },
+        "freshness": { "$ref": "#/$defs/freshness" },
+        "metric_version": { "$ref": "#/$defs/version" },
+        "evidence_id": { "$ref": "#/$defs/evidence_id" }
+      }
+    },
+    "untrusted_text": {
+      "type": "object",
+      "description": "Third-party text (notes, correspondence, clauses). Data only - never instructions.",
+      "required": ["untrusted_text"],
+      "additionalProperties": false,
+      "properties": {
+        "untrusted_text": { "type": "string", "maxLength": 6000 },
+        "truncated": { "type": "boolean" },
+        "evidence_id": { "$ref": "#/$defs/evidence_id" }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidence_id" },
+      "uniqueItems": true,
+      "maxItems": 100
+    },
+    "param_versions": {
+      "type": "object",
+      "description": "Versions of every governed input a computation used.",
+      "required": ["policy", "semantic", "engine"],
+      "additionalProperties": { "$ref": "#/$defs/version" },
+      "properties": {
+        "policy": { "$ref": "#/$defs/version" },
+        "semantic": { "$ref": "#/$defs/version" },
+        "engine": { "$ref": "#/$defs/version" },
+        "products": { "$ref": "#/$defs/version" },
+        "contracts": { "$ref": "#/$defs/version" },
+        "prices": { "$ref": "#/$defs/version" },
+        "cost_rates": { "$ref": "#/$defs/version" },
+        "lanes": { "$ref": "#/$defs/version" }
+      }
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "path": { "type": "string" },
+        "message": { "type": "string", "maxLength": 1000 }
+      }
+    }
+  }
+}

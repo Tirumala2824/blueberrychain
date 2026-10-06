@@ -1,0 +1,27 @@
+{
+  "schema": "tools/simulate_claim_variants.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "counterparty_id": "PARTY-SIERRA",
+      "basis": "CARRIER_TEMPERATURE",
+      "variants": [
+        "FULL",
+        "CAPPED",
+        "SETTLEMENT_BAND"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "variants are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/variants": [
+          "WHATEVER_THEY_PAY"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/submit_claim_recommendation.json",
+  "title": "SUBMIT_CLAIM_RECOMMENDATION input",
+  "description": "C3 - record the Claims & Recovery decision (writes a proposal record only).",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "claim_rec"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "claim_rec": {
+      "$ref": "../claim_recommendation.json"
+    }
+  }
+}

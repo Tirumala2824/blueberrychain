@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/telemetry_reading.json",
+  "title": "RAW.TELEMETRY row",
+  "description": "One sensor reading. Pulp probes report pulp_c; reefer units report air temperatures, setpoint, mode, door and alarms. The sink MERGEs on idempotency_key = sha256(device_id|reading_ts) so retries never double-count reading minutes.",
+  "type": "object",
+  "required": [
+    "device_id",
+    "reading_ts",
+    "interval_s",
+    "idempotency_key",
+    "connector_id",
+    "readings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "device_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "reading_ts": {
+      "$ref": "../common.json#/$defs/timestamp"
+    },
+    "interval_s": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 3600,
+      "description": "Sampling interval this reading represents (used for minute-weighted physics)."
+    },
+    "idempotency_key": {
+      "$ref": "../common.json#/$defs/sha256"
+    },
+    "connector_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "provenance": {
+      "enum": [
+        "LIVE",
+        "SIMULATION_BACKFILL",
+        "SIMULATION_LIVE"
+      ]
+    },
+    "readings": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": false,
+      "properties": {
+        "pulp_c": {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        "supply_air_c": {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        "return_air_c": {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        "setpoint_c": {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        "ambient_c": {
+          "$ref": "../common.json#/$defs/celsius"
+        },
+        "mode": {
+          "enum": [
+            "CONTINUOUS",
+            "CYCLE_SENTRY",
+            "DEFROST",
+            "OFF"
+          ]
+        },
+        "door_open": {
+          "type": "boolean"
+        },
+        "alarms": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Z0-9_]{1,32}$"
+          },
+          "uniqueItems": true
+        },
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180
+        },
+        "battery_pct": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    }
+  }
+}

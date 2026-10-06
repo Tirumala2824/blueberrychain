@@ -1,0 +1,55 @@
+{
+  "schema": "reference/product.json",
+  "valid": [
+    {
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "variety": "Emerald",
+      "pack": "12 x 6 oz clamshell",
+      "organic": true,
+      "sap_material": "BB-EM-ORG-6OZ",
+      "ref_shelf_life_days": 21,
+      "tref_c": 0.0,
+      "q10": 3.0,
+      "threshold_c": 1.8,
+      "tolerance_min": 30,
+      "unmonitored_assumed_temp_c": 2.0,
+      "validity_min_temp_c": -1.0,
+      "validity_max_temp_c": 20.0,
+      "prior_sigma_days": 1.0,
+      "kg_per_pallet": 1050
+    },
+    {
+      "product_id": "BB-DUKE-ORG-12x6",
+      "variety": "Duke",
+      "pack": "12 x 6 oz clamshell",
+      "organic": true,
+      "sap_material": "BB-DK-ORG-6OZ",
+      "ref_shelf_life_days": 18,
+      "tref_c": 0.0,
+      "q10": 3.2,
+      "threshold_c": 1.8,
+      "tolerance_min": 30,
+      "unmonitored_assumed_temp_c": 2.0,
+      "validity_min_temp_c": -1.0,
+      "validity_max_temp_c": 20.0,
+      "prior_sigma_days": 1.2,
+      "kg_per_pallet": 1050
+    }
+  ],
+  "invalid": [
+    {
+      "why": "Q10 must be a plausible temperature coefficient",
+      "base": 0,
+      "set": {
+        "/q10": 40
+      }
+    },
+    {
+      "why": "the shelf-life model needs its threshold",
+      "base": 0,
+      "delete": [
+        "/threshold_c"
+      ]
+    }
+  ]
+}

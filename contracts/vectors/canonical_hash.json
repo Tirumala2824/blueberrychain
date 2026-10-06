@@ -1,0 +1,40 @@
+{
+  "description": "Canonical-JSON / hash vectors (bbc_toolkit.ledger). The Snowflake LEDGER.CANONICAL_HASH UDF and every other implementation must reproduce both 'canonical' and 'sha256'.",
+  "vectors": [
+    {
+      "input": {
+        "case_id": "CASE-00000017",
+        "nrv_usd": 45301,
+        "lots": [
+          "L-A"
+        ],
+        "ok": true
+      },
+      "canonical": "{\"case_id\":\"CASE-00000017\",\"lots\":[\"L-A\"],\"nrv_usd\":45301,\"ok\":true}",
+      "sha256": "cd443761ea144ab9d5ebda8ff910af7fa1d240e73096fd2f71cb8fde6d8b335b"
+    },
+    {
+      "input": {
+        "b": [
+          1,
+          {
+            "d": null,
+            "c": true
+          }
+        ],
+        "a": "caf\u00e9"
+      },
+      "canonical": "{\"a\":\"caf\\u00e9\",\"b\":[1,{\"c\":true,\"d\":null}]}",
+      "sha256": "7ef766dc012950a1967b8047d977b2935a815934653f66e64d9cd141ac01c3c4"
+    },
+    {
+      "input": {
+        "price": 11.2,
+        "kg": 4200.0,
+        "tiny": 1e-07
+      },
+      "canonical": "{\"kg\":4200,\"price\":11.2,\"tiny\":0.0000001}",
+      "sha256": "4fcb1587fbca240c450bc4634d0eda4a88fed5b771ddddd0a3a1b93a59942ade"
+    }
+  ]
+}

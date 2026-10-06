@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/lane.json",
+  "title": "Reference: lane",
+  "description": "A site-to-site lane with transit-time distribution and cost.",
+  "type": "object",
+  "required": [
+    "lane_id",
+    "origin_site_id",
+    "dest_site_id",
+    "mode",
+    "transit_h_p50",
+    "transit_h_p90",
+    "distance_mi",
+    "cost_per_load_usd"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "lane_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "origin_site_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "dest_site_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "mode": {
+      "enum": [
+        "REEFER_TRUCK"
+      ]
+    },
+    "transit_h_p50": {
+      "$ref": "../common.json#/$defs/hours"
+    },
+    "transit_h_p90": {
+      "$ref": "../common.json#/$defs/hours"
+    },
+    "distance_mi": {
+      "type": "number",
+      "minimum": 0
+    },
+    "cost_per_load_usd": {
+      "$ref": "../common.json#/$defs/usd"
+    }
+  }
+}

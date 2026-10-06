@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tool_envelope.json",
+  "title": "Agent tool response envelope",
+  "description": "Every agent tool returns this envelope. Values are self-describing; every returned item carries an evidence_id that is logged in DECISION.TOOL_CALLS so submissions can only cite evidence the run actually saw.",
+  "type": "object",
+  "required": ["status", "tool", "tool_version", "run_id", "call_seq", "data", "values",
+               "evidence_ids", "warnings", "errors", "result_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "status": { "enum": ["OK", "PARTIAL", "STALE", "INVALID", "DENIED", "ERROR"] },
+    "tool": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+    "tool_version": { "$ref": "common.json#/$defs/version" },
+    "run_id": { "$ref": "common.json#/$defs/run_id" },
+    "case_id": { "oneOf": [{ "$ref": "common.json#/$defs/case_id" }, { "type": "null" }] },
+    "as_of": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+    "call_seq": { "type": "integer", "minimum": 1 },
+    "data": { "type": "object" },
+    "values": { "type": "array", "items": { "$ref": "common.json#/$defs/value" } },
+    "evidence_ids": { "type": "array", "items": { "$ref": "common.json#/$defs/evidence_id" } },
+    "warnings": { "type": "array", "items": { "type": "string", "maxLength": 500 } },
+    "errors": { "type": "array", "items": { "$ref": "common.json#/$defs/error" } },
+    "result_hash": { "$ref": "common.json#/$defs/sha256" }
+  }
+}

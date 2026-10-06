@@ -1,0 +1,37 @@
+{
+  "schema": "claim_recommendation.json",
+  "valid": [
+    {
+      "action": "FILE_CLAIM",
+      "counterparty_id": "PARTY-SIERRA",
+      "basis": "CARRIER_TEMPERATURE",
+      "variant_option_id": "OPT-00000210",
+      "prerequisites_ack": ["NOTICE_TIMELY", "MITIGATION_EVIDENCED", "SETPOINT_ON_BOL", "CUSTODY_PROVEN", "DOCS_COMPLETE"],
+      "anticipated_defenses": [
+        { "defense": "WARM_LOADING", "rebuttal": "Pulp at loading was 0.8 C against a 0.5 C BOL setpoint; the excursion began 2 h into carrier custody.", "evidence_ids": ["EV:SIG:WARM_LOADING@1", "EV:DOC:DOC-SFI-044812#pulp_temp_at_loading_c"] }
+      ],
+      "letter_draft": "Sierra Reefer Lines - claim for temperature damage to shipment SHP-20261006-114 ...",
+      "response_to": "",
+      "confidence": "HIGH",
+      "citations": ["EV:LOSS:CASE-00000017", "EV:SIG:WARM_LOADING@1"]
+    },
+    {
+      "action": "ABSORB",
+      "counterparty_id": "PARTY-BHM",
+      "basis": "GROWER_QUALITY",
+      "variant_option_id": null,
+      "prerequisites_ack": [],
+      "anticipated_defenses": [],
+      "letter_draft": "",
+      "response_to": "",
+      "confidence": "MEDIUM",
+      "citations": ["EV:LOSS:CASE-00000017"]
+    }
+  ],
+  "invalid": [
+    { "why": "amounts come only from calculator variants - no free amount field", "base": 0, "set": { "/amount_usd": 3952 } },
+    { "why": "filing a claim requires a calculator variant", "base": 0, "set": { "/variant_option_id": null } },
+    { "why": "claim actions are a frozen vocabulary", "base": 0, "set": { "/action": "SUE" } },
+    { "why": "defense categories are a frozen vocabulary", "base": 0, "set": { "/anticipated_defenses/0/defense": "ACT_OF_GOD" } }
+  ]
+}

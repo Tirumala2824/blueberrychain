@@ -1,0 +1,74 @@
+{
+  "schema": "raw/telemetry_reading.json",
+  "valid": [
+    {
+      "device_id": "P-A1",
+      "reading_ts": "2026-10-06T07:55:00Z",
+      "interval_s": 60,
+      "idempotency_key": "606ba4d4e8a987454bc6a0a1d766118111d5b16bd7ad42409ac46e7e01e34bf4",
+      "connector_id": "iot",
+      "provenance": "SIMULATION_LIVE",
+      "readings": {
+        "pulp_c": 6.8,
+        "battery_pct": 81
+      }
+    },
+    {
+      "device_id": "RF-114",
+      "reading_ts": "2026-10-06T07:55:00Z",
+      "interval_s": 60,
+      "idempotency_key": "d50472dd555452365027a6b620752e0a1890b984a0b9b208ea1a501fe79aba27",
+      "connector_id": "iot",
+      "readings": {
+        "supply_air_c": 9.5,
+        "return_air_c": 11.2,
+        "setpoint_c": 0.5,
+        "ambient_c": 24.0,
+        "mode": "CONTINUOUS",
+        "door_open": false,
+        "alarms": [
+          "COMPRESSOR_FAULT"
+        ],
+        "lat": 38.58,
+        "lon": -121.49
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a reading carries at least one measurement",
+      "base": 0,
+      "set": {
+        "/readings": {}
+      }
+    },
+    {
+      "why": "temperatures are physically bounded",
+      "base": 0,
+      "set": {
+        "/readings/pulp_c": 250
+      }
+    },
+    {
+      "why": "unknown measurement fields are rejected",
+      "base": 0,
+      "set": {
+        "/readings/vibes": 3
+      }
+    },
+    {
+      "why": "the sampling interval is required (minute-weighted physics)",
+      "base": 0,
+      "delete": [
+        "/interval_s"
+      ]
+    },
+    {
+      "why": "reefer modes are a frozen vocabulary",
+      "base": 1,
+      "set": {
+        "/readings/mode": "TURBO"
+      }
+    }
+  ]
+}

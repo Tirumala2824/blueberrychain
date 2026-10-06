@@ -1,0 +1,31 @@
+{
+  "schema": "tools/request_evidence.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "request": {
+        "evidence_type": "REEFER_DOWNLOAD",
+        "from_party_id": "PARTY-SIERRA",
+        "reason": "Need the unit's own download to confirm the compressor fault window.",
+        "needed_by_ts": "2026-10-06T09:30:00Z"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a request needs a reason",
+      "base": 0,
+      "set": {
+        "/request/reason": ""
+      }
+    },
+    {
+      "why": "evidence types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/request/evidence_type": "CONFESSION"
+      }
+    }
+  ]
+}

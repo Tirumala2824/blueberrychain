@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/delivery.json",
+  "title": "Outbound delivery",
+  "description": "Delivery / lot assignment for an order line (SAP A_OutbDeliveryItem, mapped). Source: SAP.",
+  "type": "object",
+  "required": [
+    "delivery_id",
+    "order_line_id",
+    "lot_id",
+    "kg",
+    "status",
+    "last_change_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "delivery_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "order_line_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "lot_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "shipment_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kg": {
+      "$ref": "../../common.json#/$defs/kg"
+    },
+    "planned_goods_issue_at": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "enum": [
+        "CREATED",
+        "PICKED",
+        "GOODS_ISSUED",
+        "DELIVERED",
+        "CANCELLED"
+      ]
+    },
+    "last_change_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    }
+  }
+}

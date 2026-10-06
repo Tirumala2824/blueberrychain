@@ -18,7 +18,12 @@
 | `API_MATERIAL_STOCK_SRV` | Stock by plant / batch / status |
 | `API_INSPECTIONLOT_SRV` | QC results (receipt QC = outcome evidence) |
 | `API_MATERIAL_DOCUMENT_SRV` | Goods movement **344** (unrestricted → blocked) and **343** (reverse) |
-| `API_CREDIT_MEMO_REQUEST_SRV` | Credit memos; FI-style postings for grower deductions and reversals (simplified) |
+| `API_SUPPLIERINVOICE_PROCESS_SRV` (simplified) | Grower deductions as supplier credit memos (`IsInvoice = false`), reversal via `Cancel` |
+
+**Amendment (Day 2):**
+- **Re-route and processor sales** create a new sales order. The action type `PROCESSOR_SALE` is generalized to **`SO_CREATE`** (compensation `CANCEL_SO`).
+- **Customer re-promise notices** (EDI 865) go through a **mock EDI gateway hosted in `apps/mock-tms`** (`/edi/v1/messages`).
+- **The full contracts** are in `contracts/apis/mock-s4.odata.md` and `contracts/apis/mock-tms.openapi.yaml` (validated with `openapi-spec-validator`).
 
 - **`apps/mock-tms`** is a REST API (OpenAPI 3.1): shipments, status events, custody / handoff events, re-route instructions, claims and claim responses, plus webhooks.
 - **Idempotency:**

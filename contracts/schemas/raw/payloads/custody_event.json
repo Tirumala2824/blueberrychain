@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/custody_event.json",
+  "title": "Custody event",
+  "description": "A change of custody or a load/unload/arrive/depart event. Source: TMS / packhouse / DC.",
+  "type": "object",
+  "required": [
+    "event_id",
+    "event_type",
+    "at",
+    "from_party_id",
+    "to_party_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "event_type": {
+      "enum": [
+        "HANDOFF",
+        "LOAD",
+        "UNLOAD",
+        "ARRIVE",
+        "DEPART"
+      ]
+    },
+    "at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "shipment_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lot_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "from_party_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "to_party_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "site_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

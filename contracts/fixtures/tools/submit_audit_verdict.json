@@ -1,0 +1,46 @@
+{
+  "schema": "tools/submit_audit_verdict.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000207",
+      "artifact_id": "FND-00000009",
+      "verdict": {
+        "statements": [
+          {
+            "span": {
+              "start": 0,
+              "end": 84
+            },
+            "statement": "Pulp stayed above 3 C for 5 h after harvest.",
+            "verdict": "SUPPORTED",
+            "evidence_ids": [
+              "EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M"
+            ]
+          },
+          {
+            "span": {
+              "start": 85,
+              "end": 160
+            },
+            "statement": "The reefer held supply air at setpoint.",
+            "verdict": "SUPPORTED",
+            "evidence_ids": [
+              "EV:SIG:REEFER_PULLDOWN_FAILURE@1"
+            ]
+          }
+        ],
+        "overall": "PASS",
+        "required_fixes": []
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the embedded verdict must itself be valid",
+      "base": 0,
+      "set": {
+        "/verdict/overall": "MOSTLY_PASS"
+      }
+    }
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/business_event.json",
+  "title": "RAW.BUSINESS_EVENTS row",
+  "description": "Append-only envelope for every non-telemetry record. The sink MERGEs on idempotency_key (see contracts/schemas/raw/README.md), so retries never duplicate. OPS Dynamic Tables type the payload by entity_type.",
+  "type": "object",
+  "required": [
+    "source_system",
+    "entity_type",
+    "external_id",
+    "event_ts",
+    "idempotency_key",
+    "connector_id",
+    "payload"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source_system": {
+      "enum": [
+        "SAP",
+        "TMS",
+        "PACKHOUSE",
+        "IOT_PLATFORM",
+        "FILES"
+      ]
+    },
+    "entity_type": {
+      "enum": [
+        "CLAIM_RESPONSE",
+        "CUSTODY_EVENT",
+        "DELIVERY",
+        "DEVICE_ASSIGNMENT",
+        "DOCUMENT_META",
+        "INSPECTION_RESULT",
+        "LOT",
+        "SALES_ORDER_ITEM",
+        "SHIPMENT",
+        "SHIPMENT_STATUS",
+        "STOCK_SNAPSHOT"
+      ]
+    },
+    "external_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "event_ts": {
+      "$ref": "../common.json#/$defs/timestamp",
+      "description": "Business time of the record (change time for master/transactional records, occurrence time for events)."
+    },
+    "idempotency_key": {
+      "$ref": "../common.json#/$defs/sha256"
+    },
+    "connector_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "provenance": {
+      "enum": [
+        "LIVE",
+        "SIMULATION_BACKFILL",
+        "SIMULATION_LIVE"
+      ],
+      "description": "Defaults to LIVE when absent."
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "CLAIM_RESPONSE"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/claim_response.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "CUSTODY_EVENT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/custody_event.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "DELIVERY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/delivery.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "DEVICE_ASSIGNMENT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/device_assignment.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "DOCUMENT_META"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/document_meta.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "INSPECTION_RESULT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/inspection_result.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "LOT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/lot.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "SALES_ORDER_ITEM"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/sales_order_item.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "SHIPMENT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/shipment.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "SHIPMENT_STATUS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/shipment_status.json"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "entity_type": {
+            "const": "STOCK_SNAPSHOT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "$ref": "payloads/stock_snapshot.json"
+          }
+        }
+      }
+    }
+  ]
+}

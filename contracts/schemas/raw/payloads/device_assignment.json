@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/device_assignment.json",
+  "title": "Device assignment",
+  "description": "Which device measures which lot or shipment, and in what role. Source: packhouse / IoT platform.",
+  "type": "object",
+  "required": [
+    "device_id",
+    "target_type",
+    "target_id",
+    "role",
+    "assigned_from"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "device_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "target_type": {
+      "enum": [
+        "LOT",
+        "SHIPMENT"
+      ]
+    },
+    "target_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "role": {
+      "enum": [
+        "PRIMARY",
+        "SECONDARY",
+        "REEFER"
+      ]
+    },
+    "assigned_from": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "assigned_to": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

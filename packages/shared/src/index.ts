@@ -1,7 +1,7 @@
 /**
  * Shared decision-contract types and constants for BlueberryChain OS.
  *
- * Generated JSON-Schema types join this package on Day 2; the lifecycle
+ * Types generated from contracts/schemas live in src/generated (run "pnpm generate"); the lifecycle
  * itself is frozen product design (see docs/design/implementation-plan.md).
  */
 
@@ -35,3 +35,6 @@ export type DeciderKind = (typeof DECIDER_KINDS)[number];
 /** Autonomy levels: L0 observe ... L4 execute material actions after approval. */
 export const AUTONOMY_LEVELS = [0, 1, 2, 3, 4] as const;
 export type AutonomyLevel = (typeof AUTONOMY_LEVELS)[number];
+
+export { contractsDir, schemaNames, validate, type ContractError } from "./contracts.js";
+export type * from "./generated/index.js";

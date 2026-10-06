@@ -1,0 +1,20 @@
+{
+  "schema": "tools/get_precedents.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "focus": "DISPOSITION",
+      "k": 5
+    }
+  ],
+  "invalid": [
+    {
+      "why": "k is capped at 10",
+      "base": 0,
+      "set": {
+        "/k": 50
+      }
+    }
+  ]
+}

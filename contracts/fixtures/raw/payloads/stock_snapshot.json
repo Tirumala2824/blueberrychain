@@ -1,0 +1,22 @@
+{
+  "schema": "raw/payloads/stock_snapshot.json",
+  "valid": [
+    {
+      "site_id": "SITE-CVDC-TRACY",
+      "lot_id": "L-CV-0912",
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "kg": 38000,
+      "stock_status": "UNRESTRICTED",
+      "snapshot_at": "2026-10-06T06:00:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "stock status is a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/stock_status": "MISSING"
+      }
+    }
+  ]
+}
