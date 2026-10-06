@@ -19,6 +19,34 @@ EVENT → DETECTION → UNDERSTANDING → OPTIONS → EVALUATION → RECOMMENDAT
       → GOVERNANCE → APPROVAL → EXECUTION → OUTCOME → AUDIT
 ```
 
+## 🚀 Live Demo & Hackathon Evaluation
+
+The BlueberryChain Control Tower and Deterministic Decision Engine are deployed live on Google Cloud Run with automated CI/CD from the `dev` branch.
+
+| Component | Environment | URL |
+|---|---|---|
+| **Control Tower (Cockpit UI)** | Production | [blueberrychain-control-tower](https://blueberrychain-control-tower-1061285537090.europe-west1.run.app/) |
+| **Control Tower (Cockpit UI)** | Dev | [blueberrychain-control-tower-dev](https://blueberrychain-control-tower-dev-1061285537090.europe-west1.run.app/) |
+| **Decision Engine API** | Production | [blueberrychain-engine-api/healthz](https://blueberrychain-engine-api-1061285537090.europe-west1.run.app/healthz) |
+| **Decision Engine API** | Dev | [blueberrychain-engine-api-dev/healthz](https://blueberrychain-engine-api-dev-1061285537090.europe-west1.run.app/healthz) |
+
+### Hackathon Evaluation Access Code
+When opening the Control Tower UI, enter the following Access Code to unlock the persona switcher:
+
+```
+Access Code: e62d34cee74df5ba3edeccb4
+```
+
+### Evaluation Guide
+1. Open the [Live Control Tower](https://blueberrychain-control-tower-1061285537090.europe-west1.run.app/).
+2. Enter the **Access Code** above.
+3. Select any governed persona role to evaluate:
+   - **Quality & Operations Manager** (`BBC_QUALITY_MGR`): Review live excursion telemetry, inspect sensor pulp drift, and evaluate shelf-life recovery options.
+   - **Sales Manager** (`BBC_SALES_MGR`): Assess customer delivery commitments, salvage market valuations, and order reassignment.
+   - **Finance Manager** (`BBC_FINANCE_MGR`): Review downside risk, carrier claim recovery likelihood, and net financial impacts.
+   - **Auditor** (`BBC_AUDITOR`): Verify cryptographic SHA-256 hash chains across the immutable decision ledger and inspect evidence packs.
+   - **Governance Admin** (`BBC_GOVERNANCE_ADMIN`): Inspect active policy rules, autonomy thresholds, and emergency stops.
+
 ## Status
 **Rebuild in progress, Day 1 of 18.** See the [implementation plan](docs/design/implementation-plan.md).
 
