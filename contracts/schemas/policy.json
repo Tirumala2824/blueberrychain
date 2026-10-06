@@ -797,6 +797,10 @@
             "items": {
               "type": "string"
             }
+          },
+          "definition_hash": {
+            "$ref": "common.json#/$defs/sha256",
+            "description": "Hash of the metric's definition in the semantic model (blueberrychain.semantic.definition_hashes)."
           }
         }
       }

@@ -116,20 +116,20 @@
     { "agent": "EVIDENCE_AUDITOR", "provider": "CORTEX", "model": "llama4-maverick", "role": "PRIMARY", "data_classes": ["OPERATIONAL", "COMMERCIAL", "CONTRACTUAL"], "must_differ_from_author": true }
   ],
   "metric_registry": [
-    { "name": "REMAINING_SHELF_LIFE_DAYS", "version": "1", "canonical": true, "unit": "days", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
+    { "name": "REMAINING_SHELF_LIFE_DAYS", "version": "1", "canonical": true, "unit": "days", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120, "definition_hash": "4087c67db559bb2e699251cf4be755289161218d36b4f6fba5c2374eabb357d4" },
     { "name": "PREDICTED_SL_AT_ETA_DAYS", "version": "1", "canonical": true, "unit": "days", "grain": "case_lot_destination", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
     { "name": "SPEC_MARGIN_DAYS", "version": "1", "canonical": true, "unit": "days", "grain": "case_lot_destination", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
-    { "name": "EXCESS_LIFE_SHARE", "version": "1", "canonical": true, "unit": "share", "grain": "lot_holder", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
+    { "name": "EXCESS_LIFE_SHARE", "version": "1", "canonical": true, "unit": "share", "grain": "lot_holder", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120, "definition_hash": "92c04dbe9e2bbdbbf0e1065d882236ee4593a83b213c012c1f4f3a6ad27a42bb" },
     { "name": "PLANNED_VALUE_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "case_lot", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
     { "name": "DEFAULT_COUNTERFACTUAL_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "decision", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
     { "name": "VALUE_AT_RISK_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "case_lot", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
     { "name": "PREDICTED_NRV_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "decision", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
     { "name": "REALIZED_NRV_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "case", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
     { "name": "VALUE_PROTECTED_USD", "version": "1", "canonical": true, "unit": "USD", "grain": "case", "owner_role": "BBC_FINANCE_MGR", "staleness_limit_min": null },
-    { "name": "QUALITY_ADJUSTED_ATP_KG", "version": "1", "canonical": true, "unit": "kg", "grain": "lot_site_snapshot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 360 },
-    { "name": "TEMPERATURE_COMPLIANCE_PCT", "version": "1", "canonical": false, "unit": "%", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
-    { "name": "MONITORING_COVERAGE_PCT", "version": "1", "canonical": false, "unit": "%", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
-    { "name": "THERMAL_EXPOSURE_DEG_H", "version": "1", "canonical": false, "unit": "deg_h", "grain": "lot_holder", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120 },
-    { "name": "DATA_AGE_MIN", "version": "1", "canonical": false, "unit": "min", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": null }
+    { "name": "QUALITY_ADJUSTED_ATP_KG", "version": "1", "canonical": true, "unit": "kg", "grain": "lot_site_snapshot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 360, "definition_hash": "74fa92af8428aeac281dd673d31e59cbc996ed0b55d4bfb3461ee8d64e2e2f5b" },
+    { "name": "TEMPERATURE_COMPLIANCE_PCT", "version": "1", "canonical": false, "unit": "%", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120, "definition_hash": "d004ae5fd0f985f72ed8145234bc8bc3a0f8ecd97d4120ecbffc06ecc6a5e1c7" },
+    { "name": "MONITORING_COVERAGE_PCT", "version": "1", "canonical": false, "unit": "%", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120, "definition_hash": "88623a5dccbbb405cfbbe5657af3fce9e8aa7b4fd6adf3a3025b191a036a9684" },
+    { "name": "THERMAL_EXPOSURE_DEG_H", "version": "1", "canonical": false, "unit": "deg_h", "grain": "lot_holder", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": 120, "definition_hash": "679e2520192871e2df2c290983a0ccdc3c5c335651d1b35b58784f9e565f858b" },
+    { "name": "DATA_AGE_MIN", "version": "1", "canonical": false, "unit": "min", "grain": "lot", "owner_role": "BBC_QUALITY_MGR", "staleness_limit_min": null, "definition_hash": "9879d46f661ec525f66cf7af7c1039d397baeb559178cd774246919f3dd623e3" }
   ]
 }

@@ -1,0 +1,25 @@
+{
+  "name": "@blueberrychain/dev-stack",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local world for BlueberryChain OS: mock S/4, mock TMS, IoT webhook and the SAP and carrier connectors in one process",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node --env-file-if-exists=../../.env dist/main.js"
+  },
+  "dependencies": {
+    "@blueberrychain/connector-carrier": "workspace:*",
+    "@blueberrychain/connector-iot": "workspace:*",
+    "@blueberrychain/connector-sap-s4": "workspace:*",
+    "@blueberrychain/connector-sdk": "workspace:*",
+    "@blueberrychain/mock-s4": "workspace:*",
+    "@blueberrychain/mock-tms": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0"
+  }
+}

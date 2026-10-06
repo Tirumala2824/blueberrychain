@@ -16,6 +16,10 @@ info:
     - **Counterparty behavior is rule-based, not scripted**: claims are answered by the mock's
       claim desk according to configured rules (warm-loading defense when pulp at loading exceeded
       the BOL setpoint by more than the tolerance; cap enforcement; partial offers).
+    - **Simulator entry points** (`/__sim/clock`, `/__sim/shipments`, `/__sim/events`,
+      `/__sim/reset`) let the simulator play the carrier's dispatchers and drivers. They are not
+      part of this contract: connectors and the dispatcher never call them. The mock's clock is
+      simulated time; `updated_at` and event cursors strictly increase.
   license:
     name: Apache-2.0
     identifier: Apache-2.0
@@ -92,7 +96,7 @@ paths:
     get:
       tags: [shipments]
       operationId: listEvents
-      summary: All status and custody events since a cursor (delta polling across shipments)
+      summary: All status and custody events recorded after a cursor (delta polling across shipments; compares recorded_at)
       parameters:
         - { name: since, in: query, required: true, schema: { type: string, format: date-time } }
         - { name: page_token, in: query, required: false, schema: { type: string } }
@@ -416,6 +420,8 @@ components:
         carrier_party_id: { type: string }
         origin_site_id: { type: string }
         destination_site_id: { type: string }
+        planned_destination_site_id: { type: string, description: "Destination before any re-route" }
+        truck_id: { type: [string, "null"] }
         planned_departure_at: { type: string, format: date-time }
         planned_arrival_at: { type: string, format: date-time }
         reefer_device_id: { type: [string, "null"] }
@@ -451,6 +457,10 @@ components:
         from_party_id: { type: [string, "null"] }
         to_party_id: { type: [string, "null"] }
         site_id: { type: [string, "null"] }
+        recorded_at:
+          type: string
+          format: date-time
+          description: When the TMS recorded the event. Polling cursors (`since`) compare against this, not `at`, so late-arriving events are never skipped.
 
     RerouteRequest:
       type: object

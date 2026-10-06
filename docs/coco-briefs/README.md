@@ -19,3 +19,4 @@ Every Snowflake work package (Track B) is built in **Cortex Code (CoCo)** from a
 | WP1 Foundation + capability spikes | [WP1-foundation-spikes.md](WP1-foundation-spikes.md) | Ready to run |
 | WP2 RAW, REF, GOV, ledger | [WP2-raw-ref-gov-ledger.md](WP2-raw-ref-gov-ledger.md) | Ready once WP1 is validated |
 | WP3 Ingest path + OPS Dynamic Tables | [WP3-ingest-ops-dynamic-tables.md](WP3-ingest-ops-dynamic-tables.md) | Ready once WP2 is validated |
+| WP5 World in Snowflake + semantic view | [WP5-semantic-view.md](WP5-semantic-view.md) | Ready once WP3 is validated |

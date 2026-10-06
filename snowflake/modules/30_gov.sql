@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS MODEL_REGISTRY (
 CREATE TABLE IF NOT EXISTS METRIC_REGISTRY (
   policy_version STRING NOT NULL, name STRING NOT NULL, version STRING NOT NULL, canonical BOOLEAN NOT NULL,
   unit STRING NOT NULL, grain STRING NOT NULL, owner_role STRING NOT NULL, staleness_limit_min NUMBER(6,0),
-  allowed_dimensions ARRAY, definition_hash STRING COMMENT 'Filled by WP5 from the semantic view definition',
+  allowed_dimensions ARRAY, definition_hash STRING COMMENT 'From the policy document; = blueberrychain.semantic.definition_hashes of SEM.EXCURSION_RECOVERY',
   CONSTRAINT pk_metric_registry PRIMARY KEY (policy_version, name)
 );
 

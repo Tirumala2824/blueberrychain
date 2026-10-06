@@ -198,6 +198,34 @@ def reference_batches(world: dict[str, Any]) -> dict[str, list[dict[str, Any]]]:
     return batches
 
 
+def sap_key_map(world: dict[str, Any]) -> dict[str, dict[str, str]]:
+    """SAP key -> our id, for connector-sap-s4 (and the simulator's SAP side, in reverse)."""
+    sap = world.get("sap", {})
+    return {
+        "business_partner": {
+            p["sap_business_partner"]: p["party_id"]
+            for p in world["parties"]
+            if p.get("sap_business_partner")
+        },
+        "plant": {s["sap_plant"]: s["site_id"] for s in world["sites"] if s.get("sap_plant")},
+        "material": {
+            p["sap_material"]: p["product_id"] for p in world["products"] if p.get("sap_material")
+        },
+        "ship_to": dict(sap.get("ship_to", {})),
+        "harvest_block": dict(sap.get("harvest_blocks", {})),
+        "storage_location": {"default": sap.get("storage_location", "0001")},
+    }
+
+
+def write_key_map(world: dict[str, Any], out_dir: Path) -> Path:
+    out_dir.mkdir(parents=True, exist_ok=True)
+    path = out_dir / "sap_key_map.json"
+    path.write_text(
+        json.dumps(sap_key_map(world), indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
+    return path
+
+
 def write_batches(
     batches: dict[str, list[dict[str, Any]]], out_dir: Path, world_version: str
 ) -> list[Path]:

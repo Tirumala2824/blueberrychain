@@ -1,6 +1,6 @@
 export * from "./types.js";
 export { businessEventRow, rowProblems, SCHEMAS, telemetryRow, type Provenance } from "./rows.js";
-export { MemorySink, SnowflakeSink } from "./sinks.js";
+export { MemorySink, type MemoryRaw, memoryRaw, SnowflakeSink } from "./sinks.js";
 export {
   BatchingWriter,
   FileDeadLetter,

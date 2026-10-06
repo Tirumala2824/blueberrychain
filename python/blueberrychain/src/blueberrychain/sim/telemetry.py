@@ -98,9 +98,7 @@ def simulate(world: dict[str, Any], trip: Trip, seed: int | None = None) -> SimR
             if not span[0] <= t < span[1]:
                 continue
             lots_here = [
-                lot
-                for lot in trip.lots
-                if (seg := lot.segment_at(t)) and (seg.truck_id == truck or seg.kind == "DOCK")
+                lot for lot in trip.lots if (seg := lot.segment_at(t)) and seg.truck_id == truck
             ]
             seg = next((s for lot in lots_here if (s := lot.segment_at(t))), None)
             setpoint = next(
@@ -180,8 +178,7 @@ def simulate(world: dict[str, Any], trip: Trip, seed: int | None = None) -> SimR
                 (
                     s
                     for lot in trip.lots
-                    if (s := lot.segment_at(t - timedelta(seconds=1)))
-                    and (s.truck_id == truck or s.kind == "DOCK")
+                    if (s := lot.segment_at(t - timedelta(seconds=1))) and s.truck_id == truck
                 ),
                 None,
             )

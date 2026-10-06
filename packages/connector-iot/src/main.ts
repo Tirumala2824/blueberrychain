@@ -24,7 +24,12 @@ const writer = new BatchingWriter(sink, "TELEMETRY", {
   maxDelayMs: 1000,
   deadLetter: new FileDeadLetter(env.BBC_DEAD_LETTER_DIR ?? ".artifacts/dead-letter"),
 });
-const server = createIotServer({ connectorId, secret, writer });
+const eventWriter = new BatchingWriter(sink, "BUSINESS_EVENTS", {
+  maxRows: 200,
+  maxDelayMs: 500,
+  deadLetter: new FileDeadLetter(env.BBC_DEAD_LETTER_DIR ?? ".artifacts/dead-letter"),
+});
+const server = createIotServer({ connectorId, secret, writer, eventWriter });
 const port = Number(env.BBC_IOT_PORT ?? 8787);
 const host = env.BBC_IOT_HOST ?? "127.0.0.1";
 server.listen(port, host, () => {
@@ -35,6 +40,7 @@ async function shutdown(signal: string) {
   console.log(JSON.stringify({ event: "shutdown", signal }));
   server.close();
   await writer.close();
+  await eventWriter.close();
   process.exit(0);
 }
 process.on("SIGINT", () => void shutdown("SIGINT"));

@@ -52,16 +52,50 @@ export class SnowflakeSink implements Sink {
   }
 }
 
-/** Same checks and de-duplication as the server; for tests and `--sink memory` runs. */
+/** An in-memory RAW that several connectors can share, as they share RAW in Snowflake. */
+export interface MemoryRaw {
+  tables: Record<RawTarget, Map<string, RawRow>>;
+  deadLetters: Array<{ connectorId: string; target: RawTarget; row: RawRow; errors: string[] }>;
+  /** connector id -> stream -> cursor (RAW.CONNECTOR_STATE). */
+  cursors: Map<string, Map<string, string | null>>;
+  batches: IngestResult[];
+}
+
+export function memoryRaw(): MemoryRaw {
+  return { tables: { TELEMETRY: new Map(), BUSINESS_EVENTS: new Map() }, deadLetters: [], cursors: new Map(), batches: [] };
+}
+
+/** Same checks and de-duplication as the server; for tests and local (dev-stack) runs. */
 export class MemorySink implements Sink {
-  readonly tables: Record<RawTarget, Map<string, RawRow>> = { TELEMETRY: new Map(), BUSINESS_EVENTS: new Map() };
-  readonly deadLetters: Array<{ target: RawTarget; row: RawRow; errors: string[] }> = [];
-  readonly cursorState = new Map<string, string | null>();
-  readonly batches: IngestResult[] = [];
   /** Make the next N writes throw this error (to exercise retries). */
   failNext: { count: number; error: Error } | null = null;
 
-  constructor(readonly connectorId: string) {}
+  constructor(
+    readonly connectorId: string,
+    readonly raw: MemoryRaw = memoryRaw(),
+  ) {}
+
+  get tables(): MemoryRaw["tables"] {
+    return this.raw.tables;
+  }
+
+  get deadLetters(): MemoryRaw["deadLetters"] {
+    return this.raw.deadLetters;
+  }
+
+  get batches(): IngestResult[] {
+    return this.raw.batches;
+  }
+
+  /** This connector's committed cursors. */
+  get cursorState(): Map<string, string | null> {
+    let mine = this.raw.cursors.get(this.connectorId);
+    if (!mine) {
+      mine = new Map();
+      this.raw.cursors.set(this.connectorId, mine);
+    }
+    return mine;
+  }
 
   async write(target: RawTarget, rows: RawRow[], options: WriteOptions = {}): Promise<IngestResult> {
     if (this.failNext && this.failNext.count > 0) {
@@ -78,7 +112,7 @@ export class MemorySink implements Sink {
       const errors = rowProblems(target, this.connectorId, row);
       if (errors.length) {
         rejects.push({ index, errors });
-        this.deadLetters.push({ target, row, errors });
+        this.deadLetters.push({ connectorId: this.connectorId, target, row, errors });
         return;
       }
       if (seen.has(row.idempotency_key) || table.has(row.idempotency_key)) {

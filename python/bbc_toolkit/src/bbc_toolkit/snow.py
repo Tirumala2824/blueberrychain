@@ -249,8 +249,8 @@ SECTION_INSERTS: dict[str, tuple[str, list[str]]] = {
     ),
     "metric_registry": (
         f"INSERT INTO {GOV}.METRIC_REGISTRY (policy_version, name, version, canonical, unit, "
-        "grain, owner_role, staleness_limit_min, allowed_dimensions) "
-        "SELECT ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?)::ARRAY",
+        "grain, owner_role, staleness_limit_min, allowed_dimensions, definition_hash) "
+        "SELECT ?, ?, ?, ?, ?, ?, ?, ?, PARSE_JSON(?)::ARRAY, ?",
         [
             "name",
             "version",
@@ -260,6 +260,7 @@ SECTION_INSERTS: dict[str, tuple[str, list[str]]] = {
             "owner_role",
             "staleness_limit_min",
             "allowed_dimensions",
+            "definition_hash",
         ],
     ),
 }

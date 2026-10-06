@@ -80,8 +80,8 @@ uv run bbc sim telemetry --replay .artifacts/sim/s-a-10min.jsonl --to http://127
 curl http://127.0.0.1:8787/healthz
 ```
 **Expected:**
-- Both runs print `accepted 3, rejected 0`.
-- `/healthz` shows `"inserted": 3, "duplicates": 3`.
+- Both runs print `accepted 7, rejected 0`: the S-A probe and reefer, plus the two Central Valley DC stock lots (P-001, P-002).
+- `/healthz` shows `"inserted": 7, "duplicates": 7`.
 
 Then ask CoCo to execute:
 ```sql
@@ -89,7 +89,7 @@ SELECT device_id, reading_ts, readings:pulp_c::FLOAT AS pulp_c, readings:supply_
 FROM BBC_OS.RAW.TELEMETRY WHERE connector_id = 'iot-webhook' ORDER BY reading_ts, device_id;
 SELECT COUNT(*) FROM BBC_OS.RAW.INGEST_ERRORS;
 ```
-**Expected:** exactly 3 rows (P-A1 at departure and +5 min, RF-114 at +5 min), and 0 ingest errors.
+**Expected:** exactly 7 rows (P-A1, P-001 and P-002 at departure and +5 min; RF-114 at +5 min), and 0 ingest errors.
 
 The OPS physics tables stay empty for now. Lots, device assignments and custody arrive as business events through the mock SAP and TMS on Day 4. That is expected.
 

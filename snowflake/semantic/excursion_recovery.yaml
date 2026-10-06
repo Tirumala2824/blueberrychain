@@ -1,0 +1,196 @@
+# SEM.EXCURSION_RECOVERY - the semantic model, defined once (plan Phase 9).
+#
+# This file is the single source: `uv run python -m blueberrychain.sqlgen` renders
+# snowflake/modules/70_semantic_view.sql from it, and blueberrychain.semantic computes
+# each governed metric's definition hash, which the policy's metric_registry carries.
+# Changing a governed metric therefore needs a new policy version (tests fail otherwise).
+#
+# v1 = the live layer the D1 recovery decision reads: lots and their thermal state,
+# custody exposure, shipments, order lines and inventory. Decision entities (cases,
+# options, recommendations, outcomes) join in WP6, when their tables exist.
+name: BBC_OS.SEM.EXCURSION_RECOVERY
+comment: >-
+  Excursion Value Recovery - live layer. Every canonical metric is defined here once and
+  governed by GOV.METRIC_REGISTRY (definition_hash). Physics is pre-aggregated per lot in
+  OPS, so cross-lot sums of shelf life or exposure do not exist in this model.
+
+# Helper views (SEM schema): current reference versions and inventory positions.
+views:
+  CURRENT_PRODUCTS: |
+    SELECT product_id, variety, pack, organic, ref_shelf_life_days, tref_c, q10, threshold_c,
+           version AS product_version
+    FROM BBC_OS.REF.PRODUCTS WHERE is_current
+  CURRENT_PARTIES: |
+    SELECT party_id, party_type, name, customer_tier FROM BBC_OS.REF.PARTIES WHERE is_current
+  CURRENT_SITES: |
+    SELECT site_id, party_id, site_type, name, city, state FROM BBC_OS.REF.SITES WHERE is_current
+  INVENTORY_POSITIONS: |
+    -- Stock per site, lot and snapshot by stock type; allocated = open deliveries not yet goods-issued.
+    WITH s AS (
+      SELECT site_id, lot_id, product_id, snapshot_at,
+             SUM(IFF(stock_status = 'UNRESTRICTED', kg, 0)) AS unrestricted_kg,
+             SUM(IFF(stock_status = 'BLOCKED', kg, 0))      AS blocked_kg,
+             SUM(IFF(stock_status = 'QUALITY', kg, 0))      AS quality_kg,
+             SUM(IFF(stock_status = 'IN_TRANSIT', kg, 0))   AS in_transit_kg
+      FROM BBC_OS.OPS.INVENTORY_SNAPSHOTS
+      GROUP BY site_id, lot_id, product_id, snapshot_at
+    ),
+    a AS (
+      SELECT lot_id, SUM(kg) AS allocated_kg
+      FROM BBC_OS.OPS.DELIVERIES WHERE status IN ('CREATED', 'PICKED')
+      GROUP BY lot_id
+    )
+    SELECT s.*, COALESCE(a.allocated_kg, 0) AS allocated_kg,
+           GREATEST(s.unrestricted_kg - COALESCE(a.allocated_kg, 0), 0) AS atp_kg
+    FROM s LEFT JOIN a ON a.lot_id = s.lot_id
+
+tables:
+  - alias: lots
+    table: BBC_OS.OPS.LOTS
+    primary_key: [lot_id]
+    comment: Harvest lots.
+  - alias: products
+    table: BBC_OS.SEM.CURRENT_PRODUCTS
+    primary_key: [product_id]
+    comment: Products with their current shelf-life parameters.
+  - alias: growers
+    table: BBC_OS.SEM.CURRENT_PARTIES
+    primary_key: [party_id]
+    comment: The grower of a lot.
+  - alias: holders
+    table: BBC_OS.SEM.CURRENT_PARTIES
+    primary_key: [party_id]
+    comment: A custody holder.
+  - alias: customers
+    table: BBC_OS.SEM.CURRENT_PARTIES
+    primary_key: [party_id]
+    comment: The customer on an order line.
+  - alias: carriers
+    table: BBC_OS.SEM.CURRENT_PARTIES
+    primary_key: [party_id]
+    comment: The carrier of a shipment.
+  - alias: sites
+    table: BBC_OS.SEM.CURRENT_SITES
+    primary_key: [site_id]
+    comment: Stock locations.
+  - alias: lot_thermal
+    table: BBC_OS.OPS.LOT_THERMAL_STATE
+    primary_key: [lot_id]
+    comment: Lot physics as of the last reading.
+  - alias: custody_exposure
+    table: BBC_OS.OPS.LOT_CUSTODY_EXPOSURE
+    primary_key: [lot_id, holder_party_id]
+    comment: Lot physics per custody holder.
+  - alias: shipments
+    table: BBC_OS.OPS.SHIPMENTS
+    primary_key: [shipment_id]
+    comment: Shipments with their current status.
+  - alias: shipment_lots
+    table: BBC_OS.OPS.SHIPMENT_LOTS
+    primary_key: [shipment_id, lot_id]
+    comment: Lots on shipments (bridge).
+  - alias: order_lines
+    table: BBC_OS.OPS.ORDER_LINES
+    primary_key: [order_line_id]
+    comment: Customer order lines.
+  - alias: inventory
+    table: BBC_OS.SEM.INVENTORY_POSITIONS
+    primary_key: [site_id, lot_id, snapshot_at]
+    comment: Stock positions per snapshot (semi-additive over snapshot_at).
+
+# Many-to-one only (Phase 9 fan-out rule).
+relationships:
+  - { name: lot_product, from: lots, columns: [product_id], to: products }
+  - { name: lot_grower, from: lots, columns: [grower_party_id], to: growers }
+  - { name: thermal_lot, from: lot_thermal, columns: [lot_id], to: lots }
+  - { name: exposure_lot, from: custody_exposure, columns: [lot_id], to: lots }
+  - { name: exposure_holder, from: custody_exposure, columns: [holder_party_id], to: holders }
+  - { name: shipment_carrier, from: shipments, columns: [carrier_party_id], to: carriers }
+  - { name: shipment_lot_shipment, from: shipment_lots, columns: [shipment_id], to: shipments }
+  - { name: shipment_lot_lot, from: shipment_lots, columns: [lot_id], to: lots }
+  - { name: order_customer, from: order_lines, columns: [customer_party_id], to: customers }
+  - { name: order_lot, from: order_lines, columns: [assigned_lot_id], to: lots }
+  - { name: inventory_lot, from: inventory, columns: [lot_id], to: lots }
+  - { name: inventory_site, from: inventory, columns: [site_id], to: sites }
+
+dimensions:
+  - { name: lots.lot_id, expr: lots.lot_id }
+  - { name: lots.harvest_date, expr: "DATE(CONVERT_TIMEZONE('UTC', lots.harvest_at))", comment: UTC harvest date }
+  - { name: lots.organic, expr: lots.organic }
+  - { name: products.product_id, expr: products.product_id }
+  - { name: products.variety, expr: products.variety }
+  - { name: growers.grower_name, expr: growers.name }
+  - { name: holders.holder_party_id, expr: holders.party_id }
+  - { name: holders.holder_type, expr: holders.party_type, synonyms: [custody holder type] }
+  - { name: holders.holder_name, expr: holders.name }
+  - { name: customers.customer_name, expr: customers.name }
+  - { name: customers.customer_tier, expr: customers.customer_tier }
+  - { name: carriers.carrier_name, expr: carriers.name }
+  - { name: sites.site_id, expr: sites.site_id }
+  - { name: sites.site_name, expr: sites.name }
+  - { name: shipments.shipment_id, expr: shipments.shipment_id }
+  - { name: shipments.shipment_status, expr: shipments.status }
+  - { name: shipments.destination_site_id, expr: shipments.destination_site_id }
+  - { name: order_lines.order_line_id, expr: order_lines.order_line_id }
+  - { name: order_lines.order_status, expr: order_lines.status }
+  - { name: inventory.snapshot_at, expr: inventory.snapshot_at, comment: Stock snapshot time; inventory metrics never sum across it }
+
+facts:
+  - { name: lot_thermal.remaining_days, expr: lot_thermal.remaining_shelf_life_days }
+  - { name: lot_thermal.monitored_min, expr: lot_thermal.monitored_min }
+  - { name: lot_thermal.breach_min, expr: lot_thermal.breach_min }
+  - { name: lot_thermal.elapsed_h, expr: lot_thermal.elapsed_h }
+  - { name: lot_thermal.as_of, expr: lot_thermal.as_of }
+  - { name: custody_exposure.attributable_excess_h, expr: custody_exposure.attributable_excess_h }
+  - { name: custody_exposure.share, expr: custody_exposure.excess_life_share }
+  - { name: custody_exposure.degree_min_above, expr: custody_exposure.degree_min_above }
+  - { name: shipment_lots.kg, expr: shipment_lots.kg }
+  - { name: order_lines.kg, expr: order_lines.kg }
+  - { name: order_lines.value_usd, expr: order_lines.kg * order_lines.price_usd_per_kg }
+  - { name: inventory.atp_kg, expr: inventory.atp_kg }
+
+# `registry` names the GOV.METRIC_REGISTRY entry a metric implements (its definition is hashed).
+metrics:
+  - name: lot_thermal.remaining_shelf_life_days
+    registry: REMAINING_SHELF_LIFE_DAYS
+    expr: MIN(lot_thermal.remaining_days)
+    comment: >-
+      Saleable life left as of the last reading. At lot grain, the lot's value; across lots,
+      the worst lot - never a sum.
+  - name: custody_exposure.excess_life_share
+    registry: EXCESS_LIFE_SHARE
+    expr: MAX(custody_exposure.share)
+    comment: >-
+      Share of the lot's attributable excess life that occurred in this holder's custody
+      (lot x holder grain). Attribution, not liability.
+  - name: inventory.quality_adjusted_atp_kg
+    registry: QUALITY_ADJUSTED_ATP_KG
+    expr: SUM(inventory.atp_kg)
+    non_additive_by: [inventory.snapshot_at]
+    comment: Unrestricted stock minus open allocations, at the latest snapshot only.
+  - name: lot_thermal.temperature_compliance_pct
+    registry: TEMPERATURE_COMPLIANCE_PCT
+    expr: 100 * (1 - SUM(lot_thermal.breach_min) / NULLIF(SUM(lot_thermal.monitored_min), 0))
+    comment: Monitored minutes at or below the threshold (minute-weighted; pair with coverage).
+  - name: lot_thermal.monitoring_coverage_pct
+    registry: MONITORING_COVERAGE_PCT
+    expr: 100 * SUM(lot_thermal.monitored_min) / 60 / NULLIF(SUM(lot_thermal.elapsed_h), 0)
+    comment: Share of lot age with readings.
+  - name: custody_exposure.thermal_exposure_deg_h
+    registry: THERMAL_EXPOSURE_DEG_H
+    expr: SUM(custody_exposure.degree_min_above) / 60
+    comment: Degree-hours above the threshold (lot x holder grain; not meaningful summed across lots).
+  - name: lot_thermal.data_age_min
+    registry: DATA_AGE_MIN
+    expr: DATEDIFF('minute', MAX(lot_thermal.as_of), CURRENT_TIMESTAMP())
+    comment: Minutes since the newest reading.
+  - name: shipment_lots.kg_on_shipments
+    expr: SUM(shipment_lots.kg)
+    comment: kg on shipments; filter on shipments.shipment_status (e.g. IN_TRANSIT).
+  - name: order_lines.order_value_usd
+    expr: SUM(order_lines.value_usd)
+    comment: Order-line value at contract price.
+
+ai_sql_generation: >-
+  Never sum remaining shelf life, exposure or shares across lots. Never sum inventory
+  across snapshot times. Use the metrics as defined; do not recompute physics.

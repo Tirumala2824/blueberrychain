@@ -8,6 +8,7 @@ from pathlib import Path
 
 from bbc_toolkit.policy import check_policy
 
+from blueberrychain import semantic
 from blueberrychain.sim import world as world_mod
 
 DEFAULT_OUT = Path(".artifacts/sim/reference")
@@ -34,6 +35,8 @@ def run_sim_init(args: argparse.Namespace) -> int:
     for path in paths:
         count = len(json.loads(path.read_text(encoding="utf-8"))["records"])
         print(f"{path.as_posix():<55} {count:>4} records")
+    key_map = world_mod.write_key_map(world, args.out)
+    print(f"{key_map.as_posix():<55} SAP key map")
     print(f"world '{world['meta']['name']}' v{world['meta']['version']} is valid")
     return 0
 
@@ -47,6 +50,8 @@ def add_policy_check(parser: argparse.ArgumentParser) -> None:
 def run_policy_check(args: argparse.Namespace) -> int:
     doc = json.loads(args.path.read_text(encoding="utf-8"))
     problems = check_policy(doc)
+    if not problems:  # governed metric definitions must match the semantic model
+        problems = semantic.policy_hash_problems(doc, semantic.load_model())
     for problem in problems:
         print(f"  {problem}")
     if problems:

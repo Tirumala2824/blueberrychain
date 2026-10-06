@@ -11,6 +11,12 @@
 >   - Custody attribution counts only *attributable* excess life: readings inside the grower's contractual pre-cool window (`precool_max_hours`) are field heat nobody could avoid.
 >   - A reading covers `(reading_ts - interval, reading_ts]`, so it belongs to the assignment and holder in force just before `reading_ts`.
 >   - Physics parity (task 3.6) was run early by `snowflake/spikes/wp3_thermal_dryrun.py`, which executes the Dynamic Table SQL over simulated trips without creating objects.
+> - **Day 4 decisions.**
+>   - Lots come from SAP's batch master (`API_BATCH_SRV`, `YY1_` harvest fields); device pairings (probe → lot, reefer → shipment) from the IoT platform through a signed `/v1/pairings` endpoint on connector-iot. Both contracts were extended first ([ADR-0005](../adr/0005-mock-contracts.md) rule).
+>   - The mocks expose `/__sim/*` entry points and a simulated clock for the simulator; these are outside the consumed contracts. TMS event cursors compare `recorded_at`, so late events are never skipped.
+>   - `apps/dev-stack` runs both mocks, the IoT webhook and the SAP and carrier connectors in one process, against a shared in-memory RAW or Snowflake.
+>   - The semantic view is generated from `snowflake/semantic/excursion_recovery.yaml`; governed metrics carry a definition hash in the policy's `metric_registry`. v1 is the live layer; decision metrics join with the case tables (WP6).
+>   - Stock records that reach zero stay in the stock list (as in SAP), so snapshots report a sold-out lot as 0.
 
 # BlueberryChain OS — Implementation Plan (final, implementation-ready)
 

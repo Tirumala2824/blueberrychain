@@ -30,6 +30,11 @@ def build_parser() -> argparse.ArgumentParser:
     world_cmds.add_sim_init(
         sim_cmds.add_parser("init", help="Validate the world and write reference batches.")
     )
+    sim_telemetry.add_sim_run(
+        sim_cmds.add_parser(
+            "run", help="Drive SAP, TMS, IoT pairings and telemetry for a scenario."
+        )
+    )
     sim_telemetry.add_sim_telemetry(
         sim_cmds.add_parser(
             "telemetry", help="Send a scenario's device readings to the IoT webhook."
@@ -79,6 +84,8 @@ def main(argv: list[str] | None = None) -> int:
         return test_sql.run(args)
     if args.command == "sim" and args.sim_command == "init":
         return world_cmds.run_sim_init(args)
+    if args.command == "sim" and args.sim_command == "run":
+        return sim_telemetry.run_sim_run(args)
     if args.command == "sim" and args.sim_command == "telemetry":
         return sim_telemetry.run_sim_telemetry(args)
     if args.command == "deploy" and args.deploy_kind == "python":

@@ -7,10 +7,13 @@ from pathlib import Path
 
 from bbc_engine import physics
 
+from blueberrychain import semantic
+
 ROOT = Path(__file__).resolve().parents[4]
 VECTORS = ROOT / "contracts" / "vectors" / "canonical_hash.json"
 HASH_PARITY = ROOT / "snowflake" / "tests" / "02_hash_parity.sql"
 PHYSICS_PARITY = ROOT / "snowflake" / "tests" / "03_physics_parity.sql"
+SEMANTIC_VIEW = ROOT / "snowflake" / "modules" / "70_semantic_view.sql"
 
 # (temp_c, tref_c, q10): the product range plus extremes and a non-zero reference temperature.
 RATE_CASES = [(t, 0.0, q) for q in (3.0, 3.2) for t in (-1.0, 0.0, 0.5, 1.8, 2.0, 4.6, 10.0, 24.5)]
@@ -82,7 +85,15 @@ def physics_parity_sql() -> str:
     )
 
 
-GENERATED = {HASH_PARITY: hash_parity_sql, PHYSICS_PARITY: physics_parity_sql}
+def semantic_view_sql() -> str:
+    return semantic.render_sql(semantic.load_model())
+
+
+GENERATED = {
+    HASH_PARITY: hash_parity_sql,
+    PHYSICS_PARITY: physics_parity_sql,
+    SEMANTIC_VIEW: semantic_view_sql,
+}
 
 
 if __name__ == "__main__":

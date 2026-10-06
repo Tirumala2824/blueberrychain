@@ -35,7 +35,7 @@
 ### `API_OUTBOUND_DELIVERY_SRV`
 | Entity set | Key | Fields used | Operations |
 |---|---|---|---|
-| `A_OutbDeliveryHeader` | `DeliveryDocument` | `ShipToParty`, `PlannedGoodsIssueDate`, `OverallGoodsMovementStatus`, `YY1_BBCReference`, `LastChangeDateTime` | GET (delta); **POST** deep insert with `to_DeliveryDocumentItem` (`REPLACEMENT_ALLOCATION`); **DELETE** before goods issue (`DEALLOCATE`) |
+| `A_OutbDeliveryHeader` | `DeliveryDocument` | `ShipToParty`, `PlannedGoodsIssueDate`, `OverallGoodsMovementStatus` (`A` not started, `B` picked, `C` goods issued), `OverallProofOfDeliveryStatus` (`C` = delivered), `YY1_TMSShipment` (carrier shipment id), `YY1_BBCReference`, `LastChangeDateTime` | GET (delta); **POST** deep insert with `to_DeliveryDocumentItem` (`REPLACEMENT_ALLOCATION`); **DELETE** before goods issue (`DEALLOCATE`) |
 | `A_OutbDeliveryItem` | `DeliveryDocument`, `DeliveryDocumentItem` | `ReferenceSDDocument`, `ReferenceSDDocumentItem`, `Material`, `Batch`, `ActualDeliveryQuantity`, `DeliveryQuantityUnit` | GET |
 
 ### `API_MATERIAL_STOCK_SRV`
@@ -48,7 +48,14 @@
 ### `API_INSPECTIONLOT_SRV`
 | Entity set | Key | Fields used | Operations |
 |---|---|---|---|
-| `A_InspectionLot` | `InspectionLot` | `Material`, `Batch`, `Plant`, `InspectionLotType` (`01` goods receipt → `RECEIPT`, `04` in-process → `INTERMEDIATE`, `89` origin → `ORIGIN`), `InspLotCreatedOnLocalDate`, `InspectionLotUsageDecisionCode` (`A` accept, `R` reject), `YY1_PulpTempC`, `YY1_DefectsPct`, `YY1_DecayPct`, `YY1_RemainingSLDays`, `YY1_InspectorName`, `LastChangeDateTime` | GET (delta) |
+| `A_InspectionLot` | `InspectionLot` | `Material`, `Batch`, `Plant`, `InspectionLotType` (`01` goods receipt → `RECEIPT`, `04` in-process → `INTERMEDIATE`, `89` origin → `ORIGIN`), `InspLotCreatedOnLocalDate`, `InspectionLotUsageDecisionCode` (`A` accept, `R` reject), `YY1_InspectedAt` (`Edm.DateTimeOffset`), `YY1_ShipToParty` (receipt inspections at a customer DC, from the customer's receiving report; `Plant` is empty then), `YY1_PulpTempC`, `YY1_DefectsPct`, `YY1_DecayPct`, `YY1_RemainingSLDays`, `YY1_InspectorName`, `LastChangeDateTime` | GET (delta) |
+
+### `API_BATCH_SRV` (added Day 4: lots)
+| Entity set | Key | Fields used | Operations |
+|---|---|---|---|
+| `Batch` | `Material`, `BatchIdentifyingPlant`, `Batch` | `Supplier` (grower business partner), `ManufactureDate`, `YY1_HarvestBlock`, `YY1_HarvestDateTime` (`Edm.DateTimeOffset`), `YY1_PackedDateTime`, `YY1_NetWeightKg` (`Edm.Decimal`), `YY1_Organic` (`X` = organic), `LastChangeDateTime` | GET (delta) |
+
+`BatchIdentifyingPlant` is the packhouse plant. Batch numbers are at most 10 characters, as in SAP.
 
 ### `API_MATERIAL_DOCUMENT_SRV`
 | Entity set | Key | Fields used | Operations |
@@ -66,9 +73,24 @@
 ## Mapping to RAW (inbound)
 | Entity | `entity_type` | `external_id` | `event_ts` |
 |---|---|---|---|
-| `A_SalesOrderItem` | `SALES_ORDER_ITEM` | `<SalesOrder>-<SalesOrderItem>` | `LastChangeDateTime` |
-| `A_OutbDeliveryItem` (+ header) | `DELIVERY` | `<DeliveryDocument>-<Item>` | header `LastChangeDateTime` |
-| `A_MatlStkInAcctMod` | `STOCK_SNAPSHOT` | `<Plant>-<Batch>-<StockType>` | `snapshot_at` (read time) |
-| `A_InspectionLot` | `INSPECTION_RESULT` | `InspectionLot` | `LastChangeDateTime` |
+| `A_SalesOrderItem` | `SALES_ORDER_ITEM` | `SO-<SalesOrder>-<SalesOrderItem>` | `LastChangeDateTime` |
+| `A_OutbDeliveryItem` (+ header) | `DELIVERY` | `DLV-<DeliveryDocument>-<Item>` | header `LastChangeDateTime` |
+| `A_MatlStkInAcctMod` | `STOCK_SNAPSHOT` | `STK-<Plant>-<Batch>-<StockType>-<snapshot ms>` | `snapshot_at` (the response `Date` header) |
+| `A_InspectionLot` | `INSPECTION_RESULT` | `QC-<InspectionLot>` | `LastChangeDateTime` |
+| `Batch` | `LOT` | `Batch` | `LastChangeDateTime` |
 
-Material ↔ `product_id`, Plant ↔ `site_id`, Batch ↔ `lot_id`, and business partner ↔ `party_id` come from the world config's key mapping (`sim/world.yaml` → `REF`).
+The connector translates SAP keys with a key map built from the world config by `bbc sim init` (`.artifacts/sim/reference/sap_key_map.json`):
+- business partner → `party_id`;
+- plant → `site_id`;
+- material → `product_id`;
+- ship-to party → `site_id`;
+- harvest block → `site_id`.
+
+Batch is our `lot_id` unchanged. A real deployment supplies the same map from its master data.
+
+## Simulator entry points (`/__sim/*`, not part of the consumed contract)
+The simulator plays SAP's users (sales, warehouse, QA), so the mock needs a way in. These endpoints are **not** used by connectors or the dispatcher, and a real system has no equivalent:
+- `PUT /__sim/clock`: sets the mock's notion of "now" (simulated time). Every `LastChangeDateTime` and the HTTP `Date` header come from this clock, and change timestamps strictly increase.
+- `POST /__sim/batches`, `/__sim/sales-orders`, `/__sim/deliveries`, `/__sim/inspection-lots`: create or update the records.
+- `PUT /__sim/stock`: sets a quantity per plant, batch and stock type.
+- `POST /__sim/reset`.

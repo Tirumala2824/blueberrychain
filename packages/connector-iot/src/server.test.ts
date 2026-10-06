@@ -53,17 +53,18 @@ afterEach(async () => {
 
 async function start(sink = new MemorySink("iot-webhook")) {
   const writer = new BatchingWriter(sink, "TELEMETRY", { maxDelayMs: 5, backoffMs: 1, maxAttempts: 1 });
-  const server = createIotServer({ connectorId: "iot-webhook", secret: SECRET, writer, nowS: () => NOW, log: () => {} });
+  const eventWriter = new BatchingWriter(sink, "BUSINESS_EVENTS", { maxDelayMs: 5, backoffMs: 1, maxAttempts: 1 });
+  const server = createIotServer({ connectorId: "iot-webhook", secret: SECRET, writer, eventWriter, nowS: () => NOW, log: () => {} });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
   close = () => new Promise<void>((resolve) => server.close(() => resolve()));
   return { sink, url };
 }
 
-async function post(url: string, body: unknown, opts: { secret?: string; ts?: number } = {}) {
+async function post(url: string, body: unknown, opts: { secret?: string; ts?: number; path?: string } = {}) {
   const text = typeof body === "string" ? body : JSON.stringify(body);
   const ts = String(opts.ts ?? NOW);
-  const res = await fetch(`${url}/v1/telemetry`, {
+  const res = await fetch(`${url}${opts.path ?? "/v1/telemetry"}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -125,5 +126,30 @@ describe("IoT webhook", () => {
     const health = await fetch(`${url}/healthz`);
     expect(await health.json()).toMatchObject({ status: "ok", connector_id: "iot-webhook" });
     expect((await fetch(`${url}/v1/other`, { method: "POST" })).status).toBe(404);
+  });
+
+  it("lands device pairings as DEVICE_ASSIGNMENT business events, versions and all", async () => {
+    const { sink, url } = await start();
+    const pairing = {
+      pairing_id: "PAIR-P-A1-L-A", device_id: "P-A1", target_type: "LOT", target_id: "L-A", role: "PRIMARY",
+      assigned_from: "2026-10-01T05:30:00Z", changed_at: "2026-10-01T05:30:00Z", provenance: "SIMULATION_LIVE",
+    };
+    const res = await post(url, { pairings: [pairing] }, { path: "/v1/pairings" });
+    expect(res).toEqual({ status: 200, body: { accepted: 1, rejected: [] } });
+    // The same pairing closed later is a new version of the same assignment.
+    const closed = { ...pairing, assigned_to: "2026-10-07T02:00:00Z", changed_at: "2026-10-07T02:00:00Z" };
+    await post(url, { pairings: [closed] }, { path: "/v1/pairings" });
+    await post(url, { pairings: [closed] }, { path: "/v1/pairings" }); // a retry: duplicate
+    const rows = [...sink.tables.BUSINESS_EVENTS.values()] as Array<{ external_id: string; payload: Record<string, unknown> }>;
+    expect(rows).toHaveLength(2);
+    expect(rows.map((r) => r.external_id)).toEqual(["PAIR-P-A1-L-A", "PAIR-P-A1-L-A"]);
+    expect(rows[1]!.payload).toMatchObject({ device_id: "P-A1", target_id: "L-A", assigned_to: "2026-10-07T02:00:00Z" });
+    expect(sink.deadLetters).toEqual([]);
+  });
+
+  it("checks pairings against their contract", async () => {
+    const { url } = await start();
+    const res = await post(url, { pairings: [{ pairing_id: "X", device_id: "P", target_type: "PALLET" }] }, { path: "/v1/pairings" });
+    expect(res.status).toBe(400);
   });
 });

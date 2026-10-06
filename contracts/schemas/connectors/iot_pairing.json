@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/connectors/iot_pairing.json",
+  "title": "IoT pairing batch",
+  "description": "What a device platform POSTs to connector-iot at /v1/pairings when a device is attached to, or removed from, what it measures: a pulp probe to a lot (PRIMARY / SECONDARY), a reefer unit to a shipment (REEFER). Signed exactly like /v1/telemetry. Each pairing becomes one RAW.BUSINESS_EVENTS row (entity DEVICE_ASSIGNMENT, source IOT_PLATFORM); a later message with the same pairing_id and assigned_to closes it.",
+  "type": "object",
+  "required": [
+    "pairings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "source": {
+      "type": "string",
+      "maxLength": 64
+    },
+    "pairings": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": [
+          "pairing_id",
+          "device_id",
+          "target_type",
+          "target_id",
+          "role",
+          "assigned_from",
+          "changed_at"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "pairing_id": {
+            "$ref": "../common.json#/$defs/external_id"
+          },
+          "device_id": {
+            "$ref": "../common.json#/$defs/external_id"
+          },
+          "target_type": {
+            "enum": [
+              "LOT",
+              "SHIPMENT"
+            ]
+          },
+          "target_id": {
+            "$ref": "../common.json#/$defs/external_id"
+          },
+          "role": {
+            "enum": [
+              "PRIMARY",
+              "SECONDARY",
+              "REEFER"
+            ]
+          },
+          "assigned_from": {
+            "$ref": "../common.json#/$defs/timestamp"
+          },
+          "assigned_to": {
+            "oneOf": [
+              {
+                "$ref": "../common.json#/$defs/timestamp"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "changed_at": {
+            "$ref": "../common.json#/$defs/timestamp",
+            "description": "When the platform recorded this version of the pairing."
+          },
+          "provenance": {
+            "enum": [
+              "LIVE",
+              "SIMULATION_BACKFILL",
+              "SIMULATION_LIVE"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

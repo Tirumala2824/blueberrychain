@@ -215,3 +215,17 @@ thermal:
   probe: { interval_s: 300, noise_c: 0.1, battery_drain_pct_per_day: 1.5 }
   reefer_interval_s: 300
   truth: { q10_sigma: 0.1 }      # each lot's true Q10 differs from the product's
+
+# SAP keys that are not reference data: connector configuration (`bbc sim init` writes
+# .artifacts/sim/reference/sap_key_map.json together with partner/plant/material keys).
+sap:
+  storage_location: "0001"
+  ship_to:          # ship-to business partners (customer DCs)
+    "500301": SITE-SUMMIT-SLC
+    "500302": SITE-BAYLINE-SAC
+    "500303": SITE-HARBOR-OAK
+    "500304": SITE-VFP-FRESNO
+    "500305": SITE-CVDC-TRACY
+  harvest_blocks:   # YY1_HarvestBlock on the batch master
+    "R14-B7": SITE-RANCH14-B7
+    "VC-B2": SITE-VALLEYCREST-B2

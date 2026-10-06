@@ -479,6 +479,10 @@ export interface PolicyDocument {
       owner_role: string;
       staleness_limit_min?: number | null;
       allowed_dimensions?: string[];
+      /**
+       * Hash of the metric's definition in the semantic model (blueberrychain.semantic.definition_hashes).
+       */
+      definition_hash?: string;
     },
     ...{
       name: string;
@@ -489,6 +493,10 @@ export interface PolicyDocument {
       owner_role: string;
       staleness_limit_min?: number | null;
       allowed_dimensions?: string[];
+      /**
+       * Hash of the metric's definition in the semantic model (blueberrychain.semantic.definition_hashes).
+       */
+      definition_hash?: string;
     }[]
   ];
 }
