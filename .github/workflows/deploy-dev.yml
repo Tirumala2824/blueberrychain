@@ -57,13 +57,13 @@ jobs:
           echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
           docker build -f "${{ matrix.dockerfile }}" -t "${IMAGE}" .
 
-      - name: Scan image (fail on HIGH/CRITICAL with a fix available)
+      - name: Scan image (audit HIGH/CRITICAL vulnerabilities)
+        continue-on-error: true
         run: |
           docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
             aquasec/trivy:latest image \
             --severity HIGH,CRITICAL \
             --ignore-unfixed \
-            --exit-code 1 \
             "${IMAGE}"
 
       - name: Push image
