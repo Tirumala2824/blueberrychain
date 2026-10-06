@@ -4,7 +4,7 @@ ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1
 RUN corepack enable
 WORKDIR /app
 COPY . .
-RUN NODE_ENV=development pnpm install --frozen-lockfile \
+RUN NODE_ENV=development pnpm install --no-frozen-lockfile \
  && pnpm -r --if-present build
 WORKDIR /app/apps/control-tower
 ENV PORT=8080
