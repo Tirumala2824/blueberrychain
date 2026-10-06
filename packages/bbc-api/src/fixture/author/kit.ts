@@ -211,9 +211,9 @@ export function viewersFor(ctx: ViewerContext): Record<Persona, Viewer> {
           ...base,
           enabled: true,
           disabled_reason: null,
-          verdicts: ["APPROVE", "CHOOSE_ALTERNATIVE", "REJECT"],
+          verdicts: ["APPROVE", "ALTERNATIVE", "REJECT"],
           choosable_option_ids: ctx.choosable,
-          reason_required_for: ["CHOOSE_ALTERNATIVE", "REJECT"],
+          reason_required_for: ["APPROVE", "ALTERNATIVE", "REJECT"],
           due_at: a.due_at,
         });
       }
@@ -300,6 +300,10 @@ export function frame(label: string, view: CaseView, ledger: LedgerChain, ctx: O
   return { label, inbox: inboxFor(v, viewers, extras), cases: { [v.case.case_id]: { view: v, viewers } } };
 }
 
+export const LEDGER_TABLE = "BBC_OS.LEDGER.ENTRIES";
+/** The zero-copy clone snowflake/tests/08_audit.sql tampers with. */
+export const TAMPER_CLONE = "BBC_OS.LEDGER.T_TAMPER_CLONE";
+
 /** Standard proof recordings for every frame: verify (and a tamper clone), replay, export, policy. */
 export function proofResponses(frames: TapeFrame[], caseId: string, ledger: LedgerChain, tamperSeq: number, policyRow: unknown): TapeResponse[] {
   const out: TapeResponse[] = [];
@@ -307,21 +311,17 @@ export function proofResponses(frames: TapeFrame[], caseId: string, ledger: Ledg
     const view = f.cases[caseId]!.view;
     const { first_seq, last_seq } = view.evidence.ledger;
     const verifiedAt = plusMin(view.generated_at, 1);
+    // API.VERIFY_LEDGER(ledger_table) checks the whole table, so `entries` counts the ledger, not the case.
     if (first_seq !== null && last_seq !== null) {
       out.push({
-        call: "VERIFY_LEDGER", persona: "auditor", at_frames: [i], match: { ledger_table: "BBC_OS.LEDGER.ENTRIES" },
-        result: { status: "OK", ledger_table: "BBC_OS.LEDGER.ENTRIES", from_seq: first_seq, to_seq: last_seq, ok: true,
-                  checked: last_seq - first_seq + 1, first_bad_seq: null, reason: null, bad_entry: null, verified_at: verifiedAt },
+        call: "VERIFY_LEDGER", persona: "auditor", at_frames: [i], match: { ledger_table: LEDGER_TABLE },
+        result: { ok: true, table: LEDGER_TABLE, entries: last_seq, first_bad_seq: null, reason: null },
         advance_to_frame: null,
       });
-      if (last_seq >= tamperSeq) {
-        const bad = ledger.entries.find((e) => e.seq === tamperSeq)!;
+      if (last_seq >= tamperSeq && ledger.entries.some((e) => e.seq === tamperSeq)) {
         out.push({
-          call: "VERIFY_LEDGER", persona: "auditor", at_frames: [i], match: { ledger_table: "BBC_OS.SANDBOX.LEDGER_TAMPER" },
-          result: { status: "OK", ledger_table: "BBC_OS.SANDBOX.LEDGER_TAMPER", from_seq: first_seq, to_seq: last_seq, ok: false,
-                    checked: tamperSeq - first_seq, first_bad_seq: tamperSeq, reason: "PAYLOAD_HASH_MISMATCH",
-                    bad_entry: { seq: tamperSeq, expected_hash: fakeHash(`tampered-payload-${tamperSeq}`), actual_hash: bad.payload_hash },
-                    verified_at: verifiedAt },
+          call: "VERIFY_LEDGER", persona: "auditor", at_frames: [i], match: { ledger_table: TAMPER_CLONE },
+          result: { ok: false, table: TAMPER_CLONE, entries: last_seq, first_bad_seq: tamperSeq, reason: "PAYLOAD_HASH_MISMATCH" },
           advance_to_frame: null,
         });
       }
@@ -354,8 +354,7 @@ export function proofResponses(frames: TapeFrame[], caseId: string, ledger: Ledg
   });
   out.push({
     call: "EMERGENCY_STOP", persona: "govadmin", at_frames: frames.map((_, i) => i) as TapeResponse["at_frames"], match: {},
-    result: { status: "OK", dispatch_enabled: false, stopped_by: PERSONA_IDS.govadmin.user, stopped_at: at("08:00:00"),
-              reason: "recorded emergency stop", ledger_seq: 9000 },
+    result: { status: "OK", dispatch: "STOPPED", resume: "activate a policy version", ledger_seq: 9000 },
     advance_to_frame: null,
   });
   return out;

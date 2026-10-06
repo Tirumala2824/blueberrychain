@@ -9,6 +9,7 @@ import { MutationCard } from "@/components/panels/MutationCard";
 import { NrvParts, OptionTable, bundleText } from "@/components/panels/OptionParts";
 import { ExportResultView, ReplayResultView, VerifyResult } from "@/components/panels/ProofResult";
 import { useCockpitMaybe } from "./useCockpitMaybe";
+import type { ExportResult, ReplayResult, VerifyLedgerResult } from "@blueberrychain/bbc-api";
 import type { Artifact } from "@/console/artifacts";
 import { humanizeCode } from "@/console/templates";
 import { usd, usdSigned, utc } from "@/domain/format";
@@ -181,15 +182,18 @@ export function ArtifactView({ artifact: a, onRun }: { artifact: Artifact; onRun
           </table>
         </div>
       );
-    case "proof":
-      if (a.result.status !== "OK") return null;
+    case "proof": {
+      // Refusals arrive as error artifacts; VERIFY_LEDGER (a SQL procedure) answers without a status.
+      const r = a.result as unknown as Record<string, unknown>;
+      if (r["status"] === "INVALID" || r["status"] === "DENIED") return null;
       return (
         <div className={styles.art}>
-          {a.call === "VERIFY_LEDGER" && "ok" in a.result && <VerifyResult r={a.result} />}
-          {a.call === "REPLAY_EVIDENCE" && "equal" in a.result && <ReplayResultView r={a.result} />}
-          {a.call === "EXPORT_EVIDENCE_PACK" && "url" in a.result && <ExportResultView r={a.result} />}
+          {a.call === "VERIFY_LEDGER" && "ok" in r && <VerifyResult r={a.result as VerifyLedgerResult} />}
+          {a.call === "REPLAY_EVIDENCE" && "equal" in r && <ReplayResultView r={a.result as Extract<ReplayResult, { status: "OK" }>} />}
+          {a.call === "EXPORT_EVIDENCE_PACK" && "url" in r && <ExportResultView r={a.result as Extract<ExportResult, { status: "OK" }>} />}
         </div>
       );
+    }
     case "analyst":
       return (
         <div className={`${styles.art} ${styles.analyst}`} data-testid="artifact-analyst">

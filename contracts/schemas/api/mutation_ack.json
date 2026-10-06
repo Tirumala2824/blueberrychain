@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/mutation_ack.json",
+  "title": "Mutation ACK",
+  "description": "The ACK argument of API.ACK_MUTATION(mutation_id, attempt, ack): what the dispatcher observed at the target. Snowflake decides the outcome itself: an error with code PRECONDITION, 409 or 412 -> ABORTED_PRECONDITION; any other error -> FAILED; observed_before differing from expected_before -> ABORTED_PRECONDITION; observed_after missing or differing from expected_after -> FAILED; otherwise VERIFIED. When the outcome is unknown (timeout, no answer), the dispatcher does not ACK.",
+  "type": "object",
+  "required": [
+    "observed_before",
+    "observed_after",
+    "error",
+    "external_ref",
+    "dispatched_at",
+    "target_reported_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "observed_before": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "observed_after": {
+      "oneOf": [
+        {
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "error": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "code",
+            "message"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z0-9][A-Z0-9_]*$"
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 1000
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "external_ref": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 128
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dispatched_at": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "target_reported_at": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

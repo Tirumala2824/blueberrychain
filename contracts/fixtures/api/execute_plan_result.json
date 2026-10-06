@@ -1,0 +1,45 @@
+{
+  "schema": "api/execute_plan_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "plan_id": "PLAN-00000012",
+      "atomicity": "ALL_OR_NOTHING",
+      "steps": [
+        {
+          "step_seq": 1,
+          "action_type": "REPLACEMENT_ALLOCATION",
+          "status": "OK",
+          "mutation_id": "MUT-00000300",
+          "mutation_status": "AUTHORIZED",
+          "errors": [],
+          "ledger_seq": 423
+        },
+        {
+          "step_seq": 2,
+          "action_type": "REROUTE",
+          "status": "OK",
+          "mutation_id": "MUT-00000301",
+          "mutation_status": "AUTHORIZED",
+          "errors": [],
+          "ledger_seq": 424
+        }
+      ]
+    },
+    {
+      "status": "DENIED",
+      "errors": [
+        "BBC_DEMO_SALES is not the engine principal"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "atomicity is ALL_OR_NOTHING or BEST_EFFORT",
+      "base": 0,
+      "set": {
+        "/atomicity": "SOME"
+      }
+    }
+  ]
+}

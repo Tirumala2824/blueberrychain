@@ -22,7 +22,8 @@ describe("console parser", () => {
     expect(ok("evidence EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c")).toEqual({ verb: "evidence", id: "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c" });
     expect(ok("trace")).toEqual({ verb: "trace", run: null });
     expect(ok("ledger 5")).toEqual({ verb: "ledger", count: 5 });
-    expect(ok("verify 412..447 --table bbc_os.sandbox.ledger_tamper")).toEqual({ verb: "verify", from: 412, to: 447, table: "BBC_OS.SANDBOX.LEDGER_TAMPER" });
+    expect(ok("verify")).toEqual({ verb: "verify", table: null });
+    expect(ok("verify --table bbc_os.ledger.t_tamper_clone")).toEqual({ verb: "verify", table: "BBC_OS.LEDGER.T_TAMPER_CLONE" });
     expect(ok("replay")).toEqual({ verb: "replay", pack: null });
     expect(ok("export")).toEqual({ verb: "export" });
     expect(ok('approve reason "matches the brief"')).toEqual({ verb: "approve", approval: null, reason: "matches the brief" });
@@ -41,7 +42,7 @@ describe("console parser", () => {
 
   it("rejects malformed commands with usage, and suggests near-miss verbs", () => {
     expect(bad("brief q9").error).toMatch(/Usage: brief/);
-    expect(bad("verify 9..3").error).toMatch(/lower to a higher/);
+    expect(bad("verify 412..447").error).toMatch(/whole table/);
     expect(bad("verify --table entries").error).toMatch(/fully-qualified/);
     expect(bad("approve OPT-1").error).toMatch(/Usage: approve/);
     expect(bad('approve "unclosed').error).toMatch(/unclosed quote/);

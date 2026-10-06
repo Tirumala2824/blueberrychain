@@ -2,39 +2,48 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/api/verify_ledger_result.json",
   "title": "VERIFY_LEDGER result",
-  "description": "API.VERIFY_LEDGER(from_seq, to_seq, ledger_table): recomputes the hash chain in Snowflake (bbc_toolkit.ledger.verify_chain). ledger_table may name a zero-copy clone for the tamper demonstration.",
-  "oneOf": [
-    { "$ref": "refusal.json" },
-    {
-      "type": "object",
-      "required": ["status", "ledger_table", "from_seq", "to_seq", "ok", "checked", "first_bad_seq", "reason", "bad_entry", "verified_at"],
-      "additionalProperties": false,
-      "properties": {
-        "status": { "const": "OK" },
-        "ledger_table": { "type": "string", "pattern": "^[A-Z][A-Z0-9_$]*(\\.[A-Z][A-Z0-9_$]*){2}$" },
-        "from_seq": { "$ref": "../common.json#/$defs/ledger_seq" },
-        "to_seq": { "$ref": "../common.json#/$defs/ledger_seq" },
-        "ok": { "type": "boolean" },
-        "checked": { "type": "integer", "minimum": 0 },
-        "first_bad_seq": { "oneOf": [{ "$ref": "../common.json#/$defs/ledger_seq" }, { "type": "null" }] },
-        "reason": { "enum": ["SEQ_GAP", "PAYLOAD_HASH_MISMATCH", "PREV_HASH_BREAK", "ENTRY_HASH_MISMATCH", null] },
-        "bad_entry": {
-          "oneOf": [
-            {
-              "type": "object",
-              "required": ["seq", "expected_hash", "actual_hash"],
-              "additionalProperties": false,
-              "properties": {
-                "seq": { "$ref": "../common.json#/$defs/ledger_seq" },
-                "expected_hash": { "$ref": "../common.json#/$defs/sha256" },
-                "actual_hash": { "$ref": "../common.json#/$defs/sha256" }
-              }
-            },
-            { "type": "null" }
-          ]
+  "description": "API.VERIFY_LEDGER(ledger_table) (84_outcome_audit.sql): recomputes the whole hash chain of the table in Snowflake (NULL or '' = BBC_OS.LEDGER.ENTRIES; a zero-copy clone for the tamper demonstration). `error` is set when the table can't be read.",
+  "type": "object",
+  "required": [
+    "ok",
+    "table"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "table": {
+      "type": "string",
+      "maxLength": 300
+    },
+    "entries": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "first_bad_seq": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0
         },
-        "verified_at": { "$ref": "../common.json#/$defs/timestamp" }
-      }
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reason": {
+      "enum": [
+        "SEQ_GAP",
+        "PAYLOAD_HASH_MISMATCH",
+        "PREV_HASH_BREAK",
+        "ENTRY_HASH_MISMATCH",
+        null
+      ]
+    },
+    "error": {
+      "type": "string",
+      "maxLength": 2000
     }
-  ]
+  }
 }

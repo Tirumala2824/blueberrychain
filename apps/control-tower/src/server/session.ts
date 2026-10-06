@@ -96,12 +96,18 @@ export class SessionStore {
   }
 }
 
-export function cookieHeader(value: string, maxAgeS: number): string {
-  return `${COOKIE}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAgeS}`;
+/** `secure` adds the Secure flag: set it whenever the request arrived over HTTPS. */
+export function cookieHeader(value: string, maxAgeS: number, secure = false): string {
+  return `${COOKIE}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAgeS}${secure ? "; Secure" : ""}`;
 }
 
-export function clearCookieHeader(): string {
-  return `${COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`;
+export function clearCookieHeader(secure = false): string {
+  return `${COOKIE}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${secure ? "; Secure" : ""}`;
+}
+
+/** HTTPS directly, or behind a TLS-terminating proxy such as Cloud Run (x-forwarded-proto). */
+export function isHttps(req: Request): boolean {
+  return req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() === "https" || new URL(req.url).protocol === "https:";
 }
 
 export function readCookie(header: string | null, name = COOKIE): string | null {

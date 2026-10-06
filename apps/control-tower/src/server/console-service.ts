@@ -19,6 +19,7 @@ import {
   answerQuestion,
   bindCall,
   isRefusal,
+  refusalText,
   type AvailableAction,
   type BoundCall,
   type CaseView,
@@ -29,6 +30,7 @@ import type { Artifact, ConfirmCard, ConsoleEntry, ErrorArtifact } from "../cons
 import { PROOF_VERBS, WRITE_VERBS, type Command } from "../console/grammar";
 import { parseCommand } from "../console/parse";
 import { activeRecommendation, helpArtifact, readArtifact } from "../console/read";
+import { STATE_TEXT } from "../console/templates";
 import { resolveId } from "../domain/ids";
 import type { AppContext } from "./context";
 import type { ConfirmGrant, Session } from "./session";
@@ -46,7 +48,7 @@ export function errorArtifact(error: unknown): ErrorArtifact {
   if (error instanceof InterfaceUnavailableError) {
     return err(`${error.interfaceName} isn't available to you yet. It is delivered by ${error.delivers}.`, [], "INTERFACE_UNAVAILABLE");
   }
-  if (error instanceof RefusedError) return err(error.refusal.errors[0] ?? "Snowflake refused the request.", [], error.refusal.code ?? null);
+  if (error instanceof RefusedError) return err(refusalText(error.refusal), [], error.refusal.code ?? null);
   if (error instanceof AuthError) return err(error.message, [], "SNOWFLAKE_AUTH");
   if (error instanceof ContractViolationError) return err(`Snowflake's answer didn't match its contract, so nothing is shown. ${error.message}`, [], "CONTRACT_VIOLATION");
   return err(`Unexpected error: ${(error as Error)?.message ?? String(error)}`);
@@ -87,11 +89,7 @@ function proofCall(view: CaseView, command: Command): { call: BoundCall } | { er
   if (command.verb === "verify") {
     const blocked = unavailable(view, "VERIFY_LEDGER", "verify the ledger");
     if (blocked) return { error: blocked };
-    const { first_seq, last_seq } = view.evidence.ledger;
-    const from = command.from ?? first_seq;
-    const to = command.to ?? last_seq;
-    if (from === null || to === null) return { error: err("This case has no ledger entries yet.") };
-    return { call: bindCall("VERIFY_LEDGER", { from_seq: from, to_seq: to, ledger_table: command.table ?? MAIN_LEDGER }) };
+    return { call: bindCall("VERIFY_LEDGER", { ledger_table: command.table ?? MAIN_LEDGER }) };
   }
   if (command.verb === "replay") {
     const blocked = unavailable(view, "REPLAY_EVIDENCE", "replay evidence");
@@ -112,7 +110,7 @@ async function runProof(port: PersonaPort, view: CaseView, command: Command): Pr
   const prepared = proofCall(view, command);
   if ("error" in prepared) return prepared.error;
   const result = await port.invoke(prepared.call as BoundCall<PersonaCall>);
-  if (isRefusal(result)) return err(result.errors[0] ?? "Snowflake refused the request.", [], result.code ?? null);
+  if (isRefusal(result)) return err(refusalText(result), [], result.code ?? null);
   return { type: "proof", call: prepared.call.name as PersonaCall, result };
 }
 
@@ -120,7 +118,8 @@ async function runProof(port: PersonaPort, view: CaseView, command: Command): Pr
 
 type Prepared = { call: BoundCall; summary: string; warnings: string[] } | { error: ErrorArtifact };
 
-const VERDICT = { approve: "APPROVE", choose: "CHOOSE_ALTERNATIVE", reject: "REJECT" } as const;
+/** The verdicts API.DECIDE_APPROVAL accepts. */
+const VERDICT = { approve: "APPROVE", choose: "ALTERNATIVE", reject: "REJECT" } as const;
 
 function prepareDecision(view: CaseView, command: Extract<Command, { verb: "approve" | "choose" | "reject" }>): Prepared {
   const actions = view.viewer.available_actions.filter((a) => a.action === "DECIDE_APPROVAL");
@@ -288,7 +287,7 @@ export async function confirmGrant(ctx: AppContext, session: Session, token: str
       }
     }
     const result = await port.invoke(grant.call as BoundCall<PersonaCall>);
-    if (isRefusal(result)) return record(ctx, session, grant.caseId, label, err(result.errors[0] ?? "Snowflake refused the request.", [], result.code ?? null));
+    if (isRefusal(result)) return record(ctx, session, grant.caseId, label, err(refusalText(result), [], result.code ?? null));
     const summary = receiptSummary(grant.call.name as PersonaCall, result as unknown as Record<string, unknown>);
     return record(ctx, session, grant.caseId, label, { type: "receipt", call: grant.call.name as PersonaCall, summary, result });
   } catch (error) {
@@ -298,13 +297,19 @@ export async function confirmGrant(ctx: AppContext, session: Session, token: str
 
 function receiptSummary(call: PersonaCall, r: Record<string, unknown>): string {
   switch (call) {
-    case "DECIDE_APPROVAL":
-      return `Snowflake recorded ${r["approval_id"]} as ${String(r["approval_status"]).toLowerCase().replace("_", " ")} by ${r["decided_by"]} (${r["decided_role"]}), ledger entry ${r["ledger_seq"]}.` +
-        ((r["remaining_approval_ids"] as string[] | undefined)?.length ? ` Still waiting for ${(r["remaining_approval_ids"] as string[]).join(", ")}.` : "");
+    case "DECIDE_APPROVAL": {
+      const status = String(r["approval_status"]);
+      const entry = r["ledger_seq"] ? `, ledger entry ${r["ledger_seq"]}` : "";
+      if (r["replayed"]) return `${r["approval_id"]} was already ${status.toLowerCase()}; Snowflake changed nothing.`;
+      if (status === "STALE") return `Snowflake recorded ${r["approval_id"]} as stale${entry}: the Brief or its evidence changed after the approval was requested, so your verdict was not applied.`;
+      if (status === "EXPIRED") return `Snowflake recorded ${r["approval_id"]} as expired${entry}: it was past due, so your verdict was not applied.`;
+      const state = r["case_state"] ? ` ${STATE_TEXT[String(r["case_state"])] ?? `Case state: ${String(r["case_state"])}.`}` : "";
+      return `Snowflake recorded ${r["approval_id"]} as ${status.toLowerCase().replaceAll("_", " ")}${entry}.${state}`;
+    }
     case "REVERSE_DECISION":
       return `Snowflake queued ${(r["compensation_mutation_ids"] as string[]).length} compensating action(s), ledger entry ${r["ledger_seq"]}.`;
     case "EMERGENCY_STOP":
-      return `Dispatch stopped by ${r["stopped_by"]} at ${r["stopped_at"]}, ledger entry ${r["ledger_seq"]}.`;
+      return `Dispatch stopped, ledger entry ${r["ledger_seq"]}. To resume: ${String(r["resume"] ?? "activate a policy version")}.`;
     default:
       return "Done.";
   }

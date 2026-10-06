@@ -296,18 +296,18 @@ export function buildSA(policyRow: unknown): Tape {
   };
   const muts = [
     mutation({ ...common, mutationId: "MUT-00000300", stepSeq: 1, actionType: "REPLACEMENT_ALLOCATION", targetSystem: "SAP",
-      target: { type: "SALES_ORDER_ITEM", id: "SO-6001-10" }, payload: { replacement_lot_id: "L-CV-0912", from_site_id: "SITE-CVDC-TRACY", kg: 4200 },
+      target: { type: "SALES_ORDER_ITEM", id: "SO-6001-10" }, payload: { order_line_id: "SO-6001-10", replacement_lot_id: "L-CV-0912", from_site_id: "SITE-CVDC-TRACY", kg: 4200 },
       expectedBefore: { assigned_lot_id: "L-A" }, expectedAfter: { assigned_lot_id: "L-CV-0912" }, approvalIds: [APR_SALES, APR_QUALITY], autonomyLevel: 4, approvers }),
     mutation({ ...common, mutationId: "MUT-00000301", stepSeq: 2, actionType: "REROUTE", targetSystem: "TMS",
-      target: { type: "SHIPMENT", id: SHIPMENT }, payload: { new_destination_site_id: "SITE-BAYLINE-SAC" },
+      target: { type: "SHIPMENT", id: SHIPMENT }, payload: { shipment_id: SHIPMENT, lot_id: "L-A", new_destination_site_id: "SITE-BAYLINE-SAC", disposition: "REROUTE" },
       expectedBefore: { status: "IN_TRANSIT", destination_site_id: "SITE-SUMMIT-SLC" }, expectedAfter: { destination_site_id: "SITE-BAYLINE-SAC" },
       approvalIds: [APR_SALES, APR_QUALITY], autonomyLevel: 4, approvers }),
     mutation({ ...common, mutationId: "MUT-00000302", stepSeq: 3, actionType: "SO_CREATE", targetSystem: "SAP",
       target: { type: "CUSTOMER", id: "PARTY-BAYLINE" }, payload: { ship_to_site_id: "SITE-BAYLINE-SAC", lot_id: "L-A", kg: 4200, price_usd_per_kg: 10.64 },
       expectedBefore: {}, expectedAfter: { lot_id: "L-A", kg: 4200 }, approvalIds: [APR_SALES, APR_QUALITY], autonomyLevel: 4, approvers }),
     mutation({ ...common, mutationId: "MUT-00000303", stepSeq: 4, actionType: "CLAIM_NOTICE", targetSystem: "CARRIER",
-      target: { type: "SHIPMENT", id: SHIPMENT }, payload: { carrier_party_id: "PARTY-SIERRA", basis: "CARRIER_TEMPERATURE", notice_window_h: 72 },
-      expectedBefore: { notice_open: false }, expectedAfter: { notice_open: true }, approvalIds: [], autonomyLevel: 3, approvers: [] }),
+      target: { type: "CLAIM", id: `${SA_CASE}:PARTY-SIERRA` }, payload: { counterparty_party_id: "PARTY-SIERRA", basis: "CARRIER_TEMPERATURE", shipment_id: SHIPMENT },
+      expectedBefore: { notice_on_file: false }, expectedAfter: { notice_on_file: true }, approvalIds: [], autonomyLevel: 3, approvers: [] }),
   ];
   for (const m of muts) {
     const stamps = m.record!.timestamps as Record<string, string | null>;
@@ -379,28 +379,26 @@ export function buildSA(policyRow: unknown): Tape {
   branchLedger.append(at("07:39:05"), "APPROVAL", SA_CASE, PERSONA_IDS.quality.user, `BBC_OS.DECISION.APPROVALS#${APR_QUALITY}`, { approval_id: APR_QUALITY, verdict: "APPROVE", role: "BBC_QUALITY_MGR", brief_hash: briefHash });
   const qualityFirst = frames.push(frame("Quality approved; awaiting Sales", qView, branchLedger, ctx, { inboxRank: 2, fallbackAt: DEADLINE })) - 1;
 
-  const approved = (id: string, persona: "sales" | "quality", decidedAt: string, stateVersion: number, remaining: string[], seq: number) => ({
-    status: "OK", approval_id: id, approval_status: "APPROVED", decided_by: PERSONA_IDS[persona].user, decided_role: PERSONA_IDS[persona].role,
-    decided_at: decidedAt, chosen_option_id: null, brief_hash: briefHash, case_state: remaining.length ? "PENDING_APPROVAL" : "APPROVED",
-    state_version: stateVersion, remaining_approval_ids: remaining, ledger_seq: seq,
+  const approved = (id: string, remaining: string[], seq: number) => ({
+    status: "OK", approval_id: id, approval_status: "APPROVED", ledger_seq: seq, case_state: remaining.length ? "PENDING_APPROVAL" : "APPROVED",
   });
   const v = (i: number) => frames[i]!.cases[SA_CASE]!.view;
   const responses: TapeResponse[] = [
     { call: "DECIDE_APPROVAL", persona: "sales", at_frames: [pending], match: { approval_id: APR_SALES, verdict: "APPROVE" },
-      result: approved(APR_SALES, "sales", at("07:41:10"), v(salesDone).case.state_version, [APR_QUALITY], v(salesDone).evidence.ledger.last_seq!),
+      result: approved(APR_SALES, [APR_QUALITY], v(salesDone).evidence.ledger.last_seq!),
       advance_to_frame: salesDone },
     { call: "DECIDE_APPROVAL", persona: "quality", at_frames: [salesDone], match: { approval_id: APR_QUALITY, verdict: "APPROVE" },
-      result: approved(APR_QUALITY, "quality", at("07:48:30"), v(salesDone).case.state_version + 1, [], v(salesDone).evidence.ledger.last_seq! + 1),
+      result: approved(APR_QUALITY, [], v(salesDone).evidence.ledger.last_seq! + 1),
       advance_to_frame: executing },
     { call: "DECIDE_APPROVAL", persona: "quality", at_frames: [pending], match: { approval_id: APR_QUALITY, verdict: "APPROVE" },
-      result: approved(APR_QUALITY, "quality", at("07:39:05"), v(qualityFirst).case.state_version, [APR_SALES], v(qualityFirst).evidence.ledger.last_seq!),
+      result: approved(APR_QUALITY, [APR_SALES], v(qualityFirst).evidence.ledger.last_seq!),
       advance_to_frame: qualityFirst },
     { call: "DECIDE_APPROVAL", persona: "sales", at_frames: [qualityFirst], match: { approval_id: APR_SALES, verdict: "APPROVE" },
-      result: approved(APR_SALES, "sales", at("07:48:30"), v(salesDone).case.state_version + 1, [], v(salesDone).evidence.ledger.last_seq! + 1),
+      result: approved(APR_SALES, [], v(salesDone).evidence.ledger.last_seq! + 1),
       advance_to_frame: executing },
-    // Snowflake's refusal when Sales decides an approval that is no longer pending.
+    // Deciding an approval that is no longer REQUESTED replays its status and changes nothing.
     { call: "DECIDE_APPROVAL", persona: "sales", at_frames: [salesDone], match: { approval_id: APR_SALES },
-      result: { status: "DENIED", errors: [`approval ${APR_SALES} is already APPROVED by ${PERSONA_IDS.sales.user}`], code: "NOT_PENDING" },
+      result: { status: "OK", approval_id: APR_SALES, approval_status: "APPROVED", replayed: true },
       advance_to_frame: null },
     { call: "REVERSE_DECISION", persona: "quality", at_frames: [executing + 1], match: { rec_id: REC },
       result: { status: "DENIED", errors: ["REROUTE_BACK precondition junction_not_passed failed: SHP-20261006-114 passed SITE-JCT-I80-SAC at 07:58"], code: "PRECONDITION_FAILED" },

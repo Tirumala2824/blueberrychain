@@ -20,6 +20,8 @@ __pycache__/
 build/
 
 # Local artifacts
+test-results/
+playwright-report/
 .artifacts/
 sim-output/
 *.log

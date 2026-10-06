@@ -6,7 +6,8 @@ import { utc } from "@/domain/format";
 import { LedgerTable } from "./LedgerTable";
 import { KV, PanelTitle, Section, panel } from "./ui";
 
-const TAMPER_CLONE = "BBC_OS.SANDBOX.LEDGER_TAMPER";
+/** The zero-copy clone snowflake/tests/08_audit.sql tampers with. */
+const TAMPER_CLONE = "BBC_OS.LEDGER.T_TAMPER_CLONE";
 
 function ProofButton({ action, label, command }: { action: AvailableAction | undefined; label: string; command: string }) {
   const { run } = useCockpit();

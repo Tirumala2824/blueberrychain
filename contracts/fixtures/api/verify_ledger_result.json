@@ -2,32 +2,23 @@
   "schema": "api/verify_ledger_result.json",
   "valid": [
     {
-      "status": "OK",
-      "ledger_table": "BBC_OS.LEDGER.ENTRIES",
-      "from_seq": 412,
-      "to_seq": 447,
       "ok": true,
-      "checked": 36,
+      "table": "BBC_OS.LEDGER.ENTRIES",
+      "entries": 447,
       "first_bad_seq": null,
-      "reason": null,
-      "bad_entry": null,
-      "verified_at": "2026-10-06T09:30:00Z"
+      "reason": null
     },
     {
-      "status": "OK",
-      "ledger_table": "BBC_OS.SANDBOX.ENTRIES_TAMPER",
-      "from_seq": 412,
-      "to_seq": 447,
       "ok": false,
-      "checked": 9,
-      "first_bad_seq": 421,
-      "reason": "PAYLOAD_HASH_MISMATCH",
-      "bad_entry": {
-        "seq": 421,
-        "expected_hash": "abababababababababababababababababababababababababababababababab",
-        "actual_hash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
-      },
-      "verified_at": "2026-10-06T09:31:00Z"
+      "table": "BBC_OS.LEDGER.T_TAMPER_CLONE",
+      "entries": 447,
+      "first_bad_seq": 416,
+      "reason": "PAYLOAD_HASH_MISMATCH"
+    },
+    {
+      "ok": false,
+      "table": "BBC_OS.LEDGER.NOPE",
+      "error": "Object 'BBC_OS.LEDGER.NOPE' does not exist or not authorized."
     }
   ],
   "invalid": [
@@ -39,11 +30,11 @@
       }
     },
     {
-      "why": "the ledger table is a fully-qualified identifier",
+      "why": "the verified table is always named",
       "base": 0,
-      "set": {
-        "/ledger_table": "entries; drop table x"
-      }
+      "delete": [
+        "/table"
+      ]
     }
   ]
 }

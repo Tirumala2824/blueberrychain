@@ -4,14 +4,25 @@
     {
       "status": "DENIED",
       "errors": [
-        "separation of duties: the proposer cannot approve"
-      ],
-      "code": "SEPARATION_OF_DUTIES"
+        "BBC_DEMO_FINANCE does not hold BBC_SALES_MGR"
+      ]
     },
     {
       "status": "INVALID",
       "errors": [
         "REASON is required"
+      ]
+    },
+    {
+      "status": "INVALID",
+      "case_id": "CASE-00000017",
+      "state": "OPTIONS_SCORED",
+      "steps": [],
+      "errors": [
+        {
+          "code": "SCHEMA",
+          "message": "option bundle invalid"
+        }
       ]
     }
   ],
@@ -24,18 +35,18 @@
       }
     },
     {
-      "why": "codes are UPPER_SNAKE",
-      "base": 0,
-      "set": {
-        "/code": "stale brief"
-      }
-    },
-    {
       "why": "errors are required",
       "base": 1,
       "delete": [
         "/errors"
       ]
+    },
+    {
+      "why": "codes are UPPER_SNAKE",
+      "base": 0,
+      "set": {
+        "/code": "wrong role"
+      }
     }
   ]
 }

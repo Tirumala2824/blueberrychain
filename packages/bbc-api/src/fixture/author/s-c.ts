@@ -309,16 +309,15 @@ export function buildSC(policyRow: unknown): Tape {
   frames.push(frame("Settled for $17,084 and sealed; the decision record is committed to memory", view, ledger, ctx, { ...extras, isOpen: false, sealedAt: at("16:20:05", DAY) }));
 
   const v = (i: number) => frames[i]!.cases[SC_CASE]!.view;
-  const ok = (id: string, decidedAt: string, f: number, hash: string, state: CaseView["case"]["state"]) => ({
-    status: "OK", approval_id: id, approval_status: "APPROVED", decided_by: PERSONA_IDS.finance.user, decided_role: "BBC_FINANCE_MGR",
-    decided_at: decidedAt, chosen_option_id: null, brief_hash: hash, case_state: state, state_version: v(f).case.state_version, remaining_approval_ids: [],
+  const ok = (id: string, f: number, state: CaseView["case"]["state"]) => ({
+    status: "OK", approval_id: id, approval_status: "APPROVED", case_state: state,
     ledger_seq: v(f).evidence.ledger.entries.find((e) => e.entry_type === "APPROVAL" && e.record_ref.endsWith(id))!.seq,
   });
   const responses: TapeResponse[] = [
     { call: "DECIDE_APPROVAL", persona: "finance", at_frames: [pendingFile], match: { approval_id: APR_FILE, verdict: "APPROVE" },
-      result: ok(APR_FILE, at("09:31:00", DAY), filed, briefFile.brief_hash, "APPROVED"), advance_to_frame: filed },
+      result: ok(APR_FILE, filed, "APPROVED"), advance_to_frame: filed },
     { call: "DECIDE_APPROVAL", persona: "finance", at_frames: [pendingAccept], match: { approval_id: APR_ACCEPT, verdict: "APPROVE" },
-      result: ok(APR_ACCEPT, at("14:05:00", DAY), frames.length - 1, briefAccept.brief_hash, "APPROVED"), advance_to_frame: frames.length - 1 },
+      result: ok(APR_ACCEPT, frames.length - 1, "APPROVED"), advance_to_frame: frames.length - 1 },
   ];
   return {
     tape: "S-C",

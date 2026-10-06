@@ -5,6 +5,7 @@ import {
   ContractViolationError,
   InterfaceUnavailableError,
   RefusedError,
+  refusalText,
 } from "@blueberrychain/bbc-api";
 import type { AppContext } from "./context";
 import { SignInError } from "./identity";
@@ -28,7 +29,7 @@ export function errorResponse(ctx: AppContext, error: unknown): Response {
   }
   if (error instanceof RefusedError) {
     const status = error.refusal.code === "NOT_FOUND" ? 404 : 403;
-    return problem(ctx, status, "refused", error.refusal.errors[0] ?? "Snowflake refused the request.", { code: error.refusal.code ?? null });
+    return problem(ctx, status, "refused", refusalText(error.refusal), { code: error.refusal.code ?? null });
   }
   if (error instanceof AuthError) return problem(ctx, 502, "snowflake_auth", error.message);
   if (error instanceof ContractViolationError) {

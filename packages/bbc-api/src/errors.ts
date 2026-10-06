@@ -46,10 +46,26 @@ export function mapSnowflakeError(name: InterfaceName, error: unknown): Error {
   return error instanceof Error ? error : new Error(String(error));
 }
 
+/** One refusal reason: plain text, or `{code, message}` (the mutation gateway's form). */
+export type RefusalError = string | { code: string; message: string; path?: string };
+
 export interface Refusal {
   status: "INVALID" | "DENIED";
-  errors: string[];
+  errors: RefusalError[];
   code?: string;
+  /** Some procedures add context (case_id, state, steps). */
+  [key: string]: unknown;
+}
+
+/** A refusal reason as a person reads it ("CODE: message" for coded errors). */
+export function errorText(e: RefusalError | undefined): string | null {
+  if (e === undefined) return null;
+  return typeof e === "string" ? e : `${e.code}: ${e.message}`;
+}
+
+/** The refusal's first reason, verbatim. */
+export function refusalText(r: Refusal): string {
+  return errorText(r.errors[0]) ?? r.code ?? `Snowflake answered ${r.status}`;
 }
 
 /** A read the procedure refused (unknown case, a case the role may not see). */
@@ -58,7 +74,7 @@ export class RefusedError extends Error {
     readonly interfaceName: InterfaceName,
     readonly refusal: Refusal,
   ) {
-    super(`${interfaceName} refused: ${refusal.errors[0] ?? refusal.code ?? refusal.status}`);
+    super(`${interfaceName} refused: ${refusalText(refusal)}`);
     this.name = "RefusedError";
   }
 }

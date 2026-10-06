@@ -10,8 +10,8 @@
 
 export { INTERFACES, PERSONA_WRITES, PROOF_CALLS, bindCall } from "./interfaces.js";
 export type { BoundCall, CallerRole, InterfaceName, InterfaceSpec, PersonaRole, PersonaWrite, ProofCall, ServiceRole } from "./interfaces.js";
-export { AuthError, ContractViolationError, InterfaceUnavailableError, RefusedError, isRefusal, mapSnowflakeError } from "./errors.js";
-export type { Refusal } from "./errors.js";
+export { AuthError, ContractViolationError, InterfaceUnavailableError, RefusedError, errorText, isRefusal, mapSnowflakeError, refusalText } from "./errors.js";
+export type { Refusal, RefusalError } from "./errors.js";
 export { createSqlPersonaPort } from "./persona.js";
 export type {
   ActivePolicy, AvailableAction, CaseView, DecideApprovalResult, EmergencyStopResult, ExportResult, InboxRow, PersonaCall,
@@ -19,8 +19,8 @@ export type {
 } from "./persona.js";
 export { createSqlEnginePort } from "./engine.js";
 export type {
-  AckMutationResult, AdvanceCaseResult, AgentRunRecord, ClaimWorkResult, DispatchReport, EndAgentRunResult, EnginePort,
-  NextActionsResult, StartAgentRunArgs, StartAgentRunResult,
+  AckMutationResult, AdvanceCaseResult, AgentRunRecord, ClaimWorkResult, EndAgentRunResult, EnginePort, ExecutePlanResult,
+  MutationAck, NextActionsResult, StartAgentRunArgs, StartAgentRunResult,
 } from "./engine.js";
 export { AnalystClient, SEMANTIC_VIEW, answerQuestion, checkAnalystSql } from "./analyst.js";
 export type { AnalystAnswer, AnalystConfig, AnalystReply, SqlCheck } from "./analyst.js";

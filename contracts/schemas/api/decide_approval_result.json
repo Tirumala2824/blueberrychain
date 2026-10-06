@@ -2,27 +2,38 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/api/decide_approval_result.json",
   "title": "DECIDE_APPROVAL result",
-  "description": "API.DECIDE_APPROVAL(approval_id, verdict, chosen_option_id, reason), called by a persona under their own identity. Snowflake enforces CURRENT_USER(), IS_ROLE_IN_SESSION(required_role), proposer != approver, Brief-hash freshness and the deadline; a refusal carries the reason code.",
+  "description": "API.DECIDE_APPROVAL(approval_id, verdict, chosen_option_id, reason), called by a persona under their own identity (83_gateway.sql). Snowflake checks CURRENT_USER() holds the required role, that the caller isn't the proposer and hasn't decided another role of the same evaluation. A changed Brief or pack, or a passed due time, is recorded as STALE / EXPIRED rather than refused. Deciding an approval that is no longer REQUESTED replays its status (replayed: true).",
   "oneOf": [
-    { "$ref": "refusal.json" },
+    {
+      "$ref": "refusal.json"
+    },
     {
       "type": "object",
-      "required": ["status", "approval_id", "approval_status", "decided_by", "decided_role", "decided_at", "chosen_option_id",
-                   "brief_hash", "case_state", "state_version", "remaining_approval_ids", "ledger_seq"],
+      "required": [
+        "status",
+        "approval_id",
+        "approval_status"
+      ],
       "additionalProperties": false,
       "properties": {
-        "status": { "const": "OK" },
-        "approval_id": { "$ref": "../common.json#/$defs/approval_id" },
-        "approval_status": { "enum": ["APPROVED", "ALTERNATIVE_CHOSEN", "REJECTED"] },
-        "decided_by": { "type": "string", "maxLength": 255 },
-        "decided_role": { "$ref": "../common.json#/$defs/persona_role" },
-        "decided_at": { "$ref": "../common.json#/$defs/timestamp" },
-        "chosen_option_id": { "oneOf": [{ "$ref": "../common.json#/$defs/option_id" }, { "type": "null" }] },
-        "brief_hash": { "$ref": "../common.json#/$defs/sha256" },
-        "case_state": { "$ref": "../common.json#/$defs/case_state" },
-        "state_version": { "type": "integer", "minimum": 1 },
-        "remaining_approval_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/approval_id" }, "uniqueItems": true },
-        "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+        "status": {
+          "const": "OK"
+        },
+        "approval_id": {
+          "$ref": "../common.json#/$defs/approval_id"
+        },
+        "approval_status": {
+          "$ref": "../common.json#/$defs/approval_status"
+        },
+        "ledger_seq": {
+          "$ref": "../common.json#/$defs/ledger_seq"
+        },
+        "case_state": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "replayed": {
+          "type": "boolean"
+        }
       }
     }
   ]

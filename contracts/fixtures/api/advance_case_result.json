@@ -4,51 +4,69 @@
     {
       "status": "OK",
       "case_id": "CASE-00000017",
-      "from_state": "OPEN",
-      "to_state": "OPTIONS_SCORED",
-      "state_version": 5,
-      "transitions": [
+      "from": "OPEN",
+      "state": "OPTIONS_SCORED",
+      "waiting_for": [],
+      "steps": [
         {
-          "from": "OPEN",
-          "to": "ASSESSED",
+          "step": "BUILD_ASSESSMENT",
+          "state": "ASSESSED",
+          "pack_id": "PACK-00000031",
+          "ledger_seq": 413
+        },
+        {
+          "step": "ROUTE",
+          "state": "FINDING_RECORDED",
+          "finding_id": "FND-00000020",
+          "ledger_seq": 414
+        },
+        {
+          "step": "GENERATE_AND_SCORE_OPTIONS",
+          "state": "OPTIONS_SCORED",
+          "options": 5,
           "ledger_seq": 415
-        },
-        {
-          "from": "ASSESSED",
-          "to": "FINDING_RECORDED",
-          "ledger_seq": 416
-        },
-        {
-          "from": "FINDING_RECORDED",
-          "to": "OPTIONS_SCORED",
-          "ledger_seq": 417
         }
-      ],
-      "next": "ADVANCE",
-      "lease_released": true
+      ]
     },
     {
-      "status": "DENIED",
-      "errors": [
-        "expected state OPEN, case is ASSESSED"
+      "status": "OK",
+      "case_id": "CASE-00000023",
+      "from": "ASSESSED",
+      "state": "FORENSICS_PENDING",
+      "waiting_for": [
+        "AGENT",
+        "EXCURSION_FORENSICS"
       ],
-      "code": "STATE_MISMATCH"
+      "steps": [
+        {
+          "step": "ROUTE",
+          "state": "FORENSICS_PENDING",
+          "triggers": [
+            "EVIDENCE_CONFLICT"
+          ]
+        }
+      ]
+    },
+    {
+      "status": "STALE",
+      "case_id": "CASE-00000017",
+      "state": "ASSESSED"
     }
   ],
   "invalid": [
     {
-      "why": "next is a frozen vocabulary",
-      "base": 0,
+      "why": "statuses are OK, STALE or a refusal",
+      "base": 2,
       "set": {
-        "/next": "SLEEP"
+        "/status": "LATE"
       }
     },
     {
-      "why": "transitions reference case states",
+      "why": "steps name their stage",
       "base": 0,
-      "set": {
-        "/transitions/0/to": "SOMEWHERE"
-      }
+      "delete": [
+        "/steps/0/step"
+      ]
     }
   ]
 }

@@ -358,12 +358,12 @@ export interface AvailableAction {
   disabled_reason: string | null;
   approval_id?: string;
   required_role?: "BBC_QUALITY_MGR" | "BBC_SALES_MGR" | "BBC_FINANCE_MGR" | "BBC_AUDITOR" | "BBC_GOVERNANCE_ADMIN";
-  verdicts?: ("APPROVE" | "CHOOSE_ALTERNATIVE" | "REJECT")[];
+  verdicts?: ("APPROVE" | "ALTERNATIVE" | "REJECT")[];
   /**
    * Scored, feasible, unexpired options an approver may choose instead (CHOOSE_ALTERNATIVE).
    */
   choosable_option_ids?: string[];
-  reason_required_for?: ("APPROVE" | "CHOOSE_ALTERNATIVE" | "REJECT")[];
+  reason_required_for?: ("APPROVE" | "ALTERNATIVE" | "REJECT")[];
   rec_id?: string;
   pack_ids?: string[];
   due_at?: string;

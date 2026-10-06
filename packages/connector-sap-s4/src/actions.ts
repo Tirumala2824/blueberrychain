@@ -3,12 +3,16 @@
  * engine's dispatcher. Writes follow SAP's rules: a CSRF token and session cookie for
  * every POST / PATCH, If-Match ETags as the compare-and-set, and our idempotency
  * reference stored in a field the dispatcher can look up before it ever resends.
- * The intent payload carries SAP's keys (material, plant, storage location, batch, sales
- * order item); the gateway maps them in Snowflake, so the dispatcher holds no mapping.
- * Payload fields per action are in contracts/apis/dispatch-target-states.md.
+ *
+ * The gateway's intents use BlueberryChain ids (lot, site, order line). The handlers map
+ * them back to SAP keys with the ingest connector's own identities: the batch is the lot
+ * id, plants come from the same key map (keymap.ts), and an order line is
+ * `SO-<SalesOrder>-<SalesOrderItem>` (mapping.ts). What each handler reports is named after
+ * the gateway's expectations. Payloads and observations: contracts/apis/dispatch-target-states.md.
  */
 
 import { TargetRejectedError, type ActionHandler } from "@blueberrychain/connector-sdk";
+import type { KeyMap } from "./keymap.js";
 import { ODataError, type ODataConfig } from "./odata.js";
 
 export interface SapIntent {
@@ -80,83 +84,128 @@ function check(r: { status: number; body: Json }, what: string): Json {
 const q = (v: unknown) => `'${String(v ?? "").replaceAll("'", "''")}'`;
 const filter = (f: Record<string, unknown>) => encodeURIComponent(Object.entries(f).map(([k, v]) => `${k} eq ${q(v)}`).join(" and "));
 
-export function sapHandlers(sap: ODataWriter): ActionHandler<SapIntent>[] {
+/** The intent can't be carried out as composed (nothing is written; the dispatcher reports it). */
+const incomplete = (message: string) => new TargetRejectedError(0, "INTENT_INCOMPLETE", message);
+
+/** `SO-<SalesOrder>-<SalesOrderItem>`, the order line id the ingest connector assigns. */
+export function salesOrderItemOf(orderLineId: unknown): { salesOrder: string; item: string } {
+  const m = /^SO-(.+)-([^-]+)$/.exec(String(orderLineId ?? ""));
+  if (!m) throw incomplete(`${String(orderLineId)} is not an SAP order line id`);
+  return { salesOrder: m[1]!, item: m[2]! };
+}
+
+/** BlueberryChain site -> SAP plant (the inverse of the ingest key map). */
+export function plantOf(keys: KeyMap, siteId: unknown): string {
+  const hit = Object.entries(keys.plant).find(([, site]) => site === siteId);
+  if (!hit) throw incomplete(`no SAP plant maps to ${String(siteId)}`);
+  return hit[0];
+}
+
+const restored = (p: Json, field: string): unknown => {
+  const r = p["restore"] as Json | undefined;
+  if (!r || !(field in r)) throw incomplete(`the compensation carries no restore.${field}`);
+  return r[field];
+};
+
+export function sapHandlers(sap: ODataWriter, keys: KeyMap): ActionHandler<SapIntent>[] {
   const etags = new WeakMap<SapIntent, string>();
+  const locations = new WeakMap<SapIntent, { material: string; storageLocation: string }>();
 
   // ---- stock: goods movements 344 (unrestricted -> blocked) and 343 (back) ----------------
-  const stockOf = async (p: Json) => {
-    const key = { Material: p["material"], Plant: p["plant"], StorageLocation: p["storage_location"], Batch: p["batch"] };
+  // Payload {lot_id, site_id, kg}; observed {blocked, unrestricted_kg, blocked_kg} for the batch at the plant.
+  const stockOf = async (intent: SapIntent, from: "01" | "07") => {
+    const p = intent.payload;
+    const key = { Plant: plantOf(keys, p["site_id"]), Batch: p["lot_id"] };
     const rows = (check(await sap.send("GET", "API_MATERIAL_STOCK_SRV", `A_MatlStkInAcctMod?$filter=${filter(key)}&$format=json`), "read stock")["results"] ?? []) as Json[];
     const qty = (type: string) => rows.filter((r) => r["InventoryStockType"] === type).reduce((s, r) => s + Number(r["MatlWrhsStkQtyInMatlBaseUnit"] ?? 0), 0);
-    return { unrestricted_kg: qty("01"), restricted_kg: qty("07") };
+    const source = rows.find((r) => r["InventoryStockType"] === from) ?? rows[0];
+    if (source) locations.set(intent, { material: String(source["Material"]), storageLocation: String(source["StorageLocation"]) });
+    const blockedKg = qty("07");
+    return { blocked: blockedKg > 0, unrestricted_kg: qty("01"), blocked_kg: blockedKg };
   };
-  const movement = (actionType: "STOCK_BLOCK" | "STOCK_UNBLOCK"): ActionHandler<SapIntent> => ({
-    actionTypes: [actionType],
-    targetSystem: "SAP",
-    readBefore: (intent) => stockOf(intent.payload),
-    async execute(intent, key) {
-      const p = intent.payload;
-      const body = check(await sap.send("POST", "API_MATERIAL_DOCUMENT_SRV", "A_MaterialDocumentHeader", {
-        body: {
-          GoodsMovementCode: "04",
-          MaterialDocumentHeaderText: sapReference(key),
-          to_MaterialDocumentItem: { results: [{
-            Material: p["material"], Plant: p["plant"], StorageLocation: p["storage_location"], Batch: p["batch"],
-            GoodsMovementType: actionType === "STOCK_BLOCK" ? "344" : "343", QuantityInEntryUnit: String(p["kg"]), EntryUnit: "KG",
-          }] },
-        },
-      }), actionType === "STOCK_BLOCK" ? "block stock" : "unblock stock");
-      return { externalRef: `${String(body["MaterialDocument"])}/${String(body["MaterialDocumentYear"])}`, response: body };
-    },
-    async status(_intent, key) {
-      const rows = (check(await sap.send("GET", "API_MATERIAL_DOCUMENT_SRV", `A_MaterialDocumentHeader?$filter=${filter({ MaterialDocumentHeaderText: sapReference(key) })}&$format=json`), "look up material document")["results"] ?? []) as Json[];
-      const hit = rows[0];
-      return hit ? { state: "APPLIED", externalRef: `${String(hit["MaterialDocument"])}/${String(hit["MaterialDocumentYear"])}` } : { state: "UNKNOWN" };
-    },
-    readAfter: (intent) => stockOf(intent.payload),
-  });
+  const movement = (actionType: "STOCK_BLOCK" | "STOCK_UNBLOCK"): ActionHandler<SapIntent> => {
+    const from = actionType === "STOCK_BLOCK" ? "01" : "07";
+    return {
+      actionTypes: [actionType],
+      targetSystem: "SAP",
+      readBefore: (intent) => stockOf(intent, from),
+      async execute(intent, key) {
+        const p = intent.payload;
+        if (!locations.has(intent)) await stockOf(intent, from);
+        const at = locations.get(intent);
+        if (!at) throw incomplete(`batch ${String(p["lot_id"])} has no stock at ${String(p["site_id"])}`);
+        const body = check(await sap.send("POST", "API_MATERIAL_DOCUMENT_SRV", "A_MaterialDocumentHeader", {
+          body: {
+            GoodsMovementCode: "04",
+            MaterialDocumentHeaderText: sapReference(key),
+            to_MaterialDocumentItem: { results: [{
+              Material: at.material, Plant: plantOf(keys, p["site_id"]), StorageLocation: at.storageLocation, Batch: p["lot_id"],
+              GoodsMovementType: actionType === "STOCK_BLOCK" ? "344" : "343", QuantityInEntryUnit: String(p["kg"]), EntryUnit: "KG",
+            }] },
+          },
+        }), actionType === "STOCK_BLOCK" ? "block stock" : "unblock stock");
+        return { externalRef: `${String(body["MaterialDocument"])}/${String(body["MaterialDocumentYear"])}`, response: body };
+      },
+      async status(_intent, key) {
+        const rows = (check(await sap.send("GET", "API_MATERIAL_DOCUMENT_SRV", `A_MaterialDocumentHeader?$filter=${filter({ MaterialDocumentHeaderText: sapReference(key) })}&$format=json`), "look up material document")["results"] ?? []) as Json[];
+        const hit = rows[0];
+        return hit ? { state: "APPLIED", externalRef: `${String(hit["MaterialDocument"])}/${String(hit["MaterialDocumentYear"])}` } : { state: "UNKNOWN" };
+      },
+      readAfter: (intent) => stockOf(intent, from),
+    };
+  };
 
   // ---- sales order item: PATCH with If-Match -----------------------------------------------
-  const itemPath = (p: Json) => `A_SalesOrderItem(SalesOrder=${q(p["sales_order"])},SalesOrderItem=${q(p["sales_order_item"])})`;
+  // Payload carries order_line_id; observed {kg, assigned_lot_id, requested_delivery_date}.
+  const itemOf = (intent: SapIntent) => salesOrderItemOf(intent.payload["order_line_id"] ?? intent.target_entity.id);
+  const ref = (intent: SapIntent) => {
+    const { salesOrder, item } = itemOf(intent);
+    return `${salesOrder}/${item}`;
+  };
+  const itemPath = (intent: SapIntent) => {
+    const { salesOrder, item } = itemOf(intent);
+    return `A_SalesOrderItem(SalesOrder=${q(salesOrder)},SalesOrderItem=${q(item)})`;
+  };
   const readItem = async (intent: SapIntent) => {
-    const r = await sap.send("GET", "API_SALES_ORDER_SRV", `${itemPath(intent.payload)}?$format=json`);
+    const r = await sap.send("GET", "API_SALES_ORDER_SRV", `${itemPath(intent)}?$format=json`);
     const body = check(r, "read sales order item");
     etags.set(intent, r.headers.get("etag") ?? "");
     return {
-      batch: body["Batch"] ?? null,
-      requested_quantity_kg: body["RequestedQuantity"] === undefined ? null : Number(body["RequestedQuantity"]),
-      requested_delivery_date: body["RequestedDeliveryDate"] ?? null,
+      observed: {
+        kg: body["RequestedQuantity"] === undefined ? null : Number(body["RequestedQuantity"]),
+        assigned_lot_id: body["Batch"] ? String(body["Batch"]) : null,
+        requested_delivery_date: body["RequestedDeliveryDate"] ?? null,
+      },
       reference: body["YY1_BBCReference"] ?? null,
     };
   };
-  const soChange = (actionType: "SO_CHANGE" | "SO_REVERT"): ActionHandler<SapIntent> => ({
+  /** What each action writes to the item (SAP field names). */
+  const CHANGES = {
+    SO_CHANGE: (p: Json): Json => ({ RequestedQuantity: String(p["kg"]) }),
+    SO_REVERT: (p: Json): Json => ({ RequestedQuantity: String(restored(p, "kg")) }),
+    REPLACEMENT_ALLOCATION: (p: Json): Json => ({ Batch: String(p["replacement_lot_id"]) }),
+    DEALLOCATE: (p: Json): Json => ({ Batch: String(restored(p, "assigned_lot_id") ?? "") }),
+  };
+  const soItem = (actionType: keyof typeof CHANGES): ActionHandler<SapIntent> => ({
     actionTypes: [actionType],
     targetSystem: "SAP",
-    async readBefore(intent) {
-      const { reference: _ref, ...observed } = await readItem(intent);
-      return observed;
-    },
+    readBefore: async (intent) => (await readItem(intent)).observed,
     async execute(intent, key) {
-      const changes = (intent.payload["changes"] ?? {}) as Json;
-      const allowed: Record<string, string> = { batch: "Batch", requested_quantity_kg: "RequestedQuantity", requested_delivery_date: "RequestedDeliveryDate" };
-      const body: Json = { YY1_BBCReference: sapReference(key) };
-      for (const [k, v] of Object.entries(changes)) {
-        if (!allowed[k]) throw new TargetRejectedError(400, "UNSUPPORTED_FIELD", `${actionType} can't change ${k}`);
-        body[allowed[k]] = k === "requested_quantity_kg" ? String(v) : v;
-      }
-      const r = await sap.send("PATCH", "API_SALES_ORDER_SRV", itemPath(intent.payload), { body, ifMatch: etags.get(intent) ?? "" });
-      check(r, `change ${String(intent.payload["sales_order"])}/${String(intent.payload["sales_order_item"])}`);
-      return { externalRef: `${String(intent.payload["sales_order"])}/${String(intent.payload["sales_order_item"])}`, response: { etag: r.headers.get("etag") } };
+      const body: Json = { ...CHANGES[actionType](intent.payload), YY1_BBCReference: sapReference(key) };
+      if (!etags.has(intent)) await readItem(intent);
+      const r = await sap.send("PATCH", "API_SALES_ORDER_SRV", itemPath(intent), { body, ifMatch: etags.get(intent) ?? "" });
+      check(r, `${actionType} ${ref(intent)}`);
+      return { externalRef: ref(intent), response: { etag: r.headers.get("etag") } };
     },
     async status(intent, key) {
       const item = await readItem(intent);
-      return item.reference === sapReference(key) ? { state: "APPLIED", externalRef: `${String(intent.payload["sales_order"])}/${String(intent.payload["sales_order_item"])}` } : { state: "UNKNOWN" };
+      return item.reference === sapReference(key) ? { state: "APPLIED", externalRef: ref(intent) } : { state: "UNKNOWN" };
     },
-    async readAfter(intent) {
-      const { reference: _ref, ...observed } = await readItem(intent);
-      return observed;
-    },
+    readAfter: async (intent) => (await readItem(intent)).observed,
   });
 
-  return [movement("STOCK_BLOCK"), movement("STOCK_UNBLOCK"), soChange("SO_CHANGE"), soChange("SO_REVERT")];
+  return [
+    movement("STOCK_BLOCK"), movement("STOCK_UNBLOCK"),
+    soItem("SO_CHANGE"), soItem("SO_REVERT"), soItem("REPLACEMENT_ALLOCATION"), soItem("DEALLOCATE"),
+  ];
 }

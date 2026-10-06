@@ -26,16 +26,24 @@ function DecisionForm({ action }: { action: AvailableAction }) {
   const [option, setOption] = useState(action.choosable_option_ids?.[0] ?? "");
   const id = action.approval_id!;
   const labelOf = (o: string) => view.options.find((x) => x.option_id === o)?.label ?? o;
-  const needsReason = (v: string) => action.reason_required_for?.includes(v as "APPROVE") ?? false;
+  const needsReason = (v: "APPROVE" | "ALTERNATIVE" | "REJECT") => action.reason_required_for?.includes(v) ?? false;
+  const verdict = mode === "reject" ? "REJECT" : mode === "choose" ? "ALTERNATIVE" : "APPROVE";
+  const missingReason = needsReason(verdict) && !reason.trim();
   return (
     <div className={styles.form} data-testid={`decide-${id}`}>
       <div className={panel.actions}>
         {action.verdicts?.includes("APPROVE") && (
-          <button type="button" className={panel.btn} onClick={() => run(reason.trim() ? `approve ${id} reason ${quote(reason.trim())}` : `approve ${id}`)} data-testid="approve-button">
+          <button
+            type="button"
+            className={panel.btn}
+            disabled={mode === "idle" && missingReason}
+            onClick={() => run(reason.trim() ? `approve ${id} reason ${quote(reason.trim())}` : `approve ${id}`)}
+            data-testid="approve-button"
+          >
             Approve
           </button>
         )}
-        {action.verdicts?.includes("CHOOSE_ALTERNATIVE") && !!action.choosable_option_ids?.length && (
+        {action.verdicts?.includes("ALTERNATIVE") && !!action.choosable_option_ids?.length && (
           <button type="button" className={panel.btnQuiet} aria-expanded={mode === "choose"} onClick={() => setMode(mode === "choose" ? "idle" : "choose")}>
             Choose another option
           </button>
@@ -59,15 +67,15 @@ function DecisionForm({ action }: { action: AvailableAction }) {
         </label>
       )}
       <label className={panel.field}>
-        Reason {mode === "idle" ? "(optional when approving)" : "(required)"}
-        <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} />
+        Reason {needsReason(verdict) ? "(required: Snowflake records it with your decision)" : "(optional)"}
+        <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)} maxLength={1000} data-testid="decision-reason" />
       </label>
       {mode !== "idle" && (
         <div className={panel.actions}>
           <button
             type="button"
             className={mode === "reject" ? panel.btnDanger : panel.btn}
-            disabled={needsReason(mode === "reject" ? "REJECT" : "CHOOSE_ALTERNATIVE") && !reason.trim()}
+            disabled={missingReason}
             onClick={() => run(mode === "reject" ? `reject ${id} reason ${quote(reason.trim())}` : `choose ${option} ${id} reason ${quote(reason.trim())}`)}
           >
             {mode === "reject" ? "Review rejection" : "Review choice"}

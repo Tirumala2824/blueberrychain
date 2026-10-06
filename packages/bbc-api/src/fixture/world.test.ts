@@ -4,7 +4,7 @@ import { bindCall } from "../interfaces.js";
 import { FixtureWorld, normalizeQuestion } from "./world.js";
 
 const world = () => FixtureWorld.load(["S-A", "S-B"]);
-const approve = (approval_id: string) => bindCall("DECIDE_APPROVAL", { approval_id, verdict: "APPROVE", chosen_option_id: null, reason: null });
+const approve = (approval_id: string) => bindCall("DECIDE_APPROVAL", { approval_id, verdict: "APPROVE", chosen_option_id: null, reason: "fits the spec" });
 const SA = "CASE-00000017";
 
 function seekState(w: FixtureWorld, tape: string, caseId: string, state: string) {
@@ -37,7 +37,7 @@ describe("fixture world (no business logic)", () => {
     const w = world();
     const pending = seekState(w, "S-A", SA, "PENDING_APPROVAL");
     const result = await w.portFor("sales").invoke(approve("APR-00000060"));
-    expect(result).toMatchObject({ status: "OK", approval_status: "APPROVED", decided_by: "BBC_DEMO_SALES" });
+    expect(result).toMatchObject({ status: "OK", approval_id: "APR-00000060", approval_status: "APPROVED", case_state: "PENDING_APPROVAL" });
     const now = w.status().find((s) => s.tape === "S-A")!;
     expect(now.frame).not.toBe(pending);
     const view = await w.portFor("quality").caseView(SA);

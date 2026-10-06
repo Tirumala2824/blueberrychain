@@ -19,7 +19,7 @@ test("the browser never talks to Snowflake and never receives a credential", asy
   await openCase(page, SA);
   for (const stage of ["ANALYSIS", "OPTIONS", "DECISION", "APPROVAL", "EVIDENCE"]) await page.getByTestId(`rail-${stage}`).click();
   await consoleRun(page, "status");
-  await consoleRun(page, "approve");
+  await consoleRun(page, 'approve reason "spec fits"');
   await expect(page.getByTestId("confirm-card")).toBeVisible();
 
   expect([...hosts].filter((h) => !h.startsWith("127.0.0.1"))).toEqual([]);

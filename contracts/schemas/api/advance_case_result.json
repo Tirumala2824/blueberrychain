@@ -2,34 +2,84 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/api/advance_case_result.json",
   "title": "ADVANCE_CASE result",
-  "description": "API.ADVANCE_CASE(case_id, expected_state), called by the engine. Runs the next deterministic stage(s) idempotently and enforces allowed transitions; refuses (DENIED, code STATE_MISMATCH) when expected_state is stale. Releases the lease.",
+  "description": "API.ADVANCE_CASE(case_id, expected_state) (82_stages.sql): run the next deterministic stage(s). STALE = the case is no longer in expected_state (someone else advanced it). `steps` record each stage run; `waiting_for` is [kind, target] when the case now waits for an agent or the engine, or [].",
   "oneOf": [
-    { "$ref": "refusal.json" },
+    {
+      "$ref": "refusal.json"
+    },
     {
       "type": "object",
-      "required": ["status", "case_id", "from_state", "to_state", "state_version", "transitions", "next", "lease_released"],
+      "required": [
+        "status",
+        "case_id",
+        "state"
+      ],
       "additionalProperties": false,
       "properties": {
-        "status": { "const": "OK" },
-        "case_id": { "$ref": "../common.json#/$defs/case_id" },
-        "from_state": { "$ref": "../common.json#/$defs/case_state" },
-        "to_state": { "$ref": "../common.json#/$defs/case_state" },
-        "state_version": { "type": "integer", "minimum": 1 },
-        "transitions": {
-          "type": "array", "maxItems": 50,
+        "status": {
+          "const": "STALE"
+        },
+        "case_id": {
+          "$ref": "../common.json#/$defs/case_id"
+        },
+        "state": {
+          "$ref": "../common.json#/$defs/case_state"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "case_id",
+        "from",
+        "state",
+        "steps",
+        "waiting_for"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "OK"
+        },
+        "case_id": {
+          "$ref": "../common.json#/$defs/case_id"
+        },
+        "from": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "state": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 50,
           "items": {
             "type": "object",
-            "required": ["from", "to", "ledger_seq"],
-            "additionalProperties": false,
+            "required": [
+              "step",
+              "state"
+            ],
+            "additionalProperties": true,
             "properties": {
-              "from": { "$ref": "../common.json#/$defs/case_state" },
-              "to": { "$ref": "../common.json#/$defs/case_state" },
-              "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+              "step": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "state": {
+                "$ref": "../common.json#/$defs/case_state"
+              }
             }
           }
         },
-        "next": { "enum": ["ADVANCE", "AGENT", "WAIT_HUMAN", "WAIT_EXTERNAL", "DONE"] },
-        "lease_released": { "type": "boolean" }
+        "waiting_for": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "maxItems": 2
+        }
       }
     }
   ]

@@ -5,53 +5,49 @@
       "status": "OK",
       "approval_id": "APR-00000060",
       "approval_status": "APPROVED",
-      "decided_by": "BBC_DEMO_SALES",
-      "decided_role": "BBC_SALES_MGR",
-      "decided_at": "2026-10-06T08:12:10Z",
-      "chosen_option_id": null,
-      "brief_hash": "7a3e5c9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c",
-      "case_state": "PENDING_APPROVAL",
-      "state_version": 9,
-      "remaining_approval_ids": [
-        "APR-00000061"
-      ],
-      "ledger_seq": 431
+      "ledger_seq": 420,
+      "case_state": "PENDING_APPROVAL"
+    },
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "STALE",
+      "ledger_seq": 431,
+      "case_state": "PENDING_APPROVAL"
+    },
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "APPROVED",
+      "replayed": true
     },
     {
       "status": "DENIED",
       "errors": [
-        "approval APR-00000060 needs role BBC_SALES_MGR in session"
-      ],
-      "code": "WRONG_ROLE"
+        "the proposer cannot approve"
+      ]
     }
   ],
   "invalid": [
     {
-      "why": "an approval cannot come back REQUESTED",
+      "why": "approval statuses are a frozen vocabulary",
       "base": 0,
       "set": {
-        "/approval_status": "REQUESTED"
+        "/approval_status": "OK"
       }
     },
     {
-      "why": "the deciding role is a persona role",
-      "base": 0,
-      "set": {
-        "/decided_role": "BBC_ENGINE"
-      }
-    },
-    {
-      "why": "OK results carry the ledger entry",
+      "why": "an OK result names the approval",
       "base": 0,
       "delete": [
-        "/ledger_seq"
+        "/approval_id"
       ]
     },
     {
-      "why": "a refusal has no approval fields",
-      "base": 1,
+      "why": "case states are a frozen vocabulary",
+      "base": 0,
       "set": {
-        "/approval_id": "APR-00000060"
+        "/case_state": "WAITING"
       }
     }
   ]

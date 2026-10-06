@@ -3,6 +3,7 @@ import { TargetRejectedError } from "@blueberrychain/connector-sdk";
 import { buildMockS4 } from "@blueberrychain/mock-s4";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ODataWriter, sapHandlers, sapReference, type SapIntent } from "./actions.js";
+import type { KeyMap } from "./keymap.js";
 
 const AUTH = { authorization: "Basic " + Buffer.from("BBC_CONNECTOR:mock").toString("base64") };
 const KEY = (n: number) => String(n).padStart(64, "b");
@@ -29,22 +30,32 @@ beforeEach(async () => {
 });
 afterEach(() => mock.app.close());
 
-const handler = (type: string) => sapHandlers(writer).find((h) => h.actionTypes.includes(type))!;
-const stockIntent = (n: number, kg = 3600): SapIntent => ({
-  action_type: "STOCK_BLOCK", idempotency_key: KEY(n), target_entity: { type: "LOT_STOCK", id: "L-B@SITE-CVDC-TRACY" },
-  payload: { material: "BB-DK-ORG-6OZ", plant: "1000", storage_location: "0001", batch: "L-B", kg },
+const KEYS: KeyMap = { business_partner: {}, plant: { "1000": "SITE-CVDC-TRACY" }, material: {}, ship_to: {}, harvest_block: {} };
+const handler = (type: string) => sapHandlers(writer, KEYS).find((h) => h.actionTypes.includes(type))!;
+// What the gateway composes (python/bbc_toolkit: stages.bundle_actions, gateway_procs._compensate).
+const stockIntent = (n: number, kg = 3600, site = "SITE-CVDC-TRACY"): SapIntent => ({
+  action_type: "STOCK_BLOCK", idempotency_key: KEY(n), target_entity: { type: "LOT_STOCK", id: `L-B@${site}` },
+  payload: { lot_id: "L-B", site_id: site, kg },
+});
+const lineIntent = (action_type: string, n: number, payload: Record<string, unknown>): SapIntent => ({
+  action_type, idempotency_key: KEY(n), target_entity: { type: "SALES_ORDER_ITEM", id: "SO-6002-10" }, payload: { order_line_id: "SO-6002-10", ...payload },
 });
 
 describe("SAP handlers against the mock S/4", () => {
-  it("blocks stock with movement 344 under a CSRF session, and finds it again by reference", async () => {
+  it("blocks stock with movement 344 under a CSRF session, reports it as `blocked`, and finds it again by reference", async () => {
     const h = handler("STOCK_BLOCK");
     const i = stockIntent(1);
-    expect(await h.readBefore(i)).toEqual({ unrestricted_kg: 3600, restricted_kg: 0 });
+    expect(await h.readBefore(i)).toEqual({ blocked: false, unrestricted_kg: 3600, blocked_kg: 0 });
     expect(await h.status(i, i.idempotency_key)).toEqual({ state: "UNKNOWN" });
     const { externalRef } = await h.execute(i, i.idempotency_key);
-    expect(await h.readAfter(i, externalRef)).toEqual({ unrestricted_kg: 0, restricted_kg: 3600 });
+    expect(await h.readAfter(i, externalRef)).toEqual({ blocked: true, unrestricted_kg: 0, blocked_kg: 3600 });
     expect(await h.status(i, i.idempotency_key)).toEqual({ state: "APPLIED", externalRef });
     expect(sapReference(i.idempotency_key)).toHaveLength(25);
+    const undo = handler("STOCK_UNBLOCK");
+    const back = { ...i, action_type: "STOCK_UNBLOCK", idempotency_key: KEY(11), payload: { ...i.payload, restore: { blocked: false } } };
+    await undo.readBefore(back);
+    const r = await undo.execute(back, back.idempotency_key);
+    expect(await undo.readAfter(back, r.externalRef)).toMatchObject({ blocked: false, unrestricted_kg: 3600 });
   });
 
   it("rejects a block larger than the unrestricted stock (never retried)", async () => {
@@ -53,26 +64,40 @@ describe("SAP handlers against the mock S/4", () => {
     await expect(h.execute(i, i.idempotency_key)).rejects.toBeInstanceOf(TargetRejectedError);
   });
 
-  it("changes a sales order line with If-Match and stamps our reference", async () => {
+  it("refuses an intent it can't map to SAP, before writing anything", async () => {
+    await expect(handler("STOCK_BLOCK").readBefore(stockIntent(3, 3600, "SITE-NOWHERE"))).rejects.toMatchObject({ code: "INTENT_INCOMPLETE" });
+    await expect(handler("SO_REVERT").execute(lineIntent("SO_REVERT", 4, { kg: 3000 }), KEY(4))).rejects.toMatchObject({ code: "INTENT_INCOMPLETE" });
+  });
+
+  it("changes a line's quantity with If-Match, stamps our reference, and reports `kg`", async () => {
     const h = handler("SO_CHANGE");
-    const i: SapIntent = {
-      action_type: "SO_CHANGE", idempotency_key: KEY(3), target_entity: { type: "SALES_ORDER_ITEM", id: "SO-6002-10" },
-      payload: { sales_order: "6002", sales_order_item: "10", changes: { requested_delivery_date: "2026-10-08T00:00:00Z" } },
-    };
-    const before = await h.readBefore(i);
-    expect(before).toMatchObject({ batch: "L-B", requested_quantity_kg: 3600 });
+    const i = lineIntent("SO_CHANGE", 5, { kg: 3000 });
+    expect(await h.readBefore(i)).toMatchObject({ kg: 3600, assigned_lot_id: "L-B" });
     const { externalRef } = await h.execute(i, i.idempotency_key);
     expect(externalRef).toBe("6002/10");
-    expect((await h.readAfter(i, externalRef))["requested_delivery_date"]).not.toEqual(before["requested_delivery_date"]);
+    expect(await h.readAfter(i, externalRef)).toMatchObject({ kg: 3000 });
     expect(await h.status(i, i.idempotency_key)).toMatchObject({ state: "APPLIED" });
+    const revert = lineIntent("SO_REVERT", 6, { kg: 3000, restore: { kg: 3600 } });
+    await handler("SO_REVERT").readBefore(revert);
+    await handler("SO_REVERT").execute(revert, revert.idempotency_key);
+    expect(await handler("SO_REVERT").readAfter(revert, externalRef)).toMatchObject({ kg: 3600 });
+  });
+
+  it("allocates a replacement lot to the line and deallocates it back (`assigned_lot_id`)", async () => {
+    const alloc = lineIntent("REPLACEMENT_ALLOCATION", 7, { replacement_lot_id: "L-CV-0912", from_site_id: "SITE-CVDC-TRACY", kg: 3600 });
+    const h = handler("REPLACEMENT_ALLOCATION");
+    expect(await h.readBefore(alloc)).toMatchObject({ assigned_lot_id: "L-B" });
+    const { externalRef } = await h.execute(alloc, alloc.idempotency_key);
+    expect(await h.readAfter(alloc, externalRef)).toMatchObject({ assigned_lot_id: "L-CV-0912" });
+    const back = lineIntent("DEALLOCATE", 8, { ...alloc.payload, restore: { assigned_lot_id: "L-B" } });
+    await handler("DEALLOCATE").readBefore(back);
+    await handler("DEALLOCATE").execute(back, back.idempotency_key);
+    expect(await handler("DEALLOCATE").readAfter(back, externalRef)).toMatchObject({ assigned_lot_id: "L-B" });
   });
 
   it("refuses a line change when the line changed since it was read (412)", async () => {
     const h = handler("SO_CHANGE");
-    const i: SapIntent = {
-      action_type: "SO_CHANGE", idempotency_key: KEY(4), target_entity: { type: "SALES_ORDER_ITEM", id: "SO-6002-10" },
-      payload: { sales_order: "6002", sales_order_item: "10", changes: { batch: "L-CV-0912" } },
-    };
+    const i = lineIntent("SO_CHANGE", 9, { kg: 3200 });
     await h.readBefore(i);
     await sim("POST", "/__sim/sales-orders", { records: [{ SalesOrder: "6002", SoldToParty: "100301", items: [{ SalesOrderItem: "10", RequestedQuantity: 3000 }] }] });
     await expect(h.execute(i, i.idempotency_key)).rejects.toMatchObject({ status: 412 });

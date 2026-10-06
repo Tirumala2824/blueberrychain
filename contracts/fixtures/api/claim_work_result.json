@@ -3,38 +3,57 @@
   "valid": [
     {
       "status": "OK",
-      "work": {
-        "case_id": "CASE-00000023",
-        "decision_point": "D1",
-        "state": "FORENSICS_PENDING",
-        "state_version": 3,
-        "step": "AGENT",
-        "agent": "EXCURSION_FORENSICS",
-        "artifact_id": null,
-        "attempt": 1,
-        "lease_owner": "engine-1/worker-0",
-        "lease_until": "2026-10-06T07:10:00Z"
+      "case_id": "CASE-00000017",
+      "state": "OPEN",
+      "state_version": 1,
+      "next": {
+        "kind": "ADVANCE",
+        "call": "API.ADVANCE_CASE",
+        "expected_state": "OPEN"
       }
     },
     {
       "status": "OK",
-      "work": null
+      "case_id": "CASE-00000023",
+      "state": "FORENSICS_PENDING",
+      "state_version": 3,
+      "next": {
+        "kind": "AGENT",
+        "target": "EXCURSION_FORENSICS",
+        "expected_state": "FORENSICS_PENDING"
+      }
+    },
+    {
+      "status": "OK",
+      "case_id": "CASE-00000017",
+      "state": "APPROVED",
+      "state_version": 10,
+      "rec_id": "REC-00000044",
+      "next": {
+        "kind": "ENGINE",
+        "target": "EXECUTE_PLAN",
+        "expected_state": "APPROVED"
+      }
+    },
+    {
+      "status": "OK",
+      "case_id": null
     }
   ],
   "invalid": [
     {
-      "why": "steps are ADVANCE or AGENT",
+      "why": "next kinds are a frozen vocabulary",
       "base": 0,
       "set": {
-        "/work/step": "ROUTE"
+        "/next/kind": "ROUTE"
       }
     },
     {
-      "why": "agents are the four registered names",
+      "why": "a leased case says what step comes next",
       "base": 0,
-      "set": {
-        "/work/agent": "SUPERVISOR"
-      }
+      "delete": [
+        "/next"
+      ]
     }
   ]
 }

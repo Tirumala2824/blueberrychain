@@ -13,7 +13,7 @@ import { confirmGrant, historyFor, portFor, runConsole } from "./console-service
 import type { AppContext } from "./context";
 import { errorResponse, isLoopbackHost, json, problem, readBody, requireSession, requireWrite, sessionOf } from "./http";
 import { isPersona } from "./identity";
-import { clearCookieHeader, cookieHeader } from "./session";
+import { clearCookieHeader, cookieHeader, isHttps } from "./session";
 
 const CASE_ID = /^CASE-\d{8,12}$/;
 const RUN_ID = /^RUN-\d{8,12}$/;
@@ -50,7 +50,7 @@ export async function postSession(ctx: AppContext, req: Request): Promise<Respon
     const old = sessionOf(ctx, req);
     if (old) ctx.store.destroy(old.id);
     const { session, cookie } = ctx.store.create(identity);
-    return json(ctx, 200, sessionBody(ctx, session), { "set-cookie": cookieHeader(cookie, ctx.config.sessionMaxH * 3600) });
+    return json(ctx, 200, sessionBody(ctx, session), { "set-cookie": cookieHeader(cookie, ctx.config.sessionMaxH * 3600, isHttps(req)) });
   } catch (error) {
     return errorResponse(ctx, error);
   }
@@ -59,7 +59,7 @@ export async function postSession(ctx: AppContext, req: Request): Promise<Respon
 export async function deleteSession(ctx: AppContext, req: Request): Promise<Response> {
   const s = sessionOf(ctx, req);
   if (s) ctx.store.destroy(s.id);
-  return json(ctx, 200, sessionBody(ctx, null), { "set-cookie": clearCookieHeader() });
+  return json(ctx, 200, sessionBody(ctx, null), { "set-cookie": clearCookieHeader(isHttps(req)) });
 }
 
 // ---- reads ----------------------------------------------------------------------------------

@@ -17,7 +17,7 @@ export type Command =
   | { verb: "policy" }
   | { verb: "approvals" }
   | { verb: "help"; topic: string | null }
-  | { verb: "verify"; from: number | null; to: number | null; table: string | null }
+  | { verb: "verify"; table: string | null }
   | { verb: "replay"; pack: string | null }
   | { verb: "export" }
   | { verb: "approve"; approval: string | null; reason: string | null }
@@ -52,10 +52,10 @@ export const VERBS: VerbSpec[] = [
   { verb: "policy", group: "Read", usage: "policy", summary: "Policy version, kill switches and how it evaluated this case" },
   { verb: "approvals", group: "Read", usage: "approvals", summary: "Who must approve, by when, and what you can do" },
   { verb: "help", group: "Read", usage: "help [verb]", summary: "This list" },
-  { verb: "verify", group: "Proof", usage: "verify [from..to] [--table DB.SCHEMA.TABLE]", summary: "Recompute the ledger hash chain in Snowflake" },
+  { verb: "verify", group: "Proof", usage: "verify [--table DB.SCHEMA.TABLE]", summary: "Recompute the whole ledger's hash chain in Snowflake (or a clone's)" },
   { verb: "replay", group: "Proof", usage: "replay [PACK-…]", summary: "Rebuild an evidence pack as of its time and compare hashes", completes: ["pack"] },
   { verb: "export", group: "Proof", usage: "export", summary: "Export the evidence pack and ledger slice (signed link)" },
-  { verb: "approve", group: "Decide", usage: 'approve [APR-…] [reason "…"]', summary: "Approve the recommendation (asks you to confirm)", completes: ["approval"] },
+  { verb: "approve", group: "Decide", usage: 'approve [APR-…] reason "…"', summary: "Approve the recommendation (asks you to confirm)", completes: ["approval"] },
   { verb: "choose", group: "Decide", usage: 'choose OPT-… [APR-…] reason "…"', summary: "Approve a different scored option instead", completes: ["option", "approval"] },
   { verb: "reject", group: "Decide", usage: 'reject [APR-…] reason "…"', summary: "Reject; the safe fallback runs", completes: ["approval"] },
   { verb: "reverse", group: "Decide", usage: 'reverse [REC-…] reason "…"', summary: "Reverse an executed decision through compensations", completes: ["rec"] },

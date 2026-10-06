@@ -6,6 +6,7 @@ import * as h from "./handlers";
 
 const ORIGIN = "http://127.0.0.1:3000";
 const SA = "CASE-00000017";
+const APPROVE = 'approve reason "fits the customer\'s spec"';
 
 let now = Date.parse("2026-10-06T08:00:00Z");
 let ctx: AppContext;
@@ -58,6 +59,15 @@ describe("sessions", () => {
     expect(text).not.toMatch(/PAT|token|snowflakecomputing/i);
   });
 
+  it("marks the cookie Secure behind an HTTPS proxy (Cloud Run)", async () => {
+    ctx = createAppContext(loadConfig({ BBC_API_MODE: "fixture", BBC_FIXTURE_TAPES: "S-A", BBC_CT_ACCESS_CODE: "c0de" }), {}, () => now);
+    const req = new Request("http://ct.internal/api/session", {
+      method: "POST", body: JSON.stringify({ persona: "sales", access_code: "c0de" }),
+      headers: { host: "ct-dev.run.app", "x-forwarded-proto": "https", "content-type": "application/json" },
+    });
+    expect((await h.postSession(ctx, req)).headers.get("set-cookie")).toMatch(/; Secure$/);
+  });
+
   it("ignores a tampered or forged cookie", async () => {
     const { cookie } = await signIn("sales");
     const forged = `${cookie.slice(0, -2)}xx`;
@@ -108,7 +118,7 @@ describe("console: governed writes", () => {
   it("turns `approve` into a confirm card with the exact CALL, then runs it once", async () => {
     seek("PENDING_APPROVAL");
     const sales = await signIn("sales");
-    const entry = await consoleRun(sales, "approve");
+    const entry = await consoleRun(sales, APPROVE);
     expect(entry.artifact.type).toBe("confirm");
     if (entry.artifact.type !== "confirm") return;
     const card = entry.artifact.card;
@@ -119,7 +129,7 @@ describe("console: governed writes", () => {
         { name: "approval_id", value: "APR-00000060" },
         { name: "verdict", value: "APPROVE" },
         { name: "chosen_option_id", value: null },
-        { name: "reason", value: null },
+        { name: "reason", value: "fits the customer's spec" },
       ],
       user: "BBC_DEMO_SALES",
       role: "BBC_SALES_MGR",
@@ -127,7 +137,10 @@ describe("console: governed writes", () => {
     });
     expect(card.brief_hash).toMatch(/^[0-9a-f]{64}$/);
     const receipt = await confirm(sales, card.token);
-    expect(receipt.artifact).toMatchObject({ type: "receipt", call: "DECIDE_APPROVAL" });
+    expect(receipt.artifact).toMatchObject({
+      type: "receipt", call: "DECIDE_APPROVAL", result: { approval_status: "APPROVED", case_state: "PENDING_APPROVAL" },
+      summary: expect.stringMatching(/^Snowflake recorded APR-00000060 as approved, ledger entry \d+\. Waiting for approval\.$/),
+    });
     const again = await confirm(sales, card.token);
     expect(again.artifact).toMatchObject({ type: "error", message: expect.stringMatching(/already used/) });
   });
@@ -136,7 +149,7 @@ describe("console: governed writes", () => {
     seek("PENDING_APPROVAL");
     const sales = await signIn("sales");
     const other = await signIn("sales");
-    const entry = await consoleRun(sales, "approve");
+    const entry = await consoleRun(sales, APPROVE);
     const token = entry.artifact.type === "confirm" ? entry.artifact.card.token : "";
     expect((await confirm(other, token)).artifact).toMatchObject({ type: "error", message: expect.stringMatching(/another session/) });
     now += 91_000;
@@ -147,8 +160,8 @@ describe("console: governed writes", () => {
     seek("PENDING_APPROVAL");
     const sales = await signIn("sales");
     const quality = await signIn("quality");
-    const salesCard = await consoleRun(sales, "approve");
-    const qualityCard = await consoleRun(quality, "approve APR-00000061");
+    const salesCard = await consoleRun(sales, APPROVE);
+    const qualityCard = await consoleRun(quality, 'approve APR-00000061 reason "spec and QC agree"');
     if (qualityCard.artifact.type !== "confirm" || salesCard.artifact.type !== "confirm") throw new Error("expected confirm cards");
     expect((await confirm(quality, qualityCard.artifact.card.token)).artifact.type).toBe("receipt");
     const stale = await confirm(sales, salesCard.artifact.card.token);
@@ -158,8 +171,10 @@ describe("console: governed writes", () => {
   it("shows Snowflake's reason when the person can't decide", async () => {
     seek("PENDING_APPROVAL");
     const finance = await signIn("finance");
-    expect((await consoleRun(finance, "approve")).artifact).toMatchObject({ type: "error", message: "This approval requires BBC_SALES_MGR" });
+    expect((await consoleRun(finance, APPROVE)).artifact).toMatchObject({ type: "error", message: "This approval requires BBC_SALES_MGR" });
     const sales = await signIn("sales");
+    // DECIDE_APPROVAL takes a reason with every verdict, and the case view says so.
+    expect((await consoleRun(sales, "approve")).artifact).toMatchObject({ type: "error", message: expect.stringMatching(/reason is required to approve/) });
     expect((await consoleRun(sales, "reject")).artifact).toMatchObject({ type: "error", message: expect.stringMatching(/reason is required/) });
     expect((await consoleRun(sales, "choose OPT-00000105 reason \"faster\"")).artifact).toMatchObject({ type: "error", message: expect.stringMatching(/lets you choose/) });
   });
@@ -188,8 +203,8 @@ describe("console: reads, proof and Analyst", () => {
   it("runs proof only where Snowflake offers it, and shows a tampered clone's first bad entry", async () => {
     seek("OUTCOME_RECORDED");
     const auditor = await signIn("auditor");
-    expect((await consoleRun(auditor, "verify")).artifact).toMatchObject({ type: "proof", call: "VERIFY_LEDGER", result: { ok: true } });
-    const tamper = await consoleRun(auditor, "verify --table BBC_OS.SANDBOX.LEDGER_TAMPER");
+    expect((await consoleRun(auditor, "verify")).artifact).toMatchObject({ type: "proof", call: "VERIFY_LEDGER", result: { ok: true, table: "BBC_OS.LEDGER.ENTRIES" } });
+    const tamper = await consoleRun(auditor, "verify --table BBC_OS.LEDGER.T_TAMPER_CLONE");
     expect(tamper.artifact).toMatchObject({ type: "proof", result: { ok: false, first_bad_seq: 416, reason: "PAYLOAD_HASH_MISMATCH" } });
     expect((await consoleRun(auditor, "replay")).artifact).toMatchObject({ type: "proof", call: "REPLAY_EVIDENCE", result: { equal: true } });
     const sales = await signIn("sales");

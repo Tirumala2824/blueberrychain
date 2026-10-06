@@ -206,6 +206,37 @@ importers:
         specifier: ^3.2.0
         version: 3.2.7(@types/node@24.19.1)
 
+  packages/engine:
+    dependencies:
+      '@blueberrychain/bbc-api':
+        specifier: workspace:*
+        version: link:../bbc-api
+      '@blueberrychain/connector-carrier':
+        specifier: workspace:*
+        version: link:../connector-carrier
+      '@blueberrychain/connector-sap-s4':
+        specifier: workspace:*
+        version: link:../connector-sap-s4
+      '@blueberrychain/connector-sdk':
+        specifier: workspace:*
+        version: link:../connector-sdk
+      '@blueberrychain/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@blueberrychain/mock-tms':
+        specifier: workspace:*
+        version: link:../../apps/mock-tms
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.1
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.7(@types/node@24.19.1)
+
   packages/shared:
     dependencies:
       ajv:

@@ -32,10 +32,12 @@ test("a decision reviewed before the case changed is refused, and must be review
   await signIn(quality, "quality");
 
   await openCase(sales, SA, "APPROVAL");
+  await sales.getByTestId("decision-reason").fill("spec fits");
   await sales.getByTestId("approve-button").click();
   await expect(sales.getByTestId("confirm-card")).toBeVisible();
 
   await openCase(quality, SA, "APPROVAL");
+  await quality.getByTestId("decision-reason").fill("QC agrees");
   await quality.getByTestId("approve-button").click();
   await quality.getByTestId("confirm-button").click();
   await expect(quality.getByTestId("artifact-receipt")).toBeVisible();

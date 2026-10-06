@@ -1,28 +1,32 @@
 import type { ExportResult, ReplayResult, VerifyLedgerResult } from "@blueberrychain/bbc-api";
 import { humanizeCode } from "@/console/templates";
-import { utc, utcSeconds } from "@/domain/format";
+import { utc } from "@/domain/format";
 import { panel } from "./ui";
 import styles from "./ProofResult.module.css";
 
 type Ok<T> = Extract<T, { status: "OK" }>;
 
-export function VerifyResult({ r }: { r: Ok<VerifyLedgerResult> }) {
+/** API.VERIFY_LEDGER recomputes every payload hash, entry hash and link of the whole table. */
+export function VerifyResult({ r }: { r: VerifyLedgerResult }) {
+  if (r.error) {
+    return (
+      <div className={styles.broken} data-testid="verify-result" data-ok="error">
+        <p className={styles.verdict}>Snowflake couldn't verify this table.</p>
+        <p className={styles.meta}>
+          <span className="id">{r.table}</span>: {r.error}
+        </p>
+      </div>
+    );
+  }
   return (
     <div className={r.ok ? styles.ok : styles.broken} data-testid="verify-result" data-ok={String(r.ok)}>
       <p className={styles.verdict}>
-        {r.ok ? `Chain intact: ${r.checked} entries recomputed, seq ${r.from_seq} to ${r.to_seq}.` : `Chain broken at seq ${r.first_bad_seq}: ${humanizeCode(r.reason ?? "unknown").toLowerCase()}.`}
+        {r.ok ? `Chain intact: all ${r.entries ?? 0} entries recomputed.` : `Chain broken at seq ${r.first_bad_seq}: ${humanizeCode(r.reason ?? "unknown").toLowerCase()}.`}
       </p>
       <p className={styles.meta}>
-        Recomputed in Snowflake on <span className="id">{r.ledger_table}</span> at {utcSeconds(r.verified_at)}
-        {!r.ok && `; ${r.checked} entries verified before the break`}.
+        Recomputed in Snowflake on <span className="id">{r.table}</span>
+        {!r.ok && r.first_bad_seq != null && `; every entry before seq ${r.first_bad_seq} still verifies`}.
       </p>
-      {r.bad_entry && (
-        <p className={panel.hash}>
-          Expected {r.bad_entry.expected_hash}
-          <br />
-          Found {r.bad_entry.actual_hash}
-        </p>
-      )}
     </div>
   );
 }

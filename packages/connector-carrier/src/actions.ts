@@ -2,8 +2,9 @@
  * Outbound action handlers for the carrier TMS (contracts/apis/mock-tms.openapi.yaml),
  * used by the engine's dispatcher. Each write carries the mutation's idempotency key as
  * both the Idempotency-Key header and the record's `reference`, so `status` can ask the
- * TMS what happened to a key before anything is ever resent. Payload fields per action
- * are in contracts/apis/dispatch-target-states.md.
+ * TMS what happened to a key before anything is ever resent. Payloads are what the
+ * gateway composes, and observations are named after its expectations
+ * (contracts/apis/dispatch-target-states.md).
  */
 
 import { TargetRejectedError, type ActionHandler, type TargetStatus } from "@blueberrychain/connector-sdk";
@@ -32,6 +33,16 @@ function check(r: Response, what: string): Json {
 
 const str = (v: unknown) => (v === undefined || v === null ? "" : String(v));
 
+/** The intent can't be carried out as composed (nothing is written; the dispatcher reports it). */
+const incomplete = (message: string) => new TargetRejectedError(0, "INTENT_INCOMPLETE", message);
+
+/** A compensation's `restore` (the original's expected_before). */
+const restored = (p: Json, field: string): unknown => {
+  const r = p["restore"] as Json | undefined;
+  if (!r || r[field] === undefined) throw incomplete(`the compensation carries no restore.${field}`);
+  return r[field];
+};
+
 export function carrierHandlers(tms: TmsClient): ActionHandler<CarrierIntent>[] {
   const etags = new WeakMap<CarrierIntent, string>();
 
@@ -57,8 +68,10 @@ export function carrierHandlers(tms: TmsClient): ActionHandler<CarrierIntent>[] 
     },
     async execute(intent, key) {
       const etag = etags.get(intent) ?? (await shipment(intent.target_entity.id)).etag;
+      // REROUTE_BACK restores the destination the original re-route moved away from.
+      const destination = actionType === "REROUTE" ? intent.payload["new_destination_site_id"] : restored(intent.payload, "destination_site_id");
       const r = await post(`/v1/shipments/${encodeURIComponent(intent.target_entity.id)}/reroute`, key, {
-        new_destination_site_id: intent.payload["new_destination_site_id"],
+        new_destination_site_id: destination,
         reason: `BlueberryChain ${intent.rec_id} (${intent.case_id})`,
         reference: key,
       }, { "If-Match": etag });
@@ -75,26 +88,26 @@ export function carrierHandlers(tms: TmsClient): ActionHandler<CarrierIntent>[] 
     },
   });
 
-  const claim = (actionType: "CLAIM_NOTICE" | "FILE_CLAIM"): ActionHandler<CarrierIntent> => ({
-    actionTypes: [actionType],
+  const readClaim = async (id: string) => check(await tms.request("GET", `/v1/claims/${encodeURIComponent(id)}`), "read claim");
+  const claimStatus = (c: Json | null) => (c ? (c["status"] === "NOTICE_RECEIVED" ? "NOTICE_SENT" : c["status"]) : null);
+  const onFile = (c: Json | null) => c !== null && c["status"] !== "WITHDRAWN";
+
+  // CLAIM_NOTICE: payload {counterparty_party_id, basis, shipment_id}; observed {notice_on_file, claim_status}.
+  const notice: ActionHandler<CarrierIntent> = {
+    actionTypes: ["CLAIM_NOTICE"],
     targetSystem: "CARRIER",
     async readBefore(intent) {
-      const existing = intent.payload["carrier_claim_id"]
-        ? check(await tms.request("GET", `/v1/claims/${encodeURIComponent(str(intent.payload["carrier_claim_id"]))}`), "read claim")
-        : null;
-      return actionType === "CLAIM_NOTICE"
-        ? { notice_open: existing !== null }
-        : { claim_status: existing ? (existing["status"] === "NOTICE_RECEIVED" ? "NOTICE_SENT" : existing["status"]) : "NOTICE_SENT" };
+      const ours = await byReference("/v1/claims", intent.idempotency_key);
+      return { notice_on_file: onFile(ours), claim_status: claimStatus(ours) };
     },
     async execute(intent, key) {
-      const r = await post("/v1/claims", key, {
-        shipment_id: intent.payload["shipment_id"] ?? intent.target_entity.id,
-        notice_only: actionType === "CLAIM_NOTICE",
+      const body = check(await post("/v1/claims", key, {
+        shipment_id: intent.payload["shipment_id"],
+        notice_only: true,
         basis: intent.payload["basis"] ?? null,
-        amount_usd: actionType === "FILE_CLAIM" ? intent.payload["amount_usd"] : null,
+        description: `Notice of claim for ${intent.case_id} (${intent.rec_id}), preserving our rights`,
         reference: key,
-      });
-      const body = check(r, actionType === "CLAIM_NOTICE" ? "send claim notice" : "file claim");
+      }), "send claim notice");
       return { externalRef: str(body["claim_id"]), response: body };
     },
     async status(_intent, key) {
@@ -102,32 +115,64 @@ export function carrierHandlers(tms: TmsClient): ActionHandler<CarrierIntent>[] 
       return hit ? { state: "APPLIED", externalRef: str(hit["claim_id"]), detail: hit } : { state: "UNKNOWN" };
     },
     async readAfter(_intent, externalRef) {
-      const body = check(await tms.request("GET", `/v1/claims/${encodeURIComponent(externalRef)}`), "read claim");
-      const status = body["status"] === "NOTICE_RECEIVED" ? "NOTICE_SENT" : body["status"];
-      return actionType === "CLAIM_NOTICE" ? { notice_open: true, claim_status: status } : { claim_status: status, amount_usd: body["amount_usd"] };
+      const c = await readClaim(externalRef);
+      return { notice_on_file: onFile(c), claim_status: claimStatus(c) };
     },
-  });
+  };
 
-  const withdrawClaim: ActionHandler<CarrierIntent> = {
-    actionTypes: ["WITHDRAW_CLAIM", "WITHDRAW_NOTICE"],
+  // FILE_CLAIM (D2): payload {shipment_id, amount_usd, basis, carrier_claim_id?}; observed {claim_status, amount_usd}.
+  const fileClaim: ActionHandler<CarrierIntent> = {
+    actionTypes: ["FILE_CLAIM"],
     targetSystem: "CARRIER",
     async readBefore(intent) {
-      const body = check(await tms.request("GET", `/v1/claims/${encodeURIComponent(str(intent.payload["carrier_claim_id"]))}`), "read claim");
-      return { claim_status: body["status"] };
+      const existing = intent.payload["carrier_claim_id"] ? await readClaim(str(intent.payload["carrier_claim_id"])) : null;
+      return { claim_status: claimStatus(existing) ?? "NOTICE_SENT" };
     },
     async execute(intent, key) {
-      const id = str(intent.payload["carrier_claim_id"]);
-      const body = check(await post(`/v1/claims/${encodeURIComponent(id)}/withdraw`, key, { reference: key }), "withdraw claim");
-      return { externalRef: id, response: body };
+      const body = check(await post("/v1/claims", key, {
+        shipment_id: intent.payload["shipment_id"],
+        notice_only: false,
+        basis: intent.payload["basis"] ?? null,
+        amount_usd: intent.payload["amount_usd"],
+        description: `Claim for ${intent.case_id} (${intent.rec_id})`,
+        reference: key,
+      }), "file claim");
+      return { externalRef: str(body["claim_id"]), response: body };
     },
-    async status(intent) {
-      const body = check(await tms.request("GET", `/v1/claims/${encodeURIComponent(str(intent.payload["carrier_claim_id"]))}`), "read claim");
-      return body["status"] === "WITHDRAWN" ? { state: "APPLIED", externalRef: str(body["claim_id"]) } : { state: "UNKNOWN" };
+    async status(_intent, key) {
+      const hit = await byReference("/v1/claims", key);
+      return hit ? { state: "APPLIED", externalRef: str(hit["claim_id"]), detail: hit } : { state: "UNKNOWN" };
     },
     async readAfter(_intent, externalRef) {
-      const body = check(await tms.request("GET", `/v1/claims/${encodeURIComponent(externalRef)}`), "read claim");
-      return { claim_status: body["status"] };
+      const c = await readClaim(externalRef);
+      return { claim_status: claimStatus(c), amount_usd: c["amount_usd"] };
     },
+  };
+
+  // WITHDRAW_CLAIM / WITHDRAW_NOTICE: needs the carrier's claim id (payload.carrier_claim_id).
+  // A gateway compensation of CLAIM_NOTICE doesn't carry it yet (docs/frontend-spec.md, requests).
+  const withdraw = (actionType: "WITHDRAW_CLAIM" | "WITHDRAW_NOTICE"): ActionHandler<CarrierIntent> => {
+    const claimId = (intent: CarrierIntent) => {
+      const id = intent.payload["carrier_claim_id"] ?? intent.payload["original_external_ref"];
+      if (!id) throw incomplete(`${actionType} needs the carrier's claim id (payload.carrier_claim_id)`);
+      return str(id);
+    };
+    const observe = (c: Json) => (actionType === "WITHDRAW_NOTICE" ? { notice_on_file: onFile(c), claim_status: claimStatus(c) } : { claim_status: c["status"] });
+    return {
+      actionTypes: [actionType],
+      targetSystem: "CARRIER",
+      readBefore: async (intent) => observe(await readClaim(claimId(intent))),
+      async execute(intent, key) {
+        const id = claimId(intent);
+        const body = check(await post(`/v1/claims/${encodeURIComponent(id)}/withdraw`, key, { reference: key }), "withdraw claim");
+        return { externalRef: id, response: body };
+      },
+      async status(intent) {
+        const c = await readClaim(claimId(intent));
+        return c["status"] === "WITHDRAWN" ? { state: "APPLIED", externalRef: str(c["claim_id"]) } : { state: "UNKNOWN" };
+      },
+      readAfter: async (_intent, externalRef) => observe(await readClaim(externalRef)),
+    };
   };
 
   const evidence: ActionHandler<CarrierIntent> = {
@@ -182,5 +227,8 @@ export function carrierHandlers(tms: TmsClient): ActionHandler<CarrierIntent>[] 
     },
   });
 
-  return [reroute("REROUTE"), reroute("REROUTE_BACK"), claim("CLAIM_NOTICE"), claim("FILE_CLAIM"), withdrawClaim, evidence, edi("REPROMISE_NOTICE"), edi("CORRECTION_NOTICE")];
+  return [
+    reroute("REROUTE"), reroute("REROUTE_BACK"), notice, fileClaim, withdraw("WITHDRAW_CLAIM"), withdraw("WITHDRAW_NOTICE"),
+    evidence, edi("REPROMISE_NOTICE"), edi("CORRECTION_NOTICE"),
+  ];
 }

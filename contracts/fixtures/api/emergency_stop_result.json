@@ -3,26 +3,23 @@
   "valid": [
     {
       "status": "OK",
-      "dispatch_enabled": false,
-      "stopped_by": "BBC_DEMO_GOVADMIN",
-      "stopped_at": "2026-10-06T08:40:00Z",
-      "reason": "TMS reports duplicate reroutes; halting dispatch",
+      "dispatch": "STOPPED",
+      "resume": "activate a policy version",
       "ledger_seq": 460
+    },
+    {
+      "status": "INVALID",
+      "errors": [
+        "REASON is required"
+      ]
     }
   ],
   "invalid": [
     {
-      "why": "an emergency stop always disables dispatch",
+      "why": "an emergency stop always stops dispatch",
       "base": 0,
       "set": {
-        "/dispatch_enabled": true
-      }
-    },
-    {
-      "why": "a reason is required",
-      "base": 0,
-      "set": {
-        "/reason": ""
+        "/dispatch": "RUNNING"
       }
     }
   ]

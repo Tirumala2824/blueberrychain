@@ -113,23 +113,14 @@ export function parseCommand(raw: string): ParseResult {
       return Number.isInteger(n) && n > 0 && n <= 1000 ? { ok: true, command: { verb, count: n } } : fail(`Usage: ${usage("ledger")}`);
     }
     case "verify": {
-      let from: number | null = null;
-      let to: number | null = null;
+      // API.VERIFY_LEDGER checks a whole table: the ledger, or a zero-copy clone of it.
       let table: string | null = null;
       for (let i = 0; i < args.length; i++) {
-        const a = args[i]!;
-        if (a === "--table") {
-          table = args[++i]?.toUpperCase() ?? null;
-          if (!table || !/^[A-Z][A-Z0-9_$]*(\.[A-Z][A-Z0-9_$]*){2}$/.test(table)) return fail("`--table` needs a fully-qualified table, like BBC_OS.SANDBOX.LEDGER_TAMPER.");
-        } else {
-          const m = /^(\d+)\.\.(\d+)$/.exec(a);
-          if (!m) return fail(`Usage: ${usage("verify")}`);
-          from = Number(m[1]);
-          to = Number(m[2]);
-          if (from > to) return fail("The range must run from a lower to a higher sequence number.");
-        }
+        if (args[i] !== "--table") return fail(`Usage: ${usage("verify")}. Snowflake verifies the whole table.`);
+        table = args[++i]?.toUpperCase() ?? null;
+        if (!table || !/^[A-Z][A-Z0-9_$]*(\.[A-Z][A-Z0-9_$]*){2}$/.test(table)) return fail("`--table` needs a fully-qualified table, like BBC_OS.LEDGER.T_TAMPER_CLONE.");
       }
-      return { ok: true, command: { verb, from, to, table } };
+      return { ok: true, command: { verb, table } };
     }
     case "replay":
       return { ok: true, command: { verb, pack: args[0] ?? null } };

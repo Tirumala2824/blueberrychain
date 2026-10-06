@@ -55,3 +55,13 @@ describe("the interface table (the app's only SQL)", () => {
     expect(() => bindCall("EMERGENCY_STOP", { reason: "x", force: true })).toThrow(/unknown/);
   });
 });
+
+describe("docs/frontend-spec.md interface map", () => {
+  it("lists every interface in the table", async () => {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const { contractsDir } = await import("@blueberrychain/shared");
+    const spec = readFileSync(join(contractsDir(), "..", "docs", "frontend-spec.md"), "utf-8");
+    for (const [name] of specs) expect(spec, `docs/frontend-spec.md is missing \`${name}\``).toContain(`| \`${name}\` |`);
+  });
+});

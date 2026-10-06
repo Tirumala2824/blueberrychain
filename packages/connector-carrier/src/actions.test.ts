@@ -39,7 +39,7 @@ const intent = (action_type: string, n: number, payload: Record<string, unknown>
 describe("carrier handlers against the mock TMS", () => {
   it("re-routes with compare-and-set, reads back, and answers status by key", async () => {
     const h = handler("REROUTE");
-    const i = intent("REROUTE", 1, { new_destination_site_id: "SITE-BAYLINE-SAC" });
+    const i = intent("REROUTE", 1, { shipment_id: "SHP-20261006-114", lot_id: "L-A", new_destination_site_id: "SITE-BAYLINE-SAC", disposition: "REROUTE" });
     expect(await h.status(i, i.idempotency_key)).toEqual({ state: "UNKNOWN" });
     expect(await h.readBefore(i)).toEqual({ status: "IN_TRANSIT", destination_site_id: "SITE-SUMMIT-SLC" });
     const { externalRef } = await h.execute(i, i.idempotency_key);
@@ -48,6 +48,20 @@ describe("carrier handlers against the mock TMS", () => {
     expect(await h.status(i, i.idempotency_key)).toMatchObject({ state: "APPLIED", externalRef });
     // a resend with the same key is the same request: the TMS replays its answer
     expect((await h.execute(i, i.idempotency_key)).externalRef).toBe(externalRef);
+  });
+
+  it("re-routes back to the destination the compensation restores", async () => {
+    const out = intent("REROUTE", 6, { shipment_id: "SHP-20261006-114", new_destination_site_id: "SITE-BAYLINE-SAC" });
+    await handler("REROUTE").readBefore(out);
+    await handler("REROUTE").execute(out, out.idempotency_key);
+    const h = handler("REROUTE_BACK");
+    const back = intent("REROUTE_BACK", 7, { ...out.payload, restore: { destination_site_id: "SITE-SUMMIT-SLC", status: "IN_TRANSIT" } });
+    expect(await h.readBefore(back)).toMatchObject({ destination_site_id: "SITE-BAYLINE-SAC" });
+    const { externalRef } = await h.execute(back, back.idempotency_key);
+    expect(await h.readAfter(back, externalRef)).toEqual({ status: "IN_TRANSIT", destination_site_id: "SITE-SUMMIT-SLC" });
+    const noRestore = intent("REROUTE_BACK", 8, { shipment_id: "SHP-20261006-114" });
+    await h.readBefore(noRestore);
+    await expect(h.execute(noRestore, noRestore.idempotency_key)).rejects.toMatchObject({ code: "INTENT_INCOMPLETE" });
   });
 
   it("reports a definitive refusal as TargetRejectedError (never retried)", async () => {
@@ -68,13 +82,21 @@ describe("carrier handlers against the mock TMS", () => {
     await expect(h.execute(i, i.idempotency_key)).rejects.toMatchObject({ status: 412 });
   });
 
-  it("sends a claim notice and reads the claim back", async () => {
+  it("sends a claim notice, reports it as `notice_on_file`, and withdraws it by claim id", async () => {
     const h = handler("CLAIM_NOTICE");
-    const i = intent("CLAIM_NOTICE", 4, { carrier_party_id: "PARTY-SIERRA", basis: "CARRIER_TEMPERATURE" });
-    expect(await h.readBefore(i)).toEqual({ notice_open: false });
+    const claim = { type: "CLAIM", id: "CASE-00000017:PARTY-SIERRA" };
+    const i = intent("CLAIM_NOTICE", 4, { counterparty_party_id: "PARTY-SIERRA", basis: "CARRIER_TEMPERATURE", shipment_id: "SHP-20261006-114" }, claim);
+    expect(await h.readBefore(i)).toEqual({ notice_on_file: false, claim_status: null });
     const { externalRef } = await h.execute(i, i.idempotency_key);
-    expect(await h.readAfter(i, externalRef)).toEqual({ notice_open: true, claim_status: "NOTICE_SENT" });
+    expect(await h.readAfter(i, externalRef)).toEqual({ notice_on_file: true, claim_status: "NOTICE_SENT" });
     expect(await h.status(i, i.idempotency_key)).toMatchObject({ state: "APPLIED", externalRef });
+    const w = handler("WITHDRAW_NOTICE");
+    const gatewayCompensation = intent("WITHDRAW_NOTICE", 9, { ...i.payload, restore: { notice_on_file: false } }, claim);
+    await expect(w.readBefore(gatewayCompensation)).rejects.toMatchObject({ code: "INTENT_INCOMPLETE" });
+    const withId = intent("WITHDRAW_NOTICE", 10, { ...i.payload, carrier_claim_id: externalRef }, claim);
+    expect(await w.readBefore(withId)).toEqual({ notice_on_file: true, claim_status: "NOTICE_SENT" });
+    await w.execute(withId, withId.idempotency_key);
+    expect(await w.readAfter(withId, externalRef)).toEqual({ notice_on_file: false, claim_status: "WITHDRAWN" });
   });
 
   it("sends an EDI 865 re-promise and reads what the TMS stored", async () => {

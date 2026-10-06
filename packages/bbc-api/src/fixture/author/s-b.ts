@@ -413,10 +413,10 @@ export function buildSB(policyRow: unknown): Tape {
   };
   const muts = [
     mutation({ ...common, mutationId: "MUT-00000320", stepSeq: 1, actionType: "REROUTE", targetSystem: "TMS", target: { type: "SHIPMENT", id: SHIPMENT },
-      payload: { new_destination_site_id: "SITE-CVDC-TRACY" }, expectedBefore: { status: "IN_TRANSIT", destination_site_id: "SITE-SUMMIT-SLC" },
+      payload: { shipment_id: SHIPMENT, lot_id: "L-B", new_destination_site_id: "SITE-CVDC-TRACY", disposition: "INSPECT" }, expectedBefore: { status: "IN_TRANSIT", destination_site_id: "SITE-SUMMIT-SLC" },
       expectedAfter: { destination_site_id: "SITE-CVDC-TRACY" }, approvalIds: [APR_QUALITY, APR_SALES], autonomyLevel: 4, approvers }),
     mutation({ ...common, mutationId: "MUT-00000321", stepSeq: 2, actionType: "STOCK_BLOCK", targetSystem: "SAP", target: { type: "LOT_STOCK", id: "L-B@SITE-CVDC-TRACY" },
-      payload: { lot_id: "L-B", site_id: "SITE-CVDC-TRACY", kg: 3600, reason: "QC_HOLD" }, expectedBefore: { restricted_kg: 0 }, expectedAfter: { restricted_kg: 3600 },
+      payload: { lot_id: "L-B", site_id: "SITE-CVDC-TRACY", kg: 3600 }, expectedBefore: { blocked: false }, expectedAfter: { blocked: true },
       approvalIds: [], autonomyLevel: 3, approvers: [] }),
     mutation({ ...common, mutationId: "MUT-00000322", stepSeq: 3, actionType: "REPROMISE_NOTICE", targetSystem: "CUSTOMER_EDI", target: { type: "SALES_ORDER_ITEM", id: "SO-6002-10" },
       payload: { customer_party_id: "PARTY-SUMMIT", repromise_at: "2026-10-08T10:00:00Z", template: "EDI-865-REPROMISE@1" }, expectedBefore: { promised_at: "2026-10-07T10:00:00Z" },
@@ -453,20 +453,19 @@ export function buildSB(policyRow: unknown): Tape {
   const salesFirst = frames.push(frame("Sales approved; awaiting Quality", pendingView, branch, ctx, { inboxRank: 1, fallbackAt: DEADLINE })) - 1;
 
   const v = (i: number) => frames[i]!.cases[SB_CASE]!.view;
-  const ok = (id: string, persona: "sales" | "quality", decidedAt: string, f: number, remaining: string[], bump = 0) => ({
-    status: "OK", approval_id: id, approval_status: "APPROVED", decided_by: PERSONA_IDS[persona].user, decided_role: PERSONA_IDS[persona].role,
-    decided_at: decidedAt, chosen_option_id: null, brief_hash: theBrief.brief_hash, case_state: remaining.length ? "PENDING_APPROVAL" : "APPROVED",
-    state_version: v(f).case.state_version + bump, remaining_approval_ids: remaining, ledger_seq: v(f).evidence.ledger.last_seq! + bump,
+  const ok = (id: string, f: number, remaining: string[], bump = 0) => ({
+    status: "OK", approval_id: id, approval_status: "APPROVED", ledger_seq: v(f).evidence.ledger.last_seq! + bump,
+    case_state: remaining.length ? "PENDING_APPROVAL" : "APPROVED",
   });
   const responses: TapeResponse[] = [
     { call: "DECIDE_APPROVAL", persona: "quality", at_frames: [pending], match: { approval_id: APR_QUALITY, verdict: "APPROVE" },
-      result: ok(APR_QUALITY, "quality", at("07:19:12"), qualityDone, [APR_SALES]), advance_to_frame: qualityDone },
+      result: ok(APR_QUALITY, qualityDone, [APR_SALES]), advance_to_frame: qualityDone },
     { call: "DECIDE_APPROVAL", persona: "sales", at_frames: [qualityDone], match: { approval_id: APR_SALES, verdict: "APPROVE" },
-      result: ok(APR_SALES, "sales", at("07:24:50"), qualityDone, [], 1), advance_to_frame: executed },
+      result: ok(APR_SALES, qualityDone, [], 1), advance_to_frame: executed },
     { call: "DECIDE_APPROVAL", persona: "sales", at_frames: [pending], match: { approval_id: APR_SALES, verdict: "APPROVE" },
-      result: ok(APR_SALES, "sales", at("07:15:30"), salesFirst, [APR_QUALITY]), advance_to_frame: salesFirst },
+      result: ok(APR_SALES, salesFirst, [APR_QUALITY]), advance_to_frame: salesFirst },
     { call: "DECIDE_APPROVAL", persona: "quality", at_frames: [salesFirst], match: { approval_id: APR_QUALITY, verdict: "APPROVE" },
-      result: ok(APR_QUALITY, "quality", at("07:24:50"), salesFirst, [], 1), advance_to_frame: executed },
+      result: ok(APR_QUALITY, salesFirst, [], 1), advance_to_frame: executed },
   ];
   return {
     tape: "S-B",

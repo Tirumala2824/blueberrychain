@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/execute_plan_result.json",
+  "title": "EXECUTE_PLAN result",
+  "description": "API.EXECUTE_PLAN(case_id, rec_id) (83_gateway.sql), called by the engine when CLAIM_WORK says ENGINE / EXECUTE_PLAN: writes the execution plan and passes every action of the approved bundle through DECISION.MUTATE in one transaction. Each step carries MUTATE's answer (mutation_id, mutation_status, errors).",
+  "oneOf": [
+    {
+      "$ref": "refusal.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "plan_id",
+        "atomicity",
+        "steps"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "OK"
+        },
+        "plan_id": {
+          "$ref": "../common.json#/$defs/plan_id"
+        },
+        "atomicity": {
+          "enum": [
+            "ALL_OR_NOTHING",
+            "BEST_EFFORT"
+          ]
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": [
+              "step_seq",
+              "action_type",
+              "status"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "step_seq": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "action_type": {
+                "$ref": "../common.json#/$defs/action_type"
+              },
+              "status": {
+                "enum": [
+                  "OK",
+                  "DUPLICATE",
+                  "INVALID"
+                ]
+              },
+              "mutation_id": {
+                "$ref": "../common.json#/$defs/mutation_id"
+              },
+              "mutation_status": {
+                "$ref": "../common.json#/$defs/mutation_status"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

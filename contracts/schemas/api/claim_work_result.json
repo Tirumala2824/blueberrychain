@@ -2,39 +2,87 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/api/claim_work_result.json",
   "title": "CLAIM_WORK result",
-  "description": "API.CLAIM_WORK(worker_id, lease_s), called by the engine. Leases the next case that needs a step (expired leases can be reclaimed) and says what the step is. Snowflake's state machine decides; the engine only executes the step.",
+  "description": "API.CLAIM_WORK(worker_id, lease_s) (82_stages.sql): lease the next case that needs a step. `case_id` null = nothing to do. `next.kind`: ADVANCE (call API.ADVANCE_CASE with expected_state), AGENT (target = the agent to run), ENGINE (target = EXECUTE_PLAN; needs `rec_id`, requested), HUMAN (never leased: PENDING_APPROVAL is excluded).",
   "oneOf": [
-    { "$ref": "refusal.json" },
+    {
+      "$ref": "refusal.json"
+    },
     {
       "type": "object",
-      "required": ["status", "work"],
+      "required": [
+        "status",
+        "case_id"
+      ],
       "additionalProperties": false,
       "properties": {
-        "status": { "const": "OK" },
-        "work": {
-          "oneOf": [
-            { "type": "null" },
-            {
-              "type": "object",
-              "required": ["case_id", "decision_point", "state", "state_version", "step", "agent", "artifact_id", "attempt", "lease_owner", "lease_until"],
-              "additionalProperties": false,
-              "properties": {
-                "case_id": { "$ref": "../common.json#/$defs/case_id" },
-                "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
-                "state": { "$ref": "../common.json#/$defs/case_state" },
-                "state_version": { "type": "integer", "minimum": 1 },
-                "step": { "enum": ["ADVANCE", "AGENT"] },
-                "agent": { "oneOf": [{ "$ref": "../common.json#/$defs/agent_name" }, { "type": "null" }] },
-                "artifact_id": {
-                  "oneOf": [{ "$ref": "../common.json#/$defs/artifact_id" }, { "type": "null" }],
-                  "description": "The artifact to audit when agent = EVIDENCE_AUDITOR."
-                },
-                "attempt": { "type": "integer", "minimum": 1 },
-                "lease_owner": { "type": "string", "minLength": 1, "maxLength": 128 },
-                "lease_until": { "$ref": "../common.json#/$defs/timestamp" }
-              }
+        "status": {
+          "const": "OK"
+        },
+        "case_id": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "case_id",
+        "state",
+        "state_version",
+        "next"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "OK"
+        },
+        "case_id": {
+          "$ref": "../common.json#/$defs/case_id"
+        },
+        "state": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "state_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "decision_point": {
+          "$ref": "../common.json#/$defs/decision_point",
+          "description": "Requested: START_AGENT_RUN needs it for AGENT work."
+        },
+        "rec_id": {
+          "$ref": "../common.json#/$defs/rec_id",
+          "description": "Requested: EXECUTE_PLAN(case_id, rec_id) needs it for ENGINE work; the engine role can't read DECISION.CASES."
+        },
+        "next": {
+          "type": "object",
+          "required": [
+            "kind",
+            "expected_state"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "enum": [
+                "ADVANCE",
+                "AGENT",
+                "ENGINE",
+                "HUMAN"
+              ]
+            },
+            "call": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "target": {
+              "type": "string",
+              "maxLength": 128
+            },
+            "expected_state": {
+              "$ref": "../common.json#/$defs/case_state"
             }
-          ]
+          }
         }
       }
     }

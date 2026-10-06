@@ -2,20 +2,33 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://blueberrychain.dev/schemas/api/emergency_stop_result.json",
   "title": "EMERGENCY_STOP result",
-  "description": "API.EMERGENCY_STOP(reason): sets dispatch_enabled = false immediately. Resuming needs a policy activation.",
+  "description": "API.EMERGENCY_STOP(reason): dispatch stops at once; NEXT_ACTIONS answers STOPPED until a policy version is activated.",
   "oneOf": [
-    { "$ref": "refusal.json" },
+    {
+      "$ref": "refusal.json"
+    },
     {
       "type": "object",
-      "required": ["status", "dispatch_enabled", "stopped_by", "stopped_at", "reason", "ledger_seq"],
+      "required": [
+        "status",
+        "dispatch",
+        "ledger_seq"
+      ],
       "additionalProperties": false,
       "properties": {
-        "status": { "const": "OK" },
-        "dispatch_enabled": { "const": false },
-        "stopped_by": { "type": "string", "maxLength": 255 },
-        "stopped_at": { "$ref": "../common.json#/$defs/timestamp" },
-        "reason": { "type": "string", "minLength": 1, "maxLength": 1000 },
-        "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+        "status": {
+          "const": "OK"
+        },
+        "dispatch": {
+          "const": "STOPPED"
+        },
+        "resume": {
+          "type": "string",
+          "maxLength": 500
+        },
+        "ledger_seq": {
+          "$ref": "../common.json#/$defs/ledger_seq"
+        }
       }
     }
   ]

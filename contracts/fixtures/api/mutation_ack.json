@@ -1,0 +1,49 @@
+{
+  "schema": "api/mutation_ack.json",
+  "valid": [
+    {
+      "observed_before": {
+        "status": "IN_TRANSIT",
+        "destination_site_id": "SITE-SUMMIT-SLC"
+      },
+      "observed_after": {
+        "status": "IN_TRANSIT",
+        "destination_site_id": "SITE-BAYLINE-SAC"
+      },
+      "error": null,
+      "external_ref": "RR-1a2b3c4d",
+      "dispatched_at": "2026-10-06T07:48:36Z",
+      "target_reported_at": "2026-10-06T07:48:39Z"
+    },
+    {
+      "observed_before": {
+        "status": "IN_TRANSIT",
+        "destination_site_id": "SITE-SUMMIT-SLC"
+      },
+      "observed_after": null,
+      "error": {
+        "code": "409",
+        "message": "Re-route window closed: junction SITE-JCT-I80-SAC already passed"
+      },
+      "external_ref": null,
+      "dispatched_at": "2026-10-06T07:48:36Z",
+      "target_reported_at": null
+    }
+  ],
+  "invalid": [
+    {
+      "why": "error codes are upper-case words or HTTP statuses",
+      "base": 1,
+      "set": {
+        "/error/code": "window closed"
+      }
+    },
+    {
+      "why": "the dispatcher reports observations, not outcomes",
+      "base": 0,
+      "set": {
+        "/outcome": "VERIFIED"
+      }
+    }
+  ]
+}
