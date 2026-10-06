@@ -1,0 +1,87 @@
+name: deploy-dev
+
+# Build -> scan -> deploy to Cloud Run on every push to the dev branch.
+# Auth is keyless (Workload Identity Federation); no service-account keys are stored in GitHub.
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: autoclaw-agent
+  REGION: europe-west1
+  REPO: blueberrychain
+  WIF_PROVIDER: projects/1061285537090/locations/global/workloadIdentityPools/github/providers/blueberrychain
+  WIF_SERVICE_ACCOUNT: gh-deploy@autoclaw-agent.iam.gserviceaccount.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - service: blueberrychain-control-tower-dev
+            image: control-tower
+            dockerfile: Dockerfile
+            env_vars: "SNOWFLAKE_ACCOUNT=pndvhar-pt70809,SNOWFLAKE_HOST=pndvhar-pt70809.snowflakecomputing.com,BBC_DATABASE=BBC_OS,BBC_APP_WAREHOUSE=BBC_APP_WH,BBC_API_MODE=fixture,BBC_CT_ALLOWED_ORIGINS=https://blueberrychain-control-tower-dev-1061285537090.europe-west1.run.app"
+            secrets: "BBC_QUALITY_PAT=bbc-quality-pat:latest,BBC_SALES_PAT=bbc-sales-pat:latest,BBC_FINANCE_PAT=bbc-finance-pat:latest,BBC_AUDITOR_PAT=bbc-auditor-pat:latest,BBC_GOVADMIN_PAT=bbc-govadmin-pat:latest,BBC_CT_SESSION_SECRET=bbc-ct-session-secret:latest,BBC_CT_ACCESS_CODE=bbc-ct-access-code:latest"
+          - service: blueberrychain-engine-api-dev
+            image: engine-api
+            dockerfile: services/engine-api/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER || env.WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT || env.WIF_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build image (tagged with commit SHA)
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${{ matrix.image }}:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          docker build -f "${{ matrix.dockerfile }}" -t "${IMAGE}" .
+
+      - name: Scan image (audit HIGH/CRITICAL vulnerabilities)
+        continue-on-error: true
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            "${IMAGE}"
+
+      - name: Push image
+        run: docker push "${IMAGE}"
+
+      - name: Deploy to Cloud Run
+        # Secrets come from Secret Manager (never from the repo or image); config is non-secret.
+        env:
+          ENV_VARS: ${{ matrix.env_vars }}
+          SECRETS: ${{ matrix.secrets }}
+        run: |
+          EXTRA=()
+          [ -n "${ENV_VARS}" ] && EXTRA+=(--set-env-vars "${ENV_VARS}")
+          [ -n "${SECRETS}" ] && EXTRA+=(--set-secrets "${SECRETS}")
+          gcloud run deploy "${{ matrix.service }}" \
+            --image "${IMAGE}" \
+            --project "${PROJECT_ID}" --region "${REGION}" \
+            --port 8080 --allow-unauthenticated \
+            --labels "env=dev,git-sha=${GITHUB_SHA::12}" \
+            "${EXTRA[@]}" \
+            --quiet

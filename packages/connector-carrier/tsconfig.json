@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@blueberrychain/shared": ["../shared/src/index.ts"],
+      "@blueberrychain/connector-sdk": ["../connector-sdk/src/index.ts"],
+      "@blueberrychain/mock-tms": ["../../apps/mock-tms/src/index.ts"]
+    }
+  },
+  "include": ["src", "vitest.config.ts"]
+}

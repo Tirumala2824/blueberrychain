@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/simulate_option_variants.json",
+  "title": "SIMULATE_OPTION_VARIANTS input",
+  "description": "S1 - deterministic what-ifs. Policy ranges in GOV are applied server-side on top of these absolute caps; ALT_DESTINATION must be in the pack's candidate destinations; SPLIT parts must sum to the lot kg.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "base_option_ids",
+    "scenarios"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "base_option_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "../common.json#/$defs/option_id"
+      },
+      "minItems": 1,
+      "maxItems": 5,
+      "uniqueItems": true
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "kind",
+          "params"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,32}$"
+          },
+          "kind": {
+            "enum": [
+              "PREDICTION_ERROR",
+              "ETA_SHIFT",
+              "SPLIT",
+              "ALT_DESTINATION"
+            ]
+          },
+          "params": {
+            "type": "object"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "PREDICTION_ERROR"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "sl_shift_days"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "sl_shift_days": {
+                      "type": "number",
+                      "minimum": -5,
+                      "maximum": 5
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "ETA_SHIFT"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "hours"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "hours": {
+                      "type": "number",
+                      "minimum": -48,
+                      "maximum": 48
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "SPLIT"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "parts"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "parts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "lot_id",
+                          "kg",
+                          "disposition",
+                          "destination_site_id"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "lot_id": {
+                            "$ref": "../common.json#/$defs/external_id"
+                          },
+                          "kg": {
+                            "$ref": "../common.json#/$defs/kg"
+                          },
+                          "disposition": {
+                            "$ref": "../common.json#/$defs/disposition"
+                          },
+                          "destination_site_id": {
+                            "oneOf": [
+                              {
+                                "$ref": "../common.json#/$defs/external_id"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      "minItems": 2,
+                      "maxItems": 4
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "ALT_DESTINATION"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "params": {
+                  "type": "object",
+                  "required": [
+                    "lot_id",
+                    "destination_site_id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "lot_id": {
+                      "$ref": "../common.json#/$defs/external_id"
+                    },
+                    "destination_site_id": {
+                      "$ref": "../common.json#/$defs/external_id"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1,
+      "maxItems": 6
+    }
+  }
+}

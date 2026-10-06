@@ -1,0 +1,52 @@
+{
+  "schema": "api/refusal.json",
+  "valid": [
+    {
+      "status": "DENIED",
+      "errors": [
+        "BBC_DEMO_FINANCE does not hold BBC_SALES_MGR"
+      ]
+    },
+    {
+      "status": "INVALID",
+      "errors": [
+        "REASON is required"
+      ]
+    },
+    {
+      "status": "INVALID",
+      "case_id": "CASE-00000017",
+      "state": "OPTIONS_SCORED",
+      "steps": [],
+      "errors": [
+        {
+          "code": "SCHEMA",
+          "message": "option bundle invalid"
+        }
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "OK is not a refusal",
+      "base": 0,
+      "set": {
+        "/status": "OK"
+      }
+    },
+    {
+      "why": "errors are required",
+      "base": 1,
+      "delete": [
+        "/errors"
+      ]
+    },
+    {
+      "why": "codes are UPPER_SNAKE",
+      "base": 0,
+      "set": {
+        "/code": "wrong role"
+      }
+    }
+  ]
+}

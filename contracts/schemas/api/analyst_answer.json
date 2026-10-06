@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/analyst_answer.json",
+  "title": "Analyst answer",
+  "description": "A governed metric question answered by Cortex Analyst over the semantic view, produced by the control tower: the SQL Analyst generated and the rows that SQL returned when run under the persona's own role. Numbers come only from `rows`; `interpretation` is Analyst's untrusted restatement. Never decision evidence: it carries no citations and cannot feed an approval.",
+  "type": "object",
+  "required": ["question", "semantic_view", "interpretation", "sql", "executed_as", "columns", "rows", "row_count", "truncated",
+               "request_id", "warnings", "suggestions", "executed_at"],
+  "additionalProperties": false,
+  "properties": {
+    "question": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "semantic_view": { "type": "string", "pattern": "^[A-Z][A-Z0-9_$]*(\\.[A-Z][A-Z0-9_$]*){2}$" },
+    "interpretation": { "oneOf": [{ "type": "string", "maxLength": 4000 }, { "type": "null" }] },
+    "sql": { "oneOf": [{ "type": "string", "maxLength": 20000 }, { "type": "null" }] },
+    "executed_as": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["user", "role"],
+          "additionalProperties": false,
+          "properties": {
+            "user": { "type": "string", "maxLength": 255 },
+            "role": { "$ref": "../common.json#/$defs/persona_role" }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "columns": {
+      "type": "array", "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["name", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "maxLength": 255 },
+          "type": { "type": "string", "maxLength": 64 }
+        }
+      }
+    },
+    "rows": {
+      "type": "array", "maxItems": 1000,
+      "items": { "type": "array", "items": { "type": ["string", "number", "boolean", "null"] }, "maxItems": 100 }
+    },
+    "row_count": { "type": "integer", "minimum": 0 },
+    "truncated": { "type": "boolean" },
+    "request_id": { "oneOf": [{ "type": "string", "maxLength": 128 }, { "type": "null" }] },
+    "warnings": { "type": "array", "items": { "type": "string", "maxLength": 1000 }, "maxItems": 50 },
+    "suggestions": { "type": "array", "items": { "type": "string", "maxLength": 500 }, "maxItems": 50 },
+    "executed_at": { "$ref": "../common.json#/$defs/timestamp" }
+  }
+}

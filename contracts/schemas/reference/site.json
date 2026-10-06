@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/site.json",
+  "title": "Reference: site",
+  "description": "A physical location: ranch block, packhouse, DC, customer DC, processor, route junction.",
+  "type": "object",
+  "required": [
+    "site_id",
+    "party_id",
+    "site_type",
+    "name",
+    "lat",
+    "lon"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "site_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "party_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "site_type": {
+      "enum": [
+        "RANCH_BLOCK",
+        "PACKHOUSE",
+        "DC",
+        "CUSTOMER_DC",
+        "PROCESSOR",
+        "JUNCTION"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "city": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "state": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "lat": {
+      "type": "number",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "lon": {
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "sap_plant": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "dock_capacity_kg_per_day": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/kg"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

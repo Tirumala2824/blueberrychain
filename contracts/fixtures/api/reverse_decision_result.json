@@ -1,0 +1,24 @@
+{
+  "schema": "api/reverse_decision_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "rec_id": "REC-00000044",
+      "compensation_mutation_ids": [
+        "MUT-00000310",
+        "MUT-00000311"
+      ],
+      "case_state": "EXECUTING",
+      "ledger_seq": 452
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a reversal queues at least one compensation",
+      "base": 0,
+      "set": {
+        "/compensation_mutation_ids": []
+      }
+    }
+  ]
+}

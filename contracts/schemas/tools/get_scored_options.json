@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_scored_options.json",
+  "title": "GET_SCORED_OPTIONS input",
+  "description": "R5 - the scored option set for the current decision point.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "include_infeasible",
+    "include_variants"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "include_infeasible": {
+      "type": "boolean"
+    },
+    "include_variants": {
+      "type": "boolean"
+    }
+  }
+}

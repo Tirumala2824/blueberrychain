@@ -1,0 +1,19 @@
+{
+  "schema": "tools/get_model_validity.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "lot_id": "L-A"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "lot id is required",
+      "base": 0,
+      "delete": [
+        "/lot_id"
+      ]
+    }
+  ]
+}

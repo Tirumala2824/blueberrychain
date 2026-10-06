@@ -1,0 +1,24 @@
+{
+  "schema": "raw/payloads/shipment_status.json",
+  "valid": [
+    {
+      "shipment_id": "SHP-20261006-114",
+      "status": "IN_TRANSIT",
+      "at": "2026-10-06T07:50:00Z",
+      "lat": 38.58,
+      "lon": -121.49,
+      "next_junction_site_id": "SITE-JCT-I80-SAC",
+      "destination_site_id": "SITE-SUMMIT-SLC",
+      "eta_at": "2026-10-07T06:00:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "latitude is bounded",
+      "base": 0,
+      "set": {
+        "/lat": 123.0
+      }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/compute_claim_basis.json",
+  "title": "COMPUTE_CLAIM_BASIS input",
+  "description": "A4 - deterministic loss, cap, claimable amount, filing deadline, prerequisites and required documents.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "counterparty_id",
+    "basis"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "counterparty_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "basis": {
+      "$ref": "../common.json#/$defs/claim_basis"
+    }
+  }
+}

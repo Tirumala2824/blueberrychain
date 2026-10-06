@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/mutation_intent.json",
+  "title": "Mutation intent",
+  "description": "One step of an execution plan, as handed to DECISION.MUTATE - the only code path that changes operational state. MUTATE validates, authorizes, executes and records it (see mutation_record.json).",
+  "type": "object",
+  "required": ["case_id", "decision_point", "rec_id", "option_id", "plan_id", "step_seq",
+               "action_type", "target_system", "target_entity", "payload", "idempotency_key",
+               "brief_hash", "pack_id", "expected_before", "expected_after", "compensation_of",
+               "requested_by"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "$ref": "common.json#/$defs/case_id" },
+    "decision_point": { "$ref": "common.json#/$defs/decision_point" },
+    "rec_id": { "$ref": "common.json#/$defs/rec_id" },
+    "option_id": { "$ref": "common.json#/$defs/option_id" },
+    "plan_id": { "$ref": "common.json#/$defs/plan_id" },
+    "step_seq": { "type": "integer", "minimum": 1 },
+    "action_type": { "$ref": "common.json#/$defs/action_type" },
+    "target_system": { "$ref": "common.json#/$defs/target_system" },
+    "target_entity": {
+      "type": "object",
+      "required": ["type", "id"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "enum": ["LOT_STOCK", "SALES_ORDER_ITEM", "DELIVERY", "SHIPMENT", "CLAIM", "VENDOR_ACCOUNT", "CUSTOMER", "CASE"] },
+        "id": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "payload": { "type": "object", "description": "Action-specific fields; shape is checked against GOV.ACTION_TYPES." },
+    "idempotency_key": {
+      "$ref": "common.json#/$defs/sha256",
+      "description": "sha256 of case_id, decision_point, option_id, action_type, target_entity and brief_hash. Duplicates return the existing mutation."
+    },
+    "brief_hash": { "$ref": "common.json#/$defs/sha256" },
+    "pack_id": { "$ref": "common.json#/$defs/pack_id" },
+    "expected_before": { "type": "object", "description": "Precondition fields the dispatcher compares with the target's live state before writing." },
+    "expected_after": { "type": "object", "description": "Fields the dispatcher verifies after the acknowledgement." },
+    "compensation_of": { "oneOf": [{ "$ref": "common.json#/$defs/mutation_id" }, { "type": "null" }] },
+    "requested_by": {
+      "type": "object",
+      "required": ["kind", "principal"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "enum": ["ENGINE", "HUMAN", "WATCHDOG", "AGENT_TOOL"] },
+        "principal": { "type": "string", "maxLength": 128 }
+      }
+    }
+  }
+}

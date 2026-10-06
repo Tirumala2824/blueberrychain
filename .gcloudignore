@@ -1,0 +1,13 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+.venv
+.pytest_cache
+.ruff_cache
+.artifacts
+.snowflake
+**/node_modules
+**/dist
+**/.next

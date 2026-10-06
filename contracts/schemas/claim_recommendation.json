@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/claim_recommendation.json",
+  "title": "Claim recommendation (payload)",
+  "description": "What the Claims & Recovery agent submits through SUBMIT_CLAIM_RECOMMENDATION. Amounts come only from variant_option_id (calculator-generated). FILE_CLAIM needs a SUFFICIENT finding with confidence >= MEDIUM, all prerequisites satisfied and the filing deadline open; COUNTER / ACCEPT_OFFER must sit inside the policy settlement band.",
+  "type": "object",
+  "required": ["action", "counterparty_id", "basis", "variant_option_id", "prerequisites_ack",
+               "anticipated_defenses", "letter_draft", "response_to", "confidence", "citations"],
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "enum": ["CLAIM_NOTICE", "FILE_CLAIM", "GROWER_DEDUCTION", "ABSORB", "DEFER", "ACCEPT_OFFER", "COUNTER", "APPEAL"]
+    },
+    "counterparty_id": { "$ref": "common.json#/$defs/external_id" },
+    "basis": { "$ref": "common.json#/$defs/claim_basis" },
+    "variant_option_id": {
+      "oneOf": [{ "$ref": "common.json#/$defs/option_id" }, { "type": "null" }],
+      "description": "Required for FILE_CLAIM, GROWER_DEDUCTION, COUNTER and ACCEPT_OFFER; null for NOTICE / ABSORB / DEFER / APPEAL."
+    },
+    "prerequisites_ack": {
+      "type": "array",
+      "items": { "enum": ["NOTICE_TIMELY", "MITIGATION_EVIDENCED", "SETPOINT_ON_BOL", "CUSTODY_PROVEN", "DOCS_COMPLETE"] },
+      "uniqueItems": true
+    },
+    "anticipated_defenses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["defense", "rebuttal", "evidence_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "defense": { "enum": ["WARM_LOADING", "SETPOINT_NOT_ON_BOL", "SENSOR_UNRELIABLE", "NO_MITIGATION", "LIABILITY_CAP", "LATE_NOTICE", "OTHER"] },
+          "rebuttal": { "type": "string", "maxLength": 1000 },
+          "evidence_ids": { "$ref": "common.json#/$defs/citations" }
+        }
+      }
+    },
+    "letter_draft": { "type": "string", "maxLength": 6000 },
+    "response_to": { "type": "string", "maxLength": 64, "description": "Counterparty response id being answered, or empty string." },
+    "confidence": { "$ref": "common.json#/$defs/confidence" },
+    "citations": { "$ref": "common.json#/$defs/citations" }
+  },
+  "if": {
+    "properties": { "action": { "enum": ["FILE_CLAIM", "GROWER_DEDUCTION", "COUNTER", "ACCEPT_OFFER"] } }
+  },
+  "then": {
+    "properties": { "variant_option_id": { "$ref": "common.json#/$defs/option_id" } }
+  }
+}

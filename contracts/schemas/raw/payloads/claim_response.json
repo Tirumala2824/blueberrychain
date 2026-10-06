@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/claim_response.json",
+  "title": "Claim response",
+  "description": "A counterparty's response to a claim or notice. Source: TMS / carrier.",
+  "type": "object",
+  "required": [
+    "response_id",
+    "claim_ref",
+    "counterparty_party_id",
+    "response_type",
+    "at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "response_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "claim_ref": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "counterparty_party_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "response_type": {
+      "enum": [
+        "ACKNOWLEDGED",
+        "DENIED",
+        "PARTIAL_OFFER",
+        "PAID",
+        "REQUEST_DOCS"
+      ]
+    },
+    "amount_usd": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/usd"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "defense": {
+      "enum": [
+        "WARM_LOADING",
+        "SETPOINT_NOT_ON_BOL",
+        "SENSOR_UNRELIABLE",
+        "NO_MITIGATION",
+        "LIABILITY_CAP",
+        "LATE_NOTICE",
+        "OTHER",
+        null
+      ]
+    },
+    "text": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 6000
+    },
+    "at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    }
+  }
+}

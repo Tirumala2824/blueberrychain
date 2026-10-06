@@ -1,0 +1,117 @@
+{
+  "schema": "tools/validate_submission.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "submission_type": "FINDING",
+      "payload": {
+        "hypotheses": [
+          {
+            "cause": "PRECOOL_DELAY",
+            "verdict": "SUPPORTED",
+            "evidence_ids": [
+              "EV:SIG:PRECOOL_DELAY@1",
+              "EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M"
+            ]
+          },
+          {
+            "cause": "REEFER_MALFUNCTION",
+            "verdict": "REJECTED",
+            "evidence_ids": [
+              "EV:SIG:REEFER_PULLDOWN_FAILURE@1"
+            ]
+          },
+          {
+            "cause": "DOCK_DWELL",
+            "verdict": "INCONCLUSIVE",
+            "evidence_ids": [
+              "EV:SIG:DOCK_DWELL@1"
+            ]
+          }
+        ],
+        "most_likely_cause": "PRECOOL_DELAY",
+        "responsible_parties": [
+          {
+            "party_id": "PARTY-EMERALD-RIDGE",
+            "basis": "GROWER_PRECOOL",
+            "evidence_ids": [
+              "EV:SIG:PRECOOL_DELAY@1"
+            ]
+          }
+        ],
+        "evidence_trust": [
+          {
+            "evidence_id": "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c",
+            "trust": "LOW",
+            "reason": "Certificate states 1.0 C at 06:40; the primary probe reads 4.2 C at the same minute."
+          },
+          {
+            "evidence_id": "EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M",
+            "trust": "HIGH",
+            "reason": "Primary pulp probe, calibrated 2026-09-12, no gaps."
+          }
+        ],
+        "sufficiency": "SUFFICIENT",
+        "gaps": [],
+        "confidence": "MEDIUM",
+        "confidence_reasons": [
+          "Probe and reefer air agree; certificate contradicts the probe.",
+          "Dock dwell contribution is small but not excluded."
+        ],
+        "narrative": "The lot was loaded warm: pulp stayed above 3 C for 5 h after harvest while the reefer held supply air at setpoint, so the carrier did not cause the excursion.",
+        "citations": [
+          "EV:SIG:PRECOOL_DELAY@1",
+          "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c"
+        ]
+      }
+    },
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "submission_type": "RECOMMENDATION",
+      "payload": {
+        "option_id": "OPT-00000142",
+        "rejected_alternatives": [
+          {
+            "option_id": "OPT-00000141",
+            "reason": "Continuing to Summit risks rejection at receipt: the arrival shelf-life margin is within the model's error band."
+          },
+          {
+            "option_id": "OPT-00000143",
+            "reason": "Re-routing to Harbor Foodservice preserves less value and the case is not urgent enough to give up the tier-A line."
+          }
+        ],
+        "trade_off": "Inspect at Central Valley DC costs a 4 h delay and the inspection fee, but resolves the conflicting certificate before committing a tier-A delivery.",
+        "robustness": {
+          "stable": true,
+          "simulation_call_seqs": [
+            7,
+            8
+          ]
+        },
+        "would_change_if": "Inspection showed less than 10.5 days remaining, or the Harbor window closed before inspection.",
+        "deviation_reason": "The top risk-adjusted option (continue) relies on a certificate the probe contradicts.",
+        "confidence": "MEDIUM",
+        "confidence_reasons": [
+          "Near-tie on risk-adjusted value",
+          "Model IN_RANGE"
+        ],
+        "citations": [
+          "EV:OPT:OPT-00000141",
+          "EV:OPT:OPT-00000142",
+          "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the payload must match its submission type",
+      "base": 0,
+      "set": {
+        "/submission_type": "RECOMMENDATION"
+      }
+    }
+  ]
+}

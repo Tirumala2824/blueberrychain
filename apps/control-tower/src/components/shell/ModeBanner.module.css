@@ -1,0 +1,85 @@
+.banner {
+  background:
+    repeating-linear-gradient(-45deg, rgba(29, 33, 64, 0.08) 0 10px, transparent 10px 20px),
+    var(--fixture);
+  color: var(--ink);
+  padding: 6px var(--space-5);
+  font-size: var(--t-s);
+  border-bottom: 1px solid #b98510;
+}
+
+.row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.toggle {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(29, 33, 64, 0.35);
+  border-radius: var(--radius-s);
+  padding: 1px 10px;
+  cursor: pointer;
+}
+
+.tapes {
+  list-style: none;
+  margin: var(--space-2) 0 var(--space-1);
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.tapes li {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) 110px minmax(200px, 3fr) auto;
+  gap: var(--space-3);
+  align-items: center;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 4px var(--space-2);
+  border-radius: var(--radius-s);
+}
+
+.tapes li:last-child {
+  display: block;
+  background: none;
+  padding: 2px 0;
+}
+
+.tapes button {
+  background: var(--surface);
+  border: 1px solid rgba(29, 33, 64, 0.35);
+  border-radius: var(--radius-s);
+  padding: 1px 10px;
+  cursor: pointer;
+}
+
+.tapes button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.tapeName {
+  font-family: var(--font-cond);
+  font-weight: 600;
+}
+
+.label {
+  color: var(--ink-2);
+}
+
+.buttons {
+  display: flex;
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .tapes li {
+    grid-template-columns: 1fr auto;
+  }
+  .label {
+    grid-column: 1 / -1;
+  }
+}

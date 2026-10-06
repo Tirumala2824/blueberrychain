@@ -1,0 +1,63 @@
+{
+  "schema": "reference/contract.json",
+  "valid": [
+    {
+      "contract_id": "CTR-SIERRA-2026",
+      "party_id": "PARTY-SIERRA",
+      "contract_type": "CARRIER_TRANSPORT",
+      "effective_from": "2026-01-01",
+      "terms": {
+        "liability_cap_usd": 50000,
+        "claim_window_days": 270,
+        "claim_min_usd": 500,
+        "requires_bol_setpoint": true,
+        "temp_tolerance_c": 1.0,
+        "notice_window_h": 72
+      },
+      "clause_text": "7.1 Temperature control. Carrier shall maintain the return-air temperature within 1.0 C of the setpoint stated on the bill of lading for the full period the goods are in Carrier's custody, and shall operate the refrigeration unit in continuous mode unless the bill of lading states otherwise.\n7.2 Liability. Carrier is liable for loss of or damage to the goods caused by a failure to comply with 7.1 while the goods are in Carrier's custody, up to USD 50,000 per load. Carrier is not liable where the goods were tendered above the setpoint stated on the bill of lading.\n7.3 Notice and claims. Shipper shall give notice of a suspected temperature loss within 72 hours of delivery or of the shipper becoming aware of the loss, and shall file any claim within 270 days of delivery. Claims under USD 500 will not be considered.\n7.4 Mitigation. Shipper shall take reasonable steps to mitigate any loss, including diversion or salvage sale; the salvage value obtained reduces the amount claimed.\n"
+    },
+    {
+      "contract_id": "CTR-EMERALD-SUPPLY-2026",
+      "party_id": "PARTY-EMERALD-RIDGE",
+      "contract_type": "GROWER_SUPPLY",
+      "effective_from": "2026-03-01",
+      "terms": {
+        "price_usd_per_kg": 8.4,
+        "precool_max_hours": 4,
+        "precool_target_c": 1.0,
+        "quality_deduction_cap_pct": 30
+      },
+      "clause_text": "4.2 Pre-cooling. Grower shall bring fruit to a pulp temperature of 1.0 C or below within 4 hours of harvest and hold it at or below that temperature until tendered to the carrier.\n4.3 Quality deductions. Where fruit fails the buyer's receipt specification because of a breach of 4.2, the buyer may deduct the resulting loss from the grower settlement, up to 30% of the lot value.\n"
+    },
+    {
+      "contract_id": "CTR-SUMMIT-2026",
+      "party_id": "PARTY-SUMMIT",
+      "contract_type": "CUSTOMER_SALES",
+      "effective_from": "2026-01-01",
+      "terms": {
+        "price_usd_per_kg": 11.2,
+        "otif_penalty_pct": 3,
+        "rejection_penalty_usd_per_kg": 0.25,
+        "substitution_allowed": true,
+        "diversion_allowed": true
+      },
+      "clause_text": "3.1 Product shall arrive with at least 10 days of remaining shelf life and a pulp temperature at or below 2.0 C.\n3.4 Deliveries that are late, short or rejected incur a charge of 3% of the line value; rejected product additionally incurs USD 0.25 per kg handling.\n3.6 Supplier may substitute product of the same variety, pack and organic status from another lot.\n"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "carrier terms must include the liability cap",
+      "base": 0,
+      "delete": [
+        "/terms/liability_cap_usd"
+      ]
+    },
+    {
+      "why": "contract types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/contract_type": "HANDSHAKE"
+      }
+    }
+  ]
+}

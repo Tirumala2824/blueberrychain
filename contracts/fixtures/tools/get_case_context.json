@@ -1,0 +1,30 @@
+{
+  "schema": "tools/get_case_context.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "sections": [
+        "ALL"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "at least one section",
+      "base": 0,
+      "set": {
+        "/sections": []
+      }
+    },
+    {
+      "why": "sections are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/sections": [
+          "EVERYTHING"
+        ]
+      }
+    }
+  ]
+}

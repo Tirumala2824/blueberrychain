@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/inspection_result.json",
+  "title": "Inspection result",
+  "description": "QC inspection lot result (SAP API_INSPECTIONLOT_SRV, mapped). Receipt inspections are outcome evidence. Source: SAP QM.",
+  "type": "object",
+  "required": [
+    "inspection_id",
+    "lot_id",
+    "site_id",
+    "inspection_type",
+    "inspected_at",
+    "accepted"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "inspection_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "lot_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "site_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "inspection_type": {
+      "enum": [
+        "ORIGIN",
+        "INTERMEDIATE",
+        "RECEIPT"
+      ]
+    },
+    "inspected_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "pulp_c": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/celsius"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "defects_pct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "decay_pct": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 100
+    },
+    "remaining_shelf_life_days_observed": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "accepted": {
+      "type": "boolean"
+    },
+    "inspector": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 128
+    }
+  }
+}

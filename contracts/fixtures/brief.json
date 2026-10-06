@@ -1,0 +1,88 @@
+{
+  "schema": "brief.json",
+  "valid": [
+    {
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "pack_id": "PACK-00000031",
+      "brief_hash": "7a3e5c9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c",
+      "generated_at": "2026-10-06T07:55:40Z",
+      "do_nothing": {
+        "option_id": "OPT-00000101",
+        "outcome": {
+          "operational": { "p_accept": 0.0, "sl_at_arrival_days_p50": 7.75, "kg_delivered_expected": 0 },
+          "financial": {
+            "expected_revenue_usd": 13800.00, "costs": {}, "expected_penalties_usd": 1411.20,
+            "expected_recovery_usd": 13296.00, "expected_nrv_usd": 25685.00, "nrv_p10_usd": 22900.00,
+            "nrv_p90_usd": 27800.00, "expected_loss_usd": 21355.00, "value_preserved_vs_default_usd": 0.00
+          },
+          "risk": { "p_reject": 1.0, "food_safety_flag": false },
+          "customer": { "lines_affected": 1, "tier_a_shortfall_kg": 4200 },
+          "logistics": {},
+          "inventory": {},
+          "recovery_cost_usd": 0.00,
+          "confidence": { "level": "HIGH", "drivers": ["arrival shelf life well below the 10-day spec"] }
+        }
+      },
+      "options": [
+        {
+          "option_id": "OPT-00000102",
+          "label": "Re-route L-A to Bayline Sacramento DC; refill the Summit line from Central Valley DC stock",
+          "outcome": {
+            "operational": { "p_accept": 0.999, "sl_at_arrival_days_p50": 8.75, "kg_delivered_expected": 4200 },
+            "financial": {
+              "expected_revenue_usd": 44688.00, "costs": { "freight_delta_usd": 1200.00, "replacement_usd": 400.00 },
+              "expected_penalties_usd": 0.00, "expected_recovery_usd": 2213.00, "expected_nrv_usd": 45301.00,
+              "nrv_p10_usd": 45000.00, "nrv_p90_usd": 45520.00, "expected_loss_usd": 1739.00,
+              "value_preserved_vs_default_usd": 19616.00
+            },
+            "risk": { "p_reject": 0.001, "food_safety_flag": false },
+            "customer": { "lines_affected": 1, "tier_a_shortfall_kg": 0 },
+            "logistics": { "added_hours": -24 },
+            "inventory": { "atp_added_kg": 0 },
+            "recovery_cost_usd": 1600.00,
+            "confidence": { "level": "HIGH", "drivers": ["model IN_RANGE"] }
+          },
+          "flags": [],
+          "expires_at": "2026-10-06T14:10:00Z"
+        }
+      ],
+      "value_table": [
+        { "option_id": "OPT-00000102", "expected_nrv_usd": 45301.00, "nrv_p10_usd": 45000.00, "nrv_p90_usd": 45520.00, "value_preserved_vs_default_usd": 19616.00 },
+        { "option_id": "OPT-00000101", "expected_nrv_usd": 25685.00, "nrv_p10_usd": 22900.00, "nrv_p90_usd": 27800.00, "value_preserved_vs_default_usd": 0.00 }
+      ],
+      "eliminated": [
+        {
+          "option_id": "OPT-00000105",
+          "label": "Expedite to Summit Club Salt Lake City DC",
+          "reasons": [ { "code": "SPEC_INFEASIBLE", "detail": "P(accept) 0.01 < 0.80; arrival shelf life about 8.3 days vs a 10-day spec", "evidence_id": "EV:OPT:OPT-00000105" } ]
+        }
+      ],
+      "comparison": {
+        "ranking": ["OPT-00000102", "OPT-00000103", "OPT-00000104", "OPT-00000101"],
+        "non_dominated": ["OPT-00000102"],
+        "margin_top2_usd": 13155.00,
+        "objective_version": "objective@1",
+        "escalation_reasons": [],
+        "p_liab_attribution_only": 0.70,
+        "p_liab_with_finding": null
+      },
+      "precedents": [],
+      "recommendation": {
+        "option_id": "OPT-00000102",
+        "rec_id": "REC-00000044",
+        "decided_by": "RULE",
+        "decider_id": "R-DISP-03@4",
+        "why_structured": ["HIGHEST_RISK_ADJUSTED_NRV", "MARGIN_ABOVE_THRESHOLD", "NO_TIER_A_SHORTFALL", "MEETS_SPEC_P_ACCEPT"],
+        "narrative": "Re-route to Bayline: highest risk-adjusted value ($45,301 expected vs $25,685 for doing nothing), meets Bayline's 5-day spec with P(accept) 0.999, and Summit's line is refilled in full from Central Valley DC stock."
+      }
+    }
+  ],
+  "invalid": [
+    { "why": "approvals bind to brief_hash, so it is mandatory", "base": 0, "delete": ["/brief_hash"] },
+    { "why": "deciders are RULE / AGENT / HUMAN / FALLBACK - never a bare 'LLM'", "base": 0, "set": { "/recommendation/decided_by": "LLM" } },
+    { "why": "reason codes are UPPER_SNAKE codes, not prose", "base": 0, "set": { "/recommendation/why_structured": ["because it is best"] } },
+    { "why": "Q1 (do nothing) is always present", "base": 0, "delete": ["/do_nothing"] },
+    { "why": "escalation reasons are a frozen vocabulary", "base": 0, "set": { "/comparison/escalation_reasons": ["GUT_FEELING"] } }
+  ]
+}

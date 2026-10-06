@@ -1,0 +1,26 @@
+{
+  "schema": "tools/get_party_context.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "party_id": "PARTY-SUMMIT",
+      "aspects": [
+        "PROFILE",
+        "SPECS",
+        "PENALTIES"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "aspects are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/aspects": [
+          "CREDIT_SCORE"
+        ]
+      }
+    }
+  ]
+}

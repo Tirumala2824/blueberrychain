@@ -1,0 +1,30 @@
+{
+  "schema": "reference/sensor.json",
+  "valid": [
+    {
+      "device_id": "P-A1",
+      "device_type": "PULP_PROBE",
+      "owner_party_id": "PARTY-BHM",
+      "placement": "CORE_PULP",
+      "calibrated_on": "2026-09-12",
+      "accuracy_c": 0.3
+    },
+    {
+      "device_id": "P-B1",
+      "device_type": "PULP_PROBE",
+      "owner_party_id": "PARTY-BHM",
+      "placement": "CORE_PULP",
+      "calibrated_on": "2026-09-12",
+      "accuracy_c": 0.3
+    }
+  ],
+  "invalid": [
+    {
+      "why": "placement is a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/placement": "DASHBOARD"
+      }
+    }
+  ]
+}

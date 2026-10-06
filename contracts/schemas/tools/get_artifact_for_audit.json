@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_artifact_for_audit.json",
+  "title": "GET_ARTIFACT_FOR_AUDIT input",
+  "description": "R6 - an artifact with its citations resolved. Auditor only; denied when the auditor model is not independent of the author's.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "artifact_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "artifact_id": {
+      "$ref": "../common.json#/$defs/artifact_id"
+    }
+  }
+}

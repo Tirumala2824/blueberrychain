@@ -1,0 +1,21 @@
+[project]
+name = "blueberrychain"
+version = "0.1.0"
+description = "bbc CLI, cold-chain world simulator and evaluation harness for BlueberryChain OS"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = ["bbc-engine", "bbc-toolkit", "pyyaml>=6.0"]
+
+[project.scripts]
+bbc = "blueberrychain.cli.main:main"
+
+[tool.uv.sources]
+bbc-engine = { workspace = true }
+bbc-toolkit = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/blueberrychain"]

@@ -1,0 +1,20 @@
+{
+  "schema": "tools/compute_claim_basis.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "counterparty_id": "PARTY-SIERRA",
+      "basis": "CARRIER_TEMPERATURE"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "claim bases are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/basis": "EMOTIONAL_DAMAGE"
+      }
+    }
+  ]
+}

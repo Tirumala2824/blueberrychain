@@ -1,0 +1,116 @@
+{
+  "schema": "evidence_pack.json",
+  "valid": [
+    {
+      "pack_id": "PACK-00000031",
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "revision": 1,
+      "as_of": "2026-10-06T07:55:00Z",
+      "sealed_at": "2026-10-06T07:55:12Z",
+      "param_versions": { "policy": "1", "semantic": "1", "engine": "0.1.0", "products": "1", "contracts": "1", "prices": "1", "cost_rates": "1", "lanes": "1" },
+      "shipment": {
+        "shipment_id": "SHP-20261006-114",
+        "carrier_party_id": "PARTY-SIERRA",
+        "reefer_device_id": "RF-114",
+        "origin_site_id": "SITE-EMERALD-PACK",
+        "destination_site_id": "SITE-SUMMIT-SLC",
+        "bol_setpoint_c": 0.5,
+        "state_at_as_of": "IN_TRANSIT",
+        "next_junction_site_id": "SITE-JCT-I80-SAC",
+        "eta_p50_at": "2026-10-07T06:00:00Z",
+        "eta_p90_at": "2026-10-07T08:00:00Z",
+        "reefer_state": { "as_of": "2026-10-06T07:50:00Z", "mode": "CONTINUOUS", "alarms": ["COMPRESSOR_FAULT"], "supply_air_c": 14.2, "return_air_c": 13.1, "setpoint_c": 0.5 },
+        "evidence_id": "EV:PACK:PACK-00000031#/shipment"
+      },
+      "lots": [
+        {
+          "lot_id": "L-A",
+          "product_id": "BB-EMERALD-ORG-12x6",
+          "organic": true,
+          "kg": 4200,
+          "planned_value_usd": 47040.00,
+          "grower_party_id": "PARTY-EMERALD-RIDGE",
+          "harvest_at": "2026-10-05T13:00:00Z",
+          "primary_probe_device_id": "P-A1",
+          "proxy_air_only": false,
+          "last_pulp_c": 4.6,
+          "last_reading_at": "2026-10-06T07:54:00Z",
+          "food_safety_flag": false,
+          "model_validity": "IN_RANGE",
+          "sigma_days": 0.8,
+          "values": [
+            { "name": "REMAINING_SHELF_LIFE_DAYS", "value": 9.0, "unit": "days", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0" },
+            { "name": "MONITORING_COVERAGE_PCT", "value": 96.0, "unit": "%", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/1" },
+            { "name": "VALUE_AT_RISK_USD", "value": 21355.00, "unit": "USD", "grain": "case_lot", "as_of": "2026-10-06T07:55:00Z", "data_age_min": 0, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/2" }
+          ],
+          "custody_exposure": [
+            { "holder_party_id": "PARTY-SIERRA", "holder_type": "CARRIER", "excess_life_share": 0.82, "thermal_exposure_deg_h": 22.8, "breach_min": 228, "evidence_id": "EV:PACK:PACK-00000031#/lots/0/custody_exposure/0" },
+            { "holder_party_id": "PARTY-EMERALD-RIDGE", "holder_type": "PACKHOUSE", "excess_life_share": 0.18, "thermal_exposure_deg_h": 4.9, "breach_min": 40, "evidence_id": "EV:PACK:PACK-00000031#/lots/0/custody_exposure/1" }
+          ]
+        }
+      ],
+      "custody_timeline": [
+        { "party_id": "PARTY-EMERALD-RIDGE", "holder_type": "PACKHOUSE", "site_id": "SITE-EMERALD-PACK", "from_at": "2026-10-05T13:00:00Z", "to_at": "2026-10-06T02:00:00Z", "evidence_id": "EV:PACK:PACK-00000031#/custody_timeline/0" },
+        { "party_id": "PARTY-SIERRA", "holder_type": "CARRIER", "site_id": null, "from_at": "2026-10-06T02:00:00Z", "to_at": null, "evidence_id": "EV:PACK:PACK-00000031#/custody_timeline/1" }
+      ],
+      "affected_order_lines": [
+        {
+          "order_line_id": "SO-6001-10",
+          "customer_party_id": "PARTY-SUMMIT",
+          "customer_tier": "A",
+          "product_id": "BB-EMERALD-ORG-12x6",
+          "organic_required": true,
+          "kg": 4200,
+          "price_usd_per_kg": 11.2000,
+          "requested_delivery_at": "2026-10-07T10:00:00Z",
+          "ship_to_site_id": "SITE-SUMMIT-SLC",
+          "min_shelf_life_days_at_receipt": 10,
+          "max_arrival_pulp_c": 2.0,
+          "assigned_lot_id": "L-A",
+          "penalty_terms": { "otif_penalty_pct": 3 },
+          "evidence_id": "EV:PACK:PACK-00000031#/affected_order_lines/0"
+        }
+      ],
+      "candidate_inventory": [
+        { "lot_id": "L-CV-0912", "site_id": "SITE-CVDC-TRACY", "product_id": "BB-EMERALD-ORG-12x6", "organic": true, "kg_available": 38000, "remaining_shelf_life_days": 14.2, "snapshot_at": "2026-10-06T06:00:00Z", "evidence_id": "EV:PACK:PACK-00000031#/candidate_inventory/0" }
+      ],
+      "candidate_destinations": [
+        { "site_id": "SITE-BAYLINE-SAC", "party_id": "PARTY-BAYLINE", "channel": "REGIONAL", "customer_tier": "B", "price_usd_per_kg": 10.6400, "transit_h_p50": 6, "transit_h_p90": 7.5, "min_shelf_life_days_at_receipt": 5, "capacity_kg": 12000, "max_arrival_pulp_c": 4.4, "freight_usd": 1200.0, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/0" },
+        { "site_id": "SITE-VFP-FRESNO", "party_id": "PARTY-VFP", "channel": "PROCESSOR", "customer_tier": null, "price_usd_per_kg": 3.5000, "transit_h_p50": 4, "transit_h_p90": 5, "min_shelf_life_days_at_receipt": 1, "capacity_kg": null, "max_arrival_pulp_c": null, "freight_usd": 600.0, "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/1" }
+      ],
+      "documents": [
+        {
+          "doc_id": "DOC-SFI-044812",
+          "doc_type": "INSPECTION_CERT",
+          "sha256": "9c1d8e2f4a6b3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d",
+          "received_at": "2026-10-06T03:10:00Z",
+          "claims": [
+            { "claim_key": "pulp_temp_at_loading_c", "value": 1.0, "unit": "C", "claimed_at": "2026-10-06T01:40:00Z", "consistency": { "verdict": "CONSISTENT", "sensor_value": 0.9, "delta": 0.1, "rule_id": "TEMP_AT_TIME@1" }, "evidence_id": "EV:DOC:DOC-SFI-044812#pulp_temp_at_loading_c" }
+          ]
+        }
+      ],
+      "inspection_sites": [
+        { "site_id": "SITE-CVDC-TRACY", "transit_h_p50": 1.5, "transit_h_p90": 2.0, "freight_usd": 500.0, "evidence_id": "EV:PACK:PACK-00000031#/inspection_sites/0" }
+      ],
+      "data_gaps": [],
+      "deadline_inputs": {
+        "windows": [
+          { "kind": "REROUTE", "site_id": "SITE-JCT-I80-SAC", "closes_at": "2026-10-06T10:05:00Z" }
+        ]
+      },
+      "content_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d"
+    }
+  ],
+  "invalid": [
+    { "why": "a sealed pack must carry its content hash", "base": 0, "delete": ["/content_hash"] },
+    { "why": "custody shares are bounded to [0, 1]", "base": 0, "set": { "/lots/0/custody_exposure/0/excess_life_share": 1.3 } },
+    { "why": "a case always concerns at least one lot", "base": 0, "set": { "/lots": [] } },
+    { "why": "document claim keys are snake_case", "base": 0, "set": { "/documents/0/claims/0/claim_key": "PulpTemp" } },
+    { "why": "every frozen value needs its metric version", "base": 0, "delete": ["/lots/0/values/0/metric_version"] },
+    { "why": "destination channels are a frozen vocabulary", "base": 0, "set": { "/candidate_destinations/0/channel": "BLACK_MARKET" } },
+    { "why": "a lot's food-safety flag is a boolean", "base": 0, "set": { "/lots/0/food_safety_flag": "no" } },
+    { "why": "inspection sites say how far they are", "base": 0, "delete": ["/inspection_sites/0/transit_h_p50"] },
+    { "why": "reefer alarms are a list", "base": 0, "set": { "/shipment/reefer_state/alarms": "COMPRESSOR_FAULT" } }
+  ]
+}

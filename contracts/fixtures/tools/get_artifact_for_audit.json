@@ -1,0 +1,18 @@
+{
+  "schema": "tools/get_artifact_for_audit.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000207",
+      "artifact_id": "FND-00000009"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "artifacts are findings or recommendations",
+      "base": 0,
+      "set": {
+        "/artifact_id": "OPT-00000102"
+      }
+    }
+  ]
+}

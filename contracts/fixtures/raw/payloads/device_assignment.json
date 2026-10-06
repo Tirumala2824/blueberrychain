@@ -1,0 +1,22 @@
+{
+  "schema": "raw/payloads/device_assignment.json",
+  "valid": [
+    {
+      "device_id": "P-A1",
+      "target_type": "LOT",
+      "target_id": "L-A",
+      "role": "PRIMARY",
+      "assigned_from": "2026-10-05T19:30:00Z",
+      "assigned_to": null
+    }
+  ],
+  "invalid": [
+    {
+      "why": "device roles are PRIMARY / SECONDARY / REEFER",
+      "base": 0,
+      "set": {
+        "/role": "BACKUP"
+      }
+    }
+  ]
+}

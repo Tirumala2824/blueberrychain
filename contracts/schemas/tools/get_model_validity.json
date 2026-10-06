@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/get_model_validity.json",
+  "title": "GET_MODEL_VALIDITY input",
+  "description": "A3 - whether the shelf-life model is valid for this lot's conditions.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "lot_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "lot_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    }
+  }
+}

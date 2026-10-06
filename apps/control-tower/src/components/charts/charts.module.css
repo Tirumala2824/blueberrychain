@@ -1,0 +1,274 @@
+.figure {
+  margin: 0 0 var(--space-4);
+}
+
+.caption {
+  font-size: var(--t-s);
+  color: var(--ink-2);
+  margin-bottom: var(--space-2);
+}
+
+.plotWrap {
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: var(--font-cond);
+  overflow: visible;
+}
+
+.svg:focus-visible {
+  box-shadow: var(--focus);
+}
+
+.empty {
+  color: var(--ink-3);
+}
+
+/* strip-chart paper */
+.bandA { fill: #eef2f5; }
+.bandB { fill: #f8fafb; }
+
+.grid {
+  stroke: #dfe5ea;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.handoff {
+  stroke: var(--ink-3);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.bandLabel {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+
+.bandType {
+  font-weight: 500;
+  fill: var(--ink-2);
+}
+
+.tick,
+.xTick,
+.yTick {
+  font-size: 11px;
+  fill: var(--ink-2);
+  font-feature-settings: "tnum";
+}
+
+.xTick { text-anchor: middle; }
+.yTick { text-anchor: end; }
+
+.envelope {
+  fill: var(--bloom);
+  fill-opacity: 0.14;
+}
+
+.line {
+  fill: none;
+  stroke: var(--bloom);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.breachArea {
+  fill: var(--breach);
+  fill-opacity: 0.16;
+}
+
+.threshold {
+  stroke: var(--breach);
+  stroke-width: 1.5;
+  shape-rendering: crispEdges;
+}
+
+.thresholdLabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 3px;
+}
+
+.marker {
+  stroke: var(--ink-2);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.markerLabel {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--ink);
+  text-anchor: end;
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 3px;
+}
+
+.claim {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.claimConflict { fill: var(--breach); }
+.claimOk { fill: var(--chill); }
+.claimUnknown { fill: var(--ink-3); }
+
+.claimGap {
+  stroke: var(--breach);
+  stroke-width: 1.5;
+}
+
+.sensorDot {
+  fill: var(--bloom);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.claimLabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+  paint-order: stroke;
+  stroke: rgba(255, 255, 255, 0.9);
+  stroke-width: 3px;
+}
+
+.crosshair {
+  stroke: var(--ink);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.hoverDot {
+  fill: var(--bloom);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.tooltip {
+  position: absolute;
+  top: 36px;
+  transform: translateX(12px);
+  background: var(--surface);
+  border: 1px solid var(--frost);
+  box-shadow: 0 4px 14px rgba(29, 33, 64, 0.14);
+  border-radius: var(--radius-s);
+  padding: 6px 10px;
+  font-size: var(--t-s);
+  pointer-events: none;
+  min-width: 220px;
+  z-index: 2;
+}
+
+.tipValue {
+  font-weight: 700;
+  font-size: var(--t-l);
+}
+
+.tipSub {
+  color: var(--ink-2);
+}
+
+.tableView {
+  margin-top: var(--space-2);
+  font-size: var(--t-s);
+}
+
+.tableView summary {
+  cursor: pointer;
+  color: var(--bloom-ink);
+}
+
+.tableView table {
+  margin-top: var(--space-2);
+  border-collapse: collapse;
+  max-height: 280px;
+  display: block;
+  overflow: auto;
+}
+
+.tableView th,
+.tableView td {
+  padding: 2px 10px 2px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--frost-2);
+}
+
+/* value range */
+.valueRow {
+  cursor: default;
+  outline: none;
+}
+
+.rowHitIdle { fill: transparent; }
+.rowHit { fill: var(--frost-2); }
+
+.valueRow:focus-visible .rowHitIdle,
+.valueRow:focus-visible .rowHit {
+  fill: var(--bloom-wash);
+}
+
+.rowLabel {
+  font-size: 13px;
+  fill: var(--ink);
+}
+
+.rowLabelStrong {
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+.range {
+  stroke: var(--ink-3);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.rangeRec {
+  stroke: var(--bloom);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.dot {
+  fill: var(--ink-2);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.dotRec {
+  fill: var(--bloom);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.valueLabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+  font-feature-settings: "tnum";
+}
+
+.baseline {
+  stroke: var(--ink);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.baselineLabel {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink);
+}

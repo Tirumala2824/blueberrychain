@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/party.json",
+  "title": "Reference: party",
+  "description": "A company in the world: growers, packhouse, carriers, our DC operator, customers, processors.",
+  "type": "object",
+  "required": [
+    "party_id",
+    "party_type",
+    "name"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "party_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "party_type": {
+      "enum": [
+        "OWN",
+        "GROWER",
+        "PACKHOUSE",
+        "CARRIER",
+        "CUSTOMER",
+        "PROCESSOR"
+      ]
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "customer_tier": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/customer_tier"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sap_business_partner": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 20
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "account_notes": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 4000
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sales_channel": {
+      "description": "Channel a customer or processor buys through (prices: REF.CHANNEL_PRICES); re-route destinations are priced by it.",
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/sales_channel"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

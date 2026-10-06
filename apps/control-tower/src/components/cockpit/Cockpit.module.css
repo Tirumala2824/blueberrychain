@@ -1,0 +1,61 @@
+.cockpit {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.loading,
+.problem {
+  padding: var(--space-6) var(--space-5);
+  color: var(--ink-2);
+}
+
+.feed {
+  margin: 0;
+  padding: 4px var(--space-5);
+  background: var(--amber-wash);
+  color: var(--amber);
+  font-size: var(--t-s);
+  max-width: none;
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 208px minmax(0, 1fr) auto;
+  min-height: 0;
+  border-top: 1px solid var(--frost);
+}
+
+/* rail, panel and drawer scroll on their own; the console keeps its own region below */
+.body > * {
+  min-height: 0;
+  overflow: auto;
+}
+
+.panel {
+  min-width: 0;
+  padding: var(--space-5) var(--space-6) var(--space-7);
+  background: var(--surface);
+  border-left: 1px solid var(--frost);
+  border-right: 1px solid var(--frost);
+}
+
+@media (max-width: 1100px) {
+  .body {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+  .body > * {
+    overflow: visible;
+  }
+  .panel {
+    padding: var(--space-4);
+  }
+}

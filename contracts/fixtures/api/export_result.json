@@ -1,0 +1,26 @@
+{
+  "schema": "api/export_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "case_id": "CASE-00000017",
+      "stage_path": "@BBC_OS.EVIDENCE.EXPORT_STAGE/CASE-00000017/pack.json",
+      "url": "https://pndvhar-pt70809.snowflakecomputing.com/presigned/abc",
+      "url_expires_at": "2026-10-06T10:32:00Z",
+      "sha256": "e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1",
+      "bytes": 48213,
+      "ledger_from_seq": 412,
+      "ledger_to_seq": 447,
+      "exported_at": "2026-10-06T09:32:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "presigned URLs are https",
+      "base": 0,
+      "set": {
+        "/url": "http://example.test/x"
+      }
+    }
+  ]
+}

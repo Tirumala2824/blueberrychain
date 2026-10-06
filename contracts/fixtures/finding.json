@@ -1,0 +1,33 @@
+{
+  "schema": "finding.json",
+  "valid": [
+    {
+      "hypotheses": [
+        { "cause": "PRECOOL_DELAY", "verdict": "SUPPORTED", "evidence_ids": ["EV:SIG:PRECOOL_DELAY@1", "EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M"] },
+        { "cause": "REEFER_MALFUNCTION", "verdict": "REJECTED", "evidence_ids": ["EV:SIG:REEFER_PULLDOWN_FAILURE@1"] },
+        { "cause": "DOCK_DWELL", "verdict": "INCONCLUSIVE", "evidence_ids": ["EV:SIG:DOCK_DWELL@1"] }
+      ],
+      "most_likely_cause": "PRECOOL_DELAY",
+      "responsible_parties": [
+        { "party_id": "PARTY-EMERALD-RIDGE", "basis": "GROWER_PRECOOL", "evidence_ids": ["EV:SIG:PRECOOL_DELAY@1"] }
+      ],
+      "evidence_trust": [
+        { "evidence_id": "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c", "trust": "LOW", "reason": "Certificate states 1.0 C at 06:40; the primary probe reads 4.2 C at the same minute." },
+        { "evidence_id": "EV:TEL:L-B:2026-10-06T01:00Z-2026-10-06T07:00Z:BUCKET_15M", "trust": "HIGH", "reason": "Primary pulp probe, calibrated 2026-09-12, no gaps." }
+      ],
+      "sufficiency": "SUFFICIENT",
+      "gaps": [],
+      "confidence": "MEDIUM",
+      "confidence_reasons": ["Probe and reefer air agree; certificate contradicts the probe.", "Dock dwell contribution is small but not excluded."],
+      "narrative": "The lot was loaded warm: pulp stayed above 3 C for 5 h after harvest while the reefer held supply air at setpoint, so the carrier did not cause the excursion.",
+      "citations": ["EV:SIG:PRECOOL_DELAY@1", "EV:DOC:DOC-SFI-044813#pulp_temp_at_loading_c"]
+    }
+  ],
+  "invalid": [
+    { "why": "causes are a frozen vocabulary", "base": 0, "set": { "/most_likely_cause": "BAD_LUCK" } },
+    { "why": "trust levels are HIGH / MEDIUM / LOW", "base": 0, "set": { "/evidence_trust/0/trust": "VERY_HIGH" } },
+    { "why": "a finding must cite evidence", "base": 0, "delete": ["/citations"] },
+    { "why": "agents cannot attach free-form fields such as a liability amount", "base": 0, "set": { "/liability_usd": 12000 } },
+    { "why": "at least one hypothesis must be tested", "base": 0, "set": { "/hypotheses": [] } }
+  ]
+}

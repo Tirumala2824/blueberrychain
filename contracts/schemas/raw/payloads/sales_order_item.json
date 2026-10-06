@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/sales_order_item.json",
+  "title": "Sales order item",
+  "description": "One customer order line (SAP A_SalesOrderItem, mapped). Source: SAP.",
+  "type": "object",
+  "required": [
+    "order_line_id",
+    "sales_order",
+    "item",
+    "customer_party_id",
+    "product_id",
+    "kg",
+    "price_usd_per_kg",
+    "requested_delivery_at",
+    "ship_to_site_id",
+    "status",
+    "last_change_at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "order_line_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "sales_order": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "item": {
+      "type": "string",
+      "pattern": "^[0-9]{1,6}$"
+    },
+    "customer_party_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "product_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "kg": {
+      "$ref": "../../common.json#/$defs/kg"
+    },
+    "price_usd_per_kg": {
+      "$ref": "../../common.json#/$defs/usd_per_kg"
+    },
+    "requested_delivery_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "ship_to_site_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "status": {
+      "enum": [
+        "OPEN",
+        "ALLOCATED",
+        "SHIPPED",
+        "DELIVERED",
+        "CANCELLED",
+        "SHORTED"
+      ]
+    },
+    "assigned_lot_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "last_change_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    }
+  }
+}

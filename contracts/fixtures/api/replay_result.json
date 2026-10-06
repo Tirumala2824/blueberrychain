@@ -1,0 +1,24 @@
+{
+  "schema": "api/replay_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "pack_id": "PACK-00000031",
+      "as_of": "2026-10-06T07:55:00Z",
+      "original_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d",
+      "replayed_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d",
+      "equal": true,
+      "diff": [],
+      "replayed_at": "2026-10-06T09:32:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "hashes are sha256 hex",
+      "base": 0,
+      "set": {
+        "/replayed_hash": "not-a-hash"
+      }
+    }
+  ]
+}

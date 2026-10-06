@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/recommendation.json",
+  "title": "Recommendation (payload)",
+  "description": "What the Recovery Strategist submits through SUBMIT_RECOMMENDATION (D1). The server checks the option is in the current scored set, feasible and unexpired at now + approval buffer; that every non-dominated option is explicitly rejected; that deviation_reason is present when the choice is not the top risk-adjusted score; that robustness claims reference simulation calls made in this run; and that every number in the text matches a tool-supplied value.",
+  "type": "object",
+  "required": ["option_id", "rejected_alternatives", "trade_off", "robustness", "would_change_if",
+               "deviation_reason", "confidence", "confidence_reasons", "citations"],
+  "additionalProperties": false,
+  "properties": {
+    "option_id": { "$ref": "common.json#/$defs/option_id" },
+    "rejected_alternatives": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["option_id", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "option_id": { "$ref": "common.json#/$defs/option_id" },
+          "reason": { "type": "string", "maxLength": 600 }
+        }
+      }
+    },
+    "trade_off": { "type": "string", "maxLength": 2000 },
+    "robustness": {
+      "type": "object",
+      "required": ["stable", "simulation_call_seqs"],
+      "additionalProperties": false,
+      "properties": {
+        "stable": { "type": "boolean" },
+        "simulation_call_seqs": {
+          "type": "array",
+          "items": { "type": "integer", "minimum": 1 },
+          "description": "TOOL_CALLS seq numbers of SIMULATE_OPTION_VARIANTS calls in this run that support the claim."
+        }
+      }
+    },
+    "would_change_if": { "type": "string", "maxLength": 1000 },
+    "deviation_reason": { "type": "string", "maxLength": 1000, "description": "Empty string when the choice is the top risk-adjusted option." },
+    "confidence": { "$ref": "common.json#/$defs/confidence" },
+    "confidence_reasons": { "type": "array", "items": { "type": "string", "maxLength": 300 }, "maxItems": 10 },
+    "citations": { "$ref": "common.json#/$defs/citations" }
+  }
+}

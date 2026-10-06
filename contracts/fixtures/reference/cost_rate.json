@@ -1,0 +1,30 @@
+{
+  "schema": "reference/cost_rate.json",
+  "valid": [
+    {
+      "cost_rate_id": "COST-INSPECTION-CVDC",
+      "cost_type": "INSPECTION",
+      "scope_type": "SITE",
+      "scope_id": "SITE-CVDC-TRACY",
+      "rate": 350,
+      "unit": "USD_PER_EVENT"
+    },
+    {
+      "cost_rate_id": "COST-TRANSLOAD",
+      "cost_type": "TRANSLOAD",
+      "scope_type": "GLOBAL",
+      "scope_id": null,
+      "rate": 600,
+      "unit": "USD_PER_EVENT"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "units are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/unit": "USD_PER_HUG"
+      }
+    }
+  ]
+}

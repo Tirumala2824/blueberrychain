@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/ack_mutation_result.json",
+  "title": "ACK_MUTATION result",
+  "description": "API.ACK_MUTATION(mutation_id, attempt, ack) (83_gateway.sql): Snowflake records the observations, decides the mutation's status, advances the plan and the case, and writes the ledger. An ACK for a mutation that is already finished replays its status.",
+  "oneOf": [
+    {
+      "$ref": "refusal.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "mutation_id",
+        "mutation_status"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "OK"
+        },
+        "mutation_id": {
+          "$ref": "../common.json#/$defs/mutation_id"
+        },
+        "mutation_status": {
+          "$ref": "../common.json#/$defs/mutation_status"
+        },
+        "errors": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "code": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "message": {
+                "type": "string",
+                "maxLength": 2000
+              }
+            }
+          }
+        },
+        "ledger_seq": {
+          "$ref": "../common.json#/$defs/ledger_seq"
+        },
+        "plan": {
+          "enum": [
+            "DONE",
+            "COMPENSATING",
+            "PARTIAL",
+            "EXECUTING",
+            null
+          ]
+        },
+        "replayed": {
+          "type": "boolean"
+        }
+      }
+    }
+  ]
+}

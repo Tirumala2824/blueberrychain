@@ -1,0 +1,74 @@
+{
+  "schema": "mutation_record.json",
+  "valid": [
+    {
+      "mutation_id": "MUT-00000301",
+      "intent": {
+        "case_id": "CASE-00000017",
+        "decision_point": "D1",
+        "rec_id": "REC-00000044",
+        "option_id": "OPT-00000102",
+        "plan_id": "PLAN-00000012",
+        "step_seq": 2,
+        "action_type": "REROUTE",
+        "target_system": "TMS",
+        "target_entity": { "type": "SHIPMENT", "id": "SHP-20261006-114" },
+        "payload": { "new_destination_site_id": "SITE-BAYLINE-SAC" },
+        "idempotency_key": "c4a1e9d2b7f3a5c8e0d6b2f4a8c1e3d5b7f9a2c4e6d8b0f2a4c6e8d0b2f4a6c8",
+        "brief_hash": "7a3e5c9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c",
+        "pack_id": "PACK-00000031",
+        "expected_before": { "status": "IN_TRANSIT", "destination_site_id": "SITE-SUMMIT-SLC" },
+        "expected_after": { "destination_site_id": "SITE-BAYLINE-SAC" },
+        "compensation_of": null,
+        "requested_by": { "kind": "ENGINE", "principal": "BBC_ENGINE_SVC" }
+      },
+      "status": "VERIFIED",
+      "validation": { "passed": true, "errors": [] },
+      "autonomy_level": 4,
+      "policy_eval_id": "EVAL-00000050",
+      "approval_ids": ["APR-00000060"],
+      "authorization_hash": "e8b4a2c6d0f2e4a6b8c0d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e0f2a4",
+      "observed_before": { "status": "IN_TRANSIT", "destination_site_id": "SITE-SUMMIT-SLC" },
+      "observed_after": { "status": "IN_TRANSIT", "destination_site_id": "SITE-BAYLINE-SAC" },
+      "metric_snapshot": {
+        "frozen": [
+          { "name": "REMAINING_SHELF_LIFE_DAYS", "value": 9.0, "unit": "days", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0" }
+        ],
+        "live": [
+          { "name": "REMAINING_SHELF_LIFE_DAYS", "value": 8.9, "unit": "days", "grain": "lot", "as_of": "2026-10-06T08:20:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0" }
+        ],
+        "drift": [ { "name": "REMAINING_SHELF_LIFE_DAYS", "frozen": 9.0, "live": 8.9, "delta": -0.1, "within_tolerance": true } ]
+      },
+      "actor_chain": {
+        "decider_kind": "RULE",
+        "decider_id": "R-DISP-03@4",
+        "agent_run_id": null,
+        "model": null,
+        "spec_version": null,
+        "executor_user": "BBC_ENGINE_SVC",
+        "executor_role": "BBC_ENGINE",
+        "approvers": [ { "user": "BBC_DEMO_SALES", "role": "BBC_SALES_MGR", "approval_id": "APR-00000060" } ]
+      },
+      "timestamps": {
+        "proposed_at": "2026-10-06T07:56:00Z",
+        "evaluated_at": "2026-10-06T07:56:01Z",
+        "approved_at": "2026-10-06T08:18:30Z",
+        "authorized_at": "2026-10-06T08:18:31Z",
+        "dispatched_at": "2026-10-06T08:18:35Z",
+        "acked_at": "2026-10-06T08:18:37Z",
+        "verified_at": "2026-10-06T08:18:40Z",
+        "target_reported_at": "2026-10-06T08:18:36Z"
+      },
+      "external_ref": "TMS-RR-88213",
+      "attempts": 1,
+      "last_error": null,
+      "compensated_by": null
+    }
+  ],
+  "invalid": [
+    { "why": "mutation status is a frozen state machine", "base": 0, "set": { "/status": "DONE" } },
+    { "why": "autonomy levels are 0-4", "base": 0, "set": { "/autonomy_level": 5 } },
+    { "why": "the actor chain always records the executor", "base": 0, "delete": ["/actor_chain/executor_user"] },
+    { "why": "drift entries must say whether they are within tolerance", "base": 0, "delete": ["/metric_snapshot/drift/0/within_tolerance"] }
+  ]
+}

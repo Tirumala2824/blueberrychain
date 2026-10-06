@@ -1,0 +1,55 @@
+{
+  "schema": "api/analyst_answer.json",
+  "valid": [
+    {
+      "question": "Which lots have less than 8 days of shelf life left?",
+      "semantic_view": "BBC_OS.SEM.EXCURSION_RECOVERY",
+      "interpretation": "Lots whose remaining shelf life is below 8 days, as of their last reading.",
+      "sql": "SELECT * FROM SEMANTIC_VIEW(BBC_OS.SEM.EXCURSION_RECOVERY DIMENSIONS lots.lot_id METRICS lot_thermal.remaining_shelf_life_days) WHERE remaining_shelf_life_days < 8",
+      "executed_as": {
+        "user": "BBC_DEMO_QUALITY",
+        "role": "BBC_QUALITY_MGR"
+      },
+      "columns": [
+        {
+          "name": "LOT_ID",
+          "type": "text"
+        },
+        {
+          "name": "REMAINING_SHELF_LIFE_DAYS",
+          "type": "fixed"
+        }
+      ],
+      "rows": [
+        [
+          "L-B",
+          7.4
+        ]
+      ],
+      "row_count": 1,
+      "truncated": false,
+      "request_id": "an_01",
+      "warnings": [],
+      "suggestions": [],
+      "executed_at": "2026-10-06T07:30:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "cells are scalars",
+      "base": 0,
+      "set": {
+        "/rows/0/0": {
+          "nested": true
+        }
+      }
+    },
+    {
+      "why": "the semantic view is fully qualified",
+      "base": 0,
+      "set": {
+        "/semantic_view": "EXCURSION_RECOVERY"
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "api/advance_case_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "case_id": "CASE-00000017",
+      "from": "OPEN",
+      "state": "OPTIONS_SCORED",
+      "waiting_for": [],
+      "steps": [
+        {
+          "step": "BUILD_ASSESSMENT",
+          "state": "ASSESSED",
+          "pack_id": "PACK-00000031",
+          "ledger_seq": 413
+        },
+        {
+          "step": "ROUTE",
+          "state": "FINDING_RECORDED",
+          "finding_id": "FND-00000020",
+          "ledger_seq": 414
+        },
+        {
+          "step": "GENERATE_AND_SCORE_OPTIONS",
+          "state": "OPTIONS_SCORED",
+          "options": 5,
+          "ledger_seq": 415
+        }
+      ]
+    },
+    {
+      "status": "OK",
+      "case_id": "CASE-00000023",
+      "from": "ASSESSED",
+      "state": "FORENSICS_PENDING",
+      "waiting_for": [
+        "AGENT",
+        "EXCURSION_FORENSICS"
+      ],
+      "steps": [
+        {
+          "step": "ROUTE",
+          "state": "FORENSICS_PENDING",
+          "triggers": [
+            "EVIDENCE_CONFLICT"
+          ]
+        }
+      ]
+    },
+    {
+      "status": "STALE",
+      "case_id": "CASE-00000017",
+      "state": "ASSESSED"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "statuses are OK, STALE or a refusal",
+      "base": 2,
+      "set": {
+        "/status": "LATE"
+      }
+    },
+    {
+      "why": "steps name their stage",
+      "base": 0,
+      "delete": [
+        "/steps/0/step"
+      ]
+    }
+  ]
+}

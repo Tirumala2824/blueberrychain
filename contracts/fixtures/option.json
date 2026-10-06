@@ -1,0 +1,134 @@
+{
+  "schema": "option.json",
+  "valid": [
+    {
+      "option_id": "OPT-00000102",
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "option_set_rev": 1,
+      "origin": "GENERATOR",
+      "parent_option_id": null,
+      "label": "Re-route L-A to Bayline Sacramento DC; refill the Summit line from Central Valley DC stock",
+      "is_default": false,
+      "is_fallback": false,
+      "bundle": {
+        "lots": [
+          { "lot_id": "L-A", "disposition": "REROUTE", "destination_site_id": "SITE-BAYLINE-SAC", "kg": 4200, "carrier_party_id": "PARTY-SIERRA" }
+        ],
+        "order_recovery": [
+          { "order_line_id": "SO-6001-10", "action": "FILL_FROM", "replacement_lot_id": "L-CV-0912", "from_site_id": "SITE-CVDC-TRACY", "kg": 4200, "repromise_at": null }
+        ],
+        "financial": [
+          { "action": "CLAIM_NOTICE", "counterparty_party_id": "PARTY-SIERRA", "basis": "CARRIER_TEMPERATURE", "amount_usd": null, "variant": null }
+        ]
+      },
+      "feasible": true,
+      "eliminations": [],
+      "flags": [],
+      "expires_at": "2026-10-06T14:10:00Z",
+      "outcome": {
+        "operational": {
+          "p_accept": 0.999,
+          "sl_at_arrival_days_p10": 8.1,
+          "sl_at_arrival_days_p50": 8.75,
+          "sl_at_arrival_days_p90": 9.4,
+          "eta_p50_at": "2026-10-06T18:00:00Z",
+          "eta_p90_at": "2026-10-06T19:30:00Z",
+          "kg_delivered_expected": 4200
+        },
+        "financial": {
+          "expected_revenue_usd": 44688.00,
+          "costs": { "freight_delta_usd": 1200.00, "replacement_usd": 400.00 },
+          "expected_penalties_usd": 0.00,
+          "expected_recovery_usd": 2213.00,
+          "expected_nrv_usd": 45301.00,
+          "nrv_p10_usd": 45000.00,
+          "nrv_p90_usd": 45520.00,
+          "expected_loss_usd": 1739.00,
+          "value_preserved_vs_default_usd": 19616.00
+        },
+        "risk": { "p_reject": 0.001, "food_safety_flag": false, "evidence_risk": "LOW" },
+        "customer": {
+          "lines_affected": 1,
+          "p_otif_by_line": [ { "order_line_id": "SO-6001-10", "p_otif": 0.97 } ],
+          "tier_a_shortfall_kg": 0
+        },
+        "logistics": { "added_hours": -24, "added_miles": -95, "carrier_change": false, "new_appointments": 2 },
+        "inventory": {
+          "atp_consumed": [ { "site_id": "SITE-CVDC-TRACY", "lot_id": "L-CV-0912", "kg": 4200, "share_of_site_atp": 0.11 } ],
+          "atp_added_kg": 0
+        },
+        "recovery_cost_usd": 1600.00,
+        "confidence": { "level": "HIGH", "drivers": ["model IN_RANGE", "monitoring coverage 96%", "no evidence conflicts"] }
+      },
+      "score": { "risk_adjusted_usd": 45240.00, "rank": 1, "dominated_by": [], "objective_version": "objective@1" },
+      "provenance": {
+        "engine_version": "0.1.0",
+        "inputs_hash": "3b1f6f0e8a2d4c5b9e7f1a3c5d7e9f0b2a4c6e8f0a1b3c5d7e9f1a2b3c4d5e6f",
+        "seed": 418812,
+        "param_versions": { "policy": "1", "semantic": "1", "engine": "0.1.0", "products": "1", "contracts": "1", "prices": "1", "cost_rates": "1", "lanes": "1" },
+        "pack_id": "PACK-00000031"
+      },
+      "evidence_id": "EV:OPT:OPT-00000102"
+    },
+    {
+      "option_id": "OPT-00000101",
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "option_set_rev": 1,
+      "origin": "GENERATOR",
+      "parent_option_id": null,
+      "label": "Do nothing: continue to Summit Club Salt Lake City DC",
+      "is_default": true,
+      "is_fallback": false,
+      "bundle": {
+        "lots": [ { "lot_id": "L-A", "disposition": "CONTINUE", "destination_site_id": "SITE-SUMMIT-SLC", "kg": 4200 } ],
+        "order_recovery": [],
+        "financial": []
+      },
+      "feasible": true,
+      "eliminations": [],
+      "flags": [],
+      "expires_at": "2026-10-07T08:00:00Z",
+      "outcome": {
+        "operational": { "p_accept": 0.0, "sl_at_arrival_days_p50": 7.75, "kg_delivered_expected": 0 },
+        "financial": {
+          "expected_revenue_usd": 13800.00,
+          "costs": {},
+          "expected_penalties_usd": 1411.20,
+          "expected_recovery_usd": 13296.00,
+          "expected_nrv_usd": 25685.00,
+          "nrv_p10_usd": 22900.00,
+          "nrv_p90_usd": 27800.00,
+          "expected_loss_usd": 21355.00,
+          "value_preserved_vs_default_usd": 0.00
+        },
+        "risk": { "p_reject": 1.0, "food_safety_flag": false },
+        "customer": { "lines_affected": 1, "tier_a_shortfall_kg": 4200 },
+        "logistics": {},
+        "inventory": {},
+        "recovery_cost_usd": 0.00,
+        "confidence": { "level": "HIGH", "drivers": ["arrival shelf life well below the 10-day spec"] }
+      },
+      "score": { "risk_adjusted_usd": 25110.00, "rank": 4, "dominated_by": ["OPT-00000102"], "objective_version": "objective@1" },
+      "provenance": {
+        "engine_version": "0.1.0",
+        "inputs_hash": "3b1f6f0e8a2d4c5b9e7f1a3c5d7e9f0b2a4c6e8f0a1b3c5d7e9f1a2b3c4d5e6f",
+        "seed": 418811,
+        "param_versions": { "policy": "1", "semantic": "1", "engine": "0.1.0" },
+        "pack_id": "PACK-00000031"
+      },
+      "evidence_id": "EV:OPT:OPT-00000101"
+    }
+  ],
+  "invalid": [
+    { "why": "option ids are server-issued (OPT-########)", "base": 0, "set": { "/option_id": "OPTION-1" } },
+    { "why": "dispositions are a frozen vocabulary", "base": 0, "set": { "/bundle/lots/0/disposition": "SELL_ON_MARKETPLACE" } },
+    { "why": "money is a number, never text", "base": 0, "set": { "/outcome/financial/expected_nrv_usd": "45,301" } },
+    { "why": "probabilities are bounded to [0, 1]", "base": 0, "set": { "/outcome/operational/p_accept": 1.4 } },
+    { "why": "no undeclared numbers can ride along (e.g. an LLM estimate)", "base": 0, "set": { "/outcome/financial/llm_estimate_usd": 50000 } },
+    { "why": "provenance (engine version, inputs hash, seed) is mandatory", "base": 0, "delete": ["/provenance"] },
+    { "why": "evidence ids must use a known kind", "base": 0, "set": { "/evidence_id": "EV:GUESS:123" } },
+    { "why": "eliminations use the frozen code list", "base": 1, "set": { "/eliminations": [ { "code": "TOO_RISKY", "detail": "x" } ] } }
+  ]
+}

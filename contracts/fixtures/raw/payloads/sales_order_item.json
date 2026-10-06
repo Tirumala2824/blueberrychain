@@ -1,0 +1,28 @@
+{
+  "schema": "raw/payloads/sales_order_item.json",
+  "valid": [
+    {
+      "order_line_id": "SO-6001-10",
+      "sales_order": "SO-6001",
+      "item": "10",
+      "customer_party_id": "PARTY-SUMMIT",
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "kg": 4200,
+      "price_usd_per_kg": 11.2,
+      "requested_delivery_at": "2026-10-07T10:00:00Z",
+      "ship_to_site_id": "SITE-SUMMIT-SLC",
+      "status": "ALLOCATED",
+      "assigned_lot_id": "L-A",
+      "last_change_at": "2026-10-05T18:00:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "SAP item numbers are digits",
+      "base": 0,
+      "set": {
+        "/item": "ten"
+      }
+    }
+  ]
+}

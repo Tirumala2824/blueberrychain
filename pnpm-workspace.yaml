@@ -1,0 +1,7 @@
+packages:
+  - "packages/*"
+  - "apps/*"
+
+# Dependencies allowed to run install scripts (vitest's bundler)
+onlyBuiltDependencies:
+  - esbuild

@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@blueberrychain/shared": ["../../packages/shared/src/index.ts"],
+      "@blueberrychain/connector-sdk": ["../../packages/connector-sdk/src/index.ts"],
+      "@blueberrychain/connector-iot": ["../../packages/connector-iot/src/index.ts"],
+      "@blueberrychain/connector-sap-s4": ["../../packages/connector-sap-s4/src/index.ts"],
+      "@blueberrychain/connector-carrier": ["../../packages/connector-carrier/src/index.ts"],
+      "@blueberrychain/mock-s4": ["../mock-s4/src/index.ts"],
+      "@blueberrychain/mock-tms": ["../mock-tms/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

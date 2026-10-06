@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/agent_run_record.json",
+  "title": "Agent run record",
+  "description": "The RECORD argument of API.END_AGENT_RUN(run_id, record): how the run ended and its full normalized trace. The engine never decides what happens next; Snowflake does (fail closed).",
+  "type": "object",
+  "required": ["status", "trace", "truncated", "latency_ms", "tokens", "error", "provider_request_id"],
+  "additionalProperties": false,
+  "properties": {
+    "status": { "enum": ["COMPLETED", "FAILED", "EXPIRED"] },
+    "trace": { "type": "array", "items": { "$ref": "agent_trace_event.json" }, "maxItems": 2000 },
+    "truncated": { "type": "boolean" },
+    "latency_ms": { "type": "integer", "minimum": 0 },
+    "tokens": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "input": { "type": "integer", "minimum": 0 },
+            "output": { "type": "integer", "minimum": 0 }
+          }
+        },
+        { "type": "null" }
+      ]
+    },
+    "error": { "oneOf": [{ "$ref": "../common.json#/$defs/error" }, { "type": "null" }] },
+    "provider_request_id": { "oneOf": [{ "type": "string", "maxLength": 128 }, { "type": "null" }] }
+  }
+}

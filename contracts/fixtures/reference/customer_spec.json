@@ -1,0 +1,28 @@
+{
+  "schema": "reference/customer_spec.json",
+  "valid": [
+    {
+      "customer_party_id": "PARTY-SUMMIT",
+      "product_id": "BB-EMERALD-ORG-12x6",
+      "min_shelf_life_days_at_receipt": 10,
+      "max_arrival_pulp_c": 2.0,
+      "organic_required": true
+    },
+    {
+      "customer_party_id": "PARTY-SUMMIT",
+      "product_id": "BB-DUKE-ORG-12x6",
+      "min_shelf_life_days_at_receipt": 10,
+      "max_arrival_pulp_c": 2.0,
+      "organic_required": true
+    }
+  ],
+  "invalid": [
+    {
+      "why": "shelf-life specs are bounded",
+      "base": 0,
+      "set": {
+        "/min_shelf_life_days_at_receipt": 120
+      }
+    }
+  ]
+}

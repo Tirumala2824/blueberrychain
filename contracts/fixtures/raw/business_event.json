@@ -1,0 +1,262 @@
+{
+  "schema": "raw/business_event.json",
+  "valid": [
+    {
+      "source_system": "PACKHOUSE",
+      "entity_type": "LOT",
+      "external_id": "L-A",
+      "event_ts": "2026-10-05T13:00:00Z",
+      "idempotency_key": "ddde375b53d19459dacd6f1e0e27f73a29ca733bbb3fd8bd5d2ff8ae6a51cad5",
+      "connector_id": "files",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "lot_id": "L-A",
+        "product_id": "BB-EMERALD-ORG-12x6",
+        "grower_party_id": "PARTY-EMERALD-RIDGE",
+        "harvest_site_id": "SITE-RANCH14-B7",
+        "packhouse_site_id": "SITE-EMERALD-PACK",
+        "harvest_at": "2026-10-05T13:00:00Z",
+        "packed_at": "2026-10-05T19:30:00Z",
+        "kg": 4200,
+        "organic": true
+      }
+    },
+    {
+      "source_system": "TMS",
+      "entity_type": "SHIPMENT",
+      "external_id": "SHP-20261006-114",
+      "event_ts": "2026-10-06T02:00:00Z",
+      "idempotency_key": "bf25516f2eb41a51ec143c61bd897add7f46e1ce0ac92d63f0e35ba3277ccf3c",
+      "connector_id": "carrier-tms",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "shipment_id": "SHP-20261006-114",
+        "carrier_party_id": "PARTY-SIERRA",
+        "origin_site_id": "SITE-EMERALD-PACK",
+        "destination_site_id": "SITE-SUMMIT-SLC",
+        "planned_departure_at": "2026-10-06T02:00:00Z",
+        "planned_arrival_at": "2026-10-07T08:00:00Z",
+        "reefer_device_id": "RF-114",
+        "bol_setpoint_c": 0.5,
+        "lots": [
+          {
+            "lot_id": "L-A",
+            "kg": 4200
+          }
+        ],
+        "status": "IN_TRANSIT"
+      }
+    },
+    {
+      "source_system": "TMS",
+      "entity_type": "SHIPMENT_STATUS",
+      "external_id": "SHP-20261006-114",
+      "event_ts": "2026-10-06T07:50:00Z",
+      "idempotency_key": "6f20d8269a7ab812a6326c9918a1c11c5234c473ea446ec1134691c779774176",
+      "connector_id": "carrier-tms",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "shipment_id": "SHP-20261006-114",
+        "status": "IN_TRANSIT",
+        "at": "2026-10-06T07:50:00Z",
+        "lat": 38.58,
+        "lon": -121.49,
+        "next_junction_site_id": "SITE-JCT-I80-SAC",
+        "destination_site_id": "SITE-SUMMIT-SLC",
+        "eta_at": "2026-10-07T06:00:00Z"
+      }
+    },
+    {
+      "source_system": "TMS",
+      "entity_type": "CUSTODY_EVENT",
+      "external_id": "CE-114-0002",
+      "event_ts": "2026-10-06T02:00:00Z",
+      "idempotency_key": "e160a97a744de4a4def66fec556fa0dfced9bd42593ba24430251c3133728f88",
+      "connector_id": "carrier-tms",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "event_id": "CE-114-0002",
+        "event_type": "HANDOFF",
+        "at": "2026-10-06T02:00:00Z",
+        "shipment_id": "SHP-20261006-114",
+        "lot_id": "L-A",
+        "from_party_id": "PARTY-EMERALD-RIDGE",
+        "to_party_id": "PARTY-SIERRA",
+        "site_id": "SITE-EMERALD-PACK"
+      }
+    },
+    {
+      "source_system": "IOT_PLATFORM",
+      "entity_type": "DEVICE_ASSIGNMENT",
+      "external_id": "P-A1",
+      "event_ts": "2026-10-05T19:30:00Z",
+      "idempotency_key": "1d4c162619509f3ca883b6656cffafb5c68af0f54ef31549f2c9fbda21716400",
+      "connector_id": "iot",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "device_id": "P-A1",
+        "target_type": "LOT",
+        "target_id": "L-A",
+        "role": "PRIMARY",
+        "assigned_from": "2026-10-05T19:30:00Z",
+        "assigned_to": null
+      }
+    },
+    {
+      "source_system": "SAP",
+      "entity_type": "SALES_ORDER_ITEM",
+      "external_id": "SO-6001-10",
+      "event_ts": "2026-10-05T18:00:00Z",
+      "idempotency_key": "d604108d1a1fb70125d64bd97153a392dea68e7bc0d46664b1e01887039f537d",
+      "connector_id": "sap-s4",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "order_line_id": "SO-6001-10",
+        "sales_order": "SO-6001",
+        "item": "10",
+        "customer_party_id": "PARTY-SUMMIT",
+        "product_id": "BB-EMERALD-ORG-12x6",
+        "kg": 4200,
+        "price_usd_per_kg": 11.2,
+        "requested_delivery_at": "2026-10-07T10:00:00Z",
+        "ship_to_site_id": "SITE-SUMMIT-SLC",
+        "status": "ALLOCATED",
+        "assigned_lot_id": "L-A",
+        "last_change_at": "2026-10-05T18:00:00Z"
+      }
+    },
+    {
+      "source_system": "SAP",
+      "entity_type": "DELIVERY",
+      "external_id": "DLV-80001",
+      "event_ts": "2026-10-06T02:05:00Z",
+      "idempotency_key": "778cbffa526c85d580f5c35e8d3bca6aba8762ef4281fee2d774a03f08b50622",
+      "connector_id": "sap-s4",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "delivery_id": "DLV-80001",
+        "order_line_id": "SO-6001-10",
+        "lot_id": "L-A",
+        "shipment_id": "SHP-20261006-114",
+        "kg": 4200,
+        "planned_goods_issue_at": "2026-10-06T02:00:00Z",
+        "status": "GOODS_ISSUED",
+        "last_change_at": "2026-10-06T02:05:00Z"
+      }
+    },
+    {
+      "source_system": "SAP",
+      "entity_type": "STOCK_SNAPSHOT",
+      "external_id": "L-CV-0912",
+      "event_ts": "2026-10-06T06:00:00Z",
+      "idempotency_key": "5a7e2f79a77e9d883f921d0424de4d70fa514251b97658cc8852104cb0a61ad3",
+      "connector_id": "sap-s4",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "site_id": "SITE-CVDC-TRACY",
+        "lot_id": "L-CV-0912",
+        "product_id": "BB-EMERALD-ORG-12x6",
+        "kg": 38000,
+        "stock_status": "UNRESTRICTED",
+        "snapshot_at": "2026-10-06T06:00:00Z"
+      }
+    },
+    {
+      "source_system": "SAP",
+      "entity_type": "INSPECTION_RESULT",
+      "external_id": "QI-5501",
+      "event_ts": "2026-10-06T19:00:00Z",
+      "idempotency_key": "80982933e330f37eee745a394fc482aac132c8bcf68139f00fe6e7fc2a802eff",
+      "connector_id": "sap-s4",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "inspection_id": "QI-5501",
+        "lot_id": "L-A",
+        "site_id": "SITE-BAYLINE-SAC",
+        "inspection_type": "RECEIPT",
+        "inspected_at": "2026-10-06T19:00:00Z",
+        "pulp_c": 1.4,
+        "defects_pct": 1.5,
+        "decay_pct": 0.5,
+        "remaining_shelf_life_days_observed": 8.4,
+        "accepted": true,
+        "inspector": "M. Chen"
+      }
+    },
+    {
+      "source_system": "TMS",
+      "entity_type": "CLAIM_RESPONSE",
+      "external_id": "RSP-3301",
+      "event_ts": "2026-10-09T10:00:00Z",
+      "idempotency_key": "2251f18accc35879d6cea2dbe2b22a90c7fdc5c1ccc758dc86d2d42df028c231",
+      "connector_id": "carrier-tms",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "response_id": "RSP-3301",
+        "claim_ref": "CLM-00000021",
+        "counterparty_party_id": "PARTY-SIERRA",
+        "response_type": "DENIED",
+        "amount_usd": null,
+        "defense": "WARM_LOADING",
+        "text": "Product was loaded above setpoint; carrier not liable.",
+        "at": "2026-10-09T10:00:00Z"
+      }
+    },
+    {
+      "source_system": "FILES",
+      "entity_type": "DOCUMENT_META",
+      "external_id": "DOC-SFI-044812",
+      "event_ts": "2026-10-06T03:10:00Z",
+      "idempotency_key": "5141a6d74116d1e08a7a5037cf9ae52a6bb59f09d6e7b19f8c4c21e184ab8023",
+      "connector_id": "files",
+      "provenance": "SIMULATION_LIVE",
+      "payload": {
+        "doc_id": "DOC-SFI-044812",
+        "doc_type": "INSPECTION_CERT",
+        "stage_path": "inspection/2026/10/06/DOC-SFI-044812.pdf",
+        "sha256": "9c1d8e2f4a6b3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d",
+        "source": "sierra-fresh-inspections",
+        "lot_id": "L-A",
+        "shipment_id": null,
+        "contract_id": null
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the payload must match its entity type",
+      "base": 0,
+      "set": {
+        "/entity_type": "SHIPMENT"
+      }
+    },
+    {
+      "why": "entity types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/entity_type": "TWEET"
+      }
+    },
+    {
+      "why": "idempotency keys are sha256 hex",
+      "base": 0,
+      "set": {
+        "/idempotency_key": "lot-L-A"
+      }
+    },
+    {
+      "why": "the embedded payload is validated",
+      "base": 0,
+      "set": {
+        "/payload/kg": -1
+      }
+    },
+    {
+      "why": "source systems are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/source_system": "EXCEL"
+      }
+    }
+  ]
+}

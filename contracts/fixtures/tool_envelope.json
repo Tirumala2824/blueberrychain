@@ -1,0 +1,42 @@
+{
+  "schema": "tool_envelope.json",
+  "valid": [
+    {
+      "status": "OK",
+      "tool": "GET_CASE_CONTEXT",
+      "tool_version": "1.0.0",
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "as_of": "2026-10-06T07:55:00Z",
+      "call_seq": 1,
+      "data": { "case": { "state": "STRATEGY_PENDING", "decision_point": "D1", "deadline_ts": "2026-10-06T10:05:00Z" } },
+      "values": [
+        { "name": "REMAINING_SHELF_LIFE_DAYS", "value": 9.0, "unit": "days", "grain": "lot", "as_of": "2026-10-06T07:54:00Z", "data_age_min": 1, "freshness": "OK", "metric_version": "1", "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0" }
+      ],
+      "evidence_ids": ["EV:PACK:PACK-00000031#/lots/0/values/0"],
+      "warnings": [],
+      "errors": [],
+      "result_hash": "0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c6e8b0d2f4a6c8e0b2d"
+    },
+    {
+      "status": "DENIED",
+      "tool": "GET_CASE_CONTEXT",
+      "tool_version": "1.0.0",
+      "run_id": "RUN-00000201",
+      "case_id": null,
+      "as_of": null,
+      "call_seq": 2,
+      "data": {},
+      "values": [],
+      "evidence_ids": [],
+      "warnings": [],
+      "errors": [ { "code": "CASE_NOT_BOUND_TO_RUN", "path": "/case_id", "message": "This run may only read CASE-00000017." } ],
+      "result_hash": "1c3e5a7b9d1f3e5a7c9b1d3f5e7a9c1b3d5f7e9a1c3b5d7f9e1a3c5b7d9f1e3a"
+    }
+  ],
+  "invalid": [
+    { "why": "status is a frozen vocabulary", "base": 0, "set": { "/status": "MAYBE" } },
+    { "why": "every value carries an evidence id", "base": 0, "delete": ["/values/0/evidence_id"] },
+    { "why": "every call is numbered for TOOL_CALLS", "base": 0, "delete": ["/call_seq"] }
+  ]
+}

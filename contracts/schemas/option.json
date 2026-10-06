@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/option.json",
+  "title": "Option",
+  "description": "One candidate decision bundle and its deterministically evaluated outcome. Every number is produced by bbc_engine (seeded, versioned) - never by an LLM. Options are mutually exclusive alternatives and must never be aggregated.",
+  "type": "object",
+  "required": ["option_id", "case_id", "decision_point", "option_set_rev", "origin", "label",
+               "is_default", "is_fallback", "bundle", "feasible", "eliminations", "flags",
+               "expires_at", "outcome", "score", "provenance", "evidence_id"],
+  "additionalProperties": false,
+  "properties": {
+    "option_id": { "$ref": "common.json#/$defs/option_id" },
+    "case_id": { "$ref": "common.json#/$defs/case_id" },
+    "decision_point": { "$ref": "common.json#/$defs/decision_point" },
+    "option_set_rev": { "type": "integer", "minimum": 1 },
+    "origin": { "enum": ["GENERATOR", "AGENT_VARIANT"] },
+    "parent_option_id": { "oneOf": [{ "$ref": "common.json#/$defs/option_id" }, { "type": "null" }] },
+    "label": { "type": "string", "maxLength": 200 },
+    "is_default": { "type": "boolean", "description": "The 'do nothing' option - always evaluated and never eliminated: it is the counterfactual every other option is measured against." },
+    "is_fallback": { "type": "boolean", "description": "The safe hold / inspect option the deadline watchdog may run." },
+
+    "bundle": {
+      "type": "object",
+      "required": ["lots", "order_recovery", "financial"],
+      "additionalProperties": false,
+      "properties": {
+        "lots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["lot_id", "disposition", "kg"],
+            "additionalProperties": false,
+            "properties": {
+              "lot_id": { "$ref": "common.json#/$defs/external_id" },
+              "disposition": { "$ref": "common.json#/$defs/disposition" },
+              "destination_site_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
+              "kg": { "$ref": "common.json#/$defs/kg" },
+              "carrier_party_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] }
+            }
+          }
+        },
+        "order_recovery": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["order_line_id", "action", "kg"],
+            "additionalProperties": false,
+            "properties": {
+              "order_line_id": { "$ref": "common.json#/$defs/external_id" },
+              "action": { "$ref": "common.json#/$defs/order_recovery_action" },
+              "replacement_lot_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
+              "from_site_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
+              "kg": { "$ref": "common.json#/$defs/kg" },
+              "repromise_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] }
+            }
+          }
+        },
+        "financial": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["action"],
+            "additionalProperties": false,
+            "properties": {
+              "action": { "$ref": "common.json#/$defs/financial_action" },
+              "counterparty_party_id": { "oneOf": [{ "$ref": "common.json#/$defs/external_id" }, { "type": "null" }] },
+              "basis": { "oneOf": [{ "$ref": "common.json#/$defs/claim_basis" }, { "type": "null" }] },
+              "amount_usd": { "oneOf": [{ "$ref": "common.json#/$defs/usd" }, { "type": "null" }] },
+              "variant": { "enum": ["FULL", "CAPPED", "SETTLEMENT", null] }
+            }
+          }
+        }
+      }
+    },
+
+    "feasible": { "type": "boolean" },
+    "eliminations": {
+      "type": "array",
+      "description": "Hard constraints that remove this option (empty when feasible).",
+      "items": {
+        "type": "object",
+        "required": ["code", "detail"],
+        "additionalProperties": false,
+        "properties": {
+          "code": { "$ref": "common.json#/$defs/elimination_code" },
+          "detail": { "type": "string", "maxLength": 500 },
+          "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
+        }
+      }
+    },
+    "flags": {
+      "type": "array",
+      "description": "Soft constraints: kept, but they lower confidence or require approval.",
+      "items": { "enum": ["LOW_CONFIDENCE", "INVENTORY_STALE", "INSUFFICIENT_EVIDENCE", "MODEL_EXTRAPOLATING", "CONTRACT_CONSENT_REQUIRED", "PROXY_AIR_ONLY"] },
+      "uniqueItems": true
+    },
+    "expires_at": {
+      "$ref": "common.json#/$defs/timestamp",
+      "description": "Latest time the option can still be executed, including the approval buffer when decision rights require approval."
+    },
+
+    "outcome": {
+      "type": "object",
+      "required": ["operational", "financial", "risk", "customer", "logistics", "inventory", "recovery_cost_usd", "confidence"],
+      "additionalProperties": false,
+      "properties": {
+        "operational": {
+          "type": "object",
+          "required": ["p_accept", "kg_delivered_expected"],
+          "additionalProperties": false,
+          "properties": {
+            "p_accept": { "$ref": "common.json#/$defs/probability" },
+            "sl_at_arrival_days_p10": { "type": ["number", "null"] },
+            "sl_at_arrival_days_p50": { "type": ["number", "null"] },
+            "sl_at_arrival_days_p90": { "type": ["number", "null"] },
+            "eta_p50_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+            "eta_p90_at": { "oneOf": [{ "$ref": "common.json#/$defs/timestamp" }, { "type": "null" }] },
+            "kg_delivered_expected": { "$ref": "common.json#/$defs/kg" }
+          }
+        },
+        "financial": {
+          "type": "object",
+          "required": ["expected_revenue_usd", "costs", "expected_penalties_usd", "expected_recovery_usd",
+                       "expected_nrv_usd", "nrv_p10_usd", "nrv_p90_usd", "expected_loss_usd", "value_preserved_vs_default_usd"],
+          "additionalProperties": false,
+          "properties": {
+            "expected_revenue_usd": { "$ref": "common.json#/$defs/usd" },
+            "costs": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "freight_delta_usd": { "$ref": "common.json#/$defs/usd" },
+                "expedite_usd": { "$ref": "common.json#/$defs/usd" },
+                "inspection_usd": { "$ref": "common.json#/$defs/usd" },
+                "transload_usd": { "$ref": "common.json#/$defs/usd" },
+                "disposal_usd": { "$ref": "common.json#/$defs/usd" },
+                "replacement_usd": { "$ref": "common.json#/$defs/usd" }
+              }
+            },
+            "expected_penalties_usd": { "$ref": "common.json#/$defs/usd" },
+            "expected_recovery_usd": { "$ref": "common.json#/$defs/usd" },
+            "expected_nrv_usd": { "$ref": "common.json#/$defs/usd" },
+            "nrv_p10_usd": { "$ref": "common.json#/$defs/usd" },
+            "nrv_p90_usd": { "$ref": "common.json#/$defs/usd" },
+            "expected_loss_usd": { "$ref": "common.json#/$defs/usd" },
+            "value_preserved_vs_default_usd": { "$ref": "common.json#/$defs/usd" }
+          }
+        },
+        "risk": {
+          "type": "object",
+          "required": ["p_reject", "food_safety_flag"],
+          "additionalProperties": false,
+          "properties": {
+            "p_reject": { "$ref": "common.json#/$defs/probability" },
+            "food_safety_flag": { "type": "boolean" },
+            "evidence_risk": { "$ref": "common.json#/$defs/confidence" }
+          }
+        },
+        "customer": {
+          "type": "object",
+          "required": ["lines_affected", "tier_a_shortfall_kg"],
+          "additionalProperties": false,
+          "properties": {
+            "lines_affected": { "type": "integer", "minimum": 0 },
+            "p_otif_by_line": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["order_line_id", "p_otif"],
+                "additionalProperties": false,
+                "properties": {
+                  "order_line_id": { "$ref": "common.json#/$defs/external_id" },
+                  "p_otif": { "$ref": "common.json#/$defs/probability" }
+                }
+              }
+            },
+            "tier_a_shortfall_kg": { "$ref": "common.json#/$defs/kg" }
+          }
+        },
+        "logistics": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "added_hours": { "type": "number" },
+            "added_miles": { "type": "number" },
+            "carrier_change": { "type": "boolean" },
+            "new_appointments": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "inventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "atp_consumed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["site_id", "kg"],
+                "additionalProperties": false,
+                "properties": {
+                  "site_id": { "$ref": "common.json#/$defs/external_id" },
+                  "lot_id": { "$ref": "common.json#/$defs/external_id" },
+                  "kg": { "$ref": "common.json#/$defs/kg" },
+                  "share_of_site_atp": { "$ref": "common.json#/$defs/share" }
+                }
+              }
+            },
+            "atp_added_kg": { "$ref": "common.json#/$defs/kg" }
+          }
+        },
+        "recovery_cost_usd": { "$ref": "common.json#/$defs/usd" },
+        "confidence": {
+          "type": "object",
+          "required": ["level", "drivers"],
+          "additionalProperties": false,
+          "properties": {
+            "level": { "$ref": "common.json#/$defs/confidence" },
+            "drivers": { "type": "array", "items": { "type": "string", "maxLength": 200 }, "maxItems": 10 }
+          }
+        }
+      }
+    },
+
+    "score": {
+      "type": "object",
+      "required": ["risk_adjusted_usd", "rank", "dominated_by", "objective_version"],
+      "additionalProperties": false,
+      "properties": {
+        "risk_adjusted_usd": { "$ref": "common.json#/$defs/usd" },
+        "rank": { "type": ["integer", "null"], "minimum": 1, "description": "null for infeasible options." },
+        "dominated_by": { "type": "array", "items": { "$ref": "common.json#/$defs/option_id" } },
+        "objective_version": { "$ref": "common.json#/$defs/version" }
+      }
+    },
+
+    "provenance": {
+      "type": "object",
+      "required": ["engine_version", "inputs_hash", "seed", "param_versions", "pack_id"],
+      "additionalProperties": false,
+      "properties": {
+        "engine_version": { "$ref": "common.json#/$defs/version" },
+        "inputs_hash": { "$ref": "common.json#/$defs/sha256" },
+        "seed": { "type": "integer", "minimum": 0 },
+        "param_versions": { "$ref": "common.json#/$defs/param_versions" },
+        "pack_id": { "$ref": "common.json#/$defs/pack_id" }
+      }
+    },
+    "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
+  }
+}

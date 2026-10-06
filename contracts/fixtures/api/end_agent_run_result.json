@@ -1,0 +1,21 @@
+{
+  "schema": "api/end_agent_run_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "run_id": "RUN-00000210",
+      "run_status": "COMPLETED",
+      "case_state": "FINDING_RECORDED",
+      "lease_released": true
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the run must have ended",
+      "base": 0,
+      "set": {
+        "/run_status": "STARTED"
+      }
+    }
+  ]
+}

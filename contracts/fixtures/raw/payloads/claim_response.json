@@ -1,0 +1,24 @@
+{
+  "schema": "raw/payloads/claim_response.json",
+  "valid": [
+    {
+      "response_id": "RSP-3301",
+      "claim_ref": "CLM-00000021",
+      "counterparty_party_id": "PARTY-SIERRA",
+      "response_type": "DENIED",
+      "amount_usd": null,
+      "defense": "WARM_LOADING",
+      "text": "Product was loaded above setpoint; carrier not liable.",
+      "at": "2026-10-09T10:00:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "response types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/response_type": "MAYBE"
+      }
+    }
+  ]
+}

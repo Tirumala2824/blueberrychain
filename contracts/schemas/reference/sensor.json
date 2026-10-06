@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/sensor.json",
+  "title": "Reference: sensor",
+  "description": "A measuring device and how far its readings can be trusted.",
+  "type": "object",
+  "required": [
+    "device_id",
+    "device_type",
+    "owner_party_id",
+    "placement",
+    "calibrated_on",
+    "accuracy_c"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "device_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "device_type": {
+      "enum": [
+        "PULP_PROBE",
+        "REEFER_UNIT"
+      ]
+    },
+    "owner_party_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "placement": {
+      "enum": [
+        "CORE_PULP",
+        "PALLET_TOP",
+        "RETURN_AIR",
+        "SUPPLY_AIR"
+      ]
+    },
+    "calibrated_on": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/date"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "accuracy_c": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    }
+  }
+}

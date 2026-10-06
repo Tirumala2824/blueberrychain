@@ -1,0 +1,48 @@
+{
+  "schema": "tools/submit_claim_recommendation.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "claim_rec": {
+        "action": "FILE_CLAIM",
+        "counterparty_id": "PARTY-SIERRA",
+        "basis": "CARRIER_TEMPERATURE",
+        "variant_option_id": "OPT-00000210",
+        "prerequisites_ack": [
+          "NOTICE_TIMELY",
+          "MITIGATION_EVIDENCED",
+          "SETPOINT_ON_BOL",
+          "CUSTODY_PROVEN",
+          "DOCS_COMPLETE"
+        ],
+        "anticipated_defenses": [
+          {
+            "defense": "WARM_LOADING",
+            "rebuttal": "Pulp at loading was 0.8 C against a 0.5 C BOL setpoint; the excursion began 2 h into carrier custody.",
+            "evidence_ids": [
+              "EV:SIG:WARM_LOADING@1",
+              "EV:DOC:DOC-SFI-044812#pulp_temp_at_loading_c"
+            ]
+          }
+        ],
+        "letter_draft": "Sierra Reefer Lines - claim for temperature damage to shipment SHP-20261006-114 ...",
+        "response_to": "",
+        "confidence": "HIGH",
+        "citations": [
+          "EV:LOSS:CASE-00000017",
+          "EV:SIG:WARM_LOADING@1"
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "no free amounts inside the claim",
+      "base": 0,
+      "set": {
+        "/claim_rec/amount_usd": 3952
+      }
+    }
+  ]
+}

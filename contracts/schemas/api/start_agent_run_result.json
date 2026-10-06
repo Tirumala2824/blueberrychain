@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/start_agent_run_result.json",
+  "title": "START_AGENT_RUN result",
+  "description": "API.START_AGENT_RUN(case_id, agent, decision_point, provider, model), called by the engine. Opens a case-scoped, budgeted, expiring run (the capability every agent tool checks) and returns the exact message to send, so the engine holds no prompts.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "run_id", "case_id", "decision_point", "agent", "agent_fqn", "provider", "model", "spec_version",
+                   "tool_allowlist", "call_budget", "expires_at", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "run_id": { "$ref": "../common.json#/$defs/run_id" },
+        "case_id": { "$ref": "../common.json#/$defs/case_id" },
+        "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+        "agent": { "$ref": "../common.json#/$defs/agent_name" },
+        "agent_fqn": { "type": "string", "pattern": "^BBC_OS\\.AGENT\\.[A-Z][A-Z0-9_]*$" },
+        "provider": { "type": "string", "maxLength": 64 },
+        "model": { "type": "string", "maxLength": 128 },
+        "spec_version": { "$ref": "../common.json#/$defs/version" },
+        "tool_allowlist": { "type": "array", "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }, "minItems": 1, "uniqueItems": true },
+        "call_budget": { "type": "integer", "minimum": 1 },
+        "expires_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 8000 }
+      }
+    }
+  ]
+}

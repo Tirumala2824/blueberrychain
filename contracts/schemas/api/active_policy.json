@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/active_policy.json",
+  "title": "Active policy",
+  "description": "The ACTIVE row of GOV.POLICY_VERSIONS, read by the governance admin through its existing SELECT grant (column names lower-cased). Read-only in the app: changes go through API.DRAFT_POLICY / API.ACTIVATE_POLICY.",
+  "type": "object",
+  "required": ["policy_version", "status", "content_hash", "description", "drafted_by", "drafted_at", "activated_by", "activated_at", "activation_reason", "document"],
+  "additionalProperties": false,
+  "properties": {
+    "policy_version": { "$ref": "../common.json#/$defs/version" },
+    "status": { "const": "ACTIVE" },
+    "content_hash": { "$ref": "../common.json#/$defs/sha256" },
+    "description": { "oneOf": [{ "type": "string", "maxLength": 2000 }, { "type": "null" }] },
+    "drafted_by": { "type": "string", "maxLength": 255 },
+    "drafted_at": { "$ref": "../common.json#/$defs/timestamp" },
+    "activated_by": { "type": "string", "maxLength": 255 },
+    "activated_at": { "$ref": "../common.json#/$defs/timestamp" },
+    "activation_reason": { "oneOf": [{ "type": "string", "maxLength": 2000 }, { "type": "null" }] },
+    "document": { "$ref": "../policy.json" }
+  }
+}

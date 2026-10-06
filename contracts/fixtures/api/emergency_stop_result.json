@@ -1,0 +1,26 @@
+{
+  "schema": "api/emergency_stop_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "dispatch": "STOPPED",
+      "resume": "activate a policy version",
+      "ledger_seq": 460
+    },
+    {
+      "status": "INVALID",
+      "errors": [
+        "REASON is required"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "an emergency stop always stops dispatch",
+      "base": 0,
+      "set": {
+        "/dispatch": "RUNNING"
+      }
+    }
+  ]
+}

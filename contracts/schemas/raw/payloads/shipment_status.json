@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/shipment_status.json",
+  "title": "Shipment status event",
+  "description": "Position / status / ETA update. Source: TMS.",
+  "type": "object",
+  "required": [
+    "shipment_id",
+    "status",
+    "at"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "shipment_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "status": {
+      "enum": [
+        "PLANNED",
+        "LOADING",
+        "IN_TRANSIT",
+        "AT_DOCK",
+        "DELIVERED",
+        "REJECTED",
+        "CANCELLED"
+      ]
+    },
+    "at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "lat": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -90,
+      "maximum": 90
+    },
+    "lon": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": -180,
+      "maximum": 180
+    },
+    "next_junction_site_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "destination_site_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "eta_at": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

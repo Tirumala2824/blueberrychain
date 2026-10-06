@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/advance_case_result.json",
+  "title": "ADVANCE_CASE result",
+  "description": "API.ADVANCE_CASE(case_id, expected_state) (82_stages.sql): run the next deterministic stage(s). STALE = the case is no longer in expected_state (someone else advanced it). `steps` record each stage run; `waiting_for` is [kind, target] when the case now waits for an agent or the engine, or [].",
+  "oneOf": [
+    {
+      "$ref": "refusal.json"
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "case_id",
+        "state"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "STALE"
+        },
+        "case_id": {
+          "$ref": "../common.json#/$defs/case_id"
+        },
+        "state": {
+          "$ref": "../common.json#/$defs/case_state"
+        }
+      }
+    },
+    {
+      "type": "object",
+      "required": [
+        "status",
+        "case_id",
+        "from",
+        "state",
+        "steps",
+        "waiting_for"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "OK"
+        },
+        "case_id": {
+          "$ref": "../common.json#/$defs/case_id"
+        },
+        "from": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "state": {
+          "$ref": "../common.json#/$defs/case_state"
+        },
+        "steps": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": [
+              "step",
+              "state"
+            ],
+            "additionalProperties": true,
+            "properties": {
+              "step": {
+                "type": "string",
+                "pattern": "^[A-Z][A-Z0-9_]*$"
+              },
+              "state": {
+                "$ref": "../common.json#/$defs/case_state"
+              }
+            }
+          }
+        },
+        "waiting_for": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "maxItems": 2
+        }
+      }
+    }
+  ]
+}

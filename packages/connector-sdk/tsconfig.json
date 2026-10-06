@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@blueberrychain/shared": ["../shared/src/index.ts"]
+    }
+  },
+  "include": ["src", "vitest.config.ts"]
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "api/ack_mutation_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "mutation_id": "MUT-00000301",
+      "mutation_status": "VERIFIED",
+      "errors": [],
+      "ledger_seq": 428,
+      "plan": "EXECUTING"
+    },
+    {
+      "status": "OK",
+      "mutation_id": "MUT-00000301",
+      "mutation_status": "ABORTED_PRECONDITION",
+      "errors": [
+        {
+          "code": "PRECONDITION",
+          "message": "status: expected IN_TRANSIT, observed DELIVERED"
+        }
+      ],
+      "ledger_seq": 429,
+      "plan": "COMPENSATING"
+    },
+    {
+      "status": "OK",
+      "mutation_id": "MUT-00000301",
+      "mutation_status": "VERIFIED",
+      "replayed": true
+    }
+  ],
+  "invalid": [
+    {
+      "why": "mutation statuses are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/mutation_status": "DONE"
+      }
+    },
+    {
+      "why": "plan statuses are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/plan": "FINISHED"
+      }
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/brief.json",
+  "title": "Decision Brief",
+  "description": "Answers the six questions for one case and decision point: what if we do nothing, what if A / B, what each option is worth, what rules options out, and what to choose and why. Sealed and hashed; approvals bind to brief_hash.",
+  "type": "object",
+  "required": ["case_id", "decision_point", "pack_id", "brief_hash", "generated_at", "do_nothing",
+               "options", "value_table", "eliminated", "comparison", "precedents", "recommendation"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "$ref": "common.json#/$defs/case_id" },
+    "decision_point": { "$ref": "common.json#/$defs/decision_point" },
+    "pack_id": { "$ref": "common.json#/$defs/pack_id" },
+    "brief_hash": { "$ref": "common.json#/$defs/sha256" },
+    "generated_at": { "$ref": "common.json#/$defs/timestamp" },
+
+    "do_nothing": {
+      "type": "object",
+      "description": "Q1 - the default option, always evaluated.",
+      "required": ["option_id", "outcome"],
+      "additionalProperties": false,
+      "properties": {
+        "option_id": { "$ref": "common.json#/$defs/option_id" },
+        "outcome": { "$ref": "option.json#/properties/outcome" }
+      }
+    },
+    "options": {
+      "type": "array",
+      "description": "Q2/Q3 - every feasible option with its full outcome.",
+      "items": {
+        "type": "object",
+        "required": ["option_id", "label", "outcome", "flags", "expires_at"],
+        "additionalProperties": false,
+        "properties": {
+          "option_id": { "$ref": "common.json#/$defs/option_id" },
+          "label": { "type": "string", "maxLength": 200 },
+          "outcome": { "$ref": "option.json#/properties/outcome" },
+          "flags": { "$ref": "option.json#/properties/flags" },
+          "expires_at": { "$ref": "common.json#/$defs/timestamp" }
+        }
+      }
+    },
+    "value_table": {
+      "type": "array",
+      "description": "Q4 - expected value of each option and its range.",
+      "items": {
+        "type": "object",
+        "required": ["option_id", "expected_nrv_usd", "nrv_p10_usd", "nrv_p90_usd", "value_preserved_vs_default_usd"],
+        "additionalProperties": false,
+        "properties": {
+          "option_id": { "$ref": "common.json#/$defs/option_id" },
+          "expected_nrv_usd": { "$ref": "common.json#/$defs/usd" },
+          "nrv_p10_usd": { "$ref": "common.json#/$defs/usd" },
+          "nrv_p90_usd": { "$ref": "common.json#/$defs/usd" },
+          "value_preserved_vs_default_usd": { "$ref": "common.json#/$defs/usd" }
+        }
+      }
+    },
+    "eliminated": {
+      "type": "array",
+      "description": "Q5 - options removed by hard constraints, with reasons.",
+      "items": {
+        "type": "object",
+        "required": ["option_id", "label", "reasons"],
+        "additionalProperties": false,
+        "properties": {
+          "option_id": { "$ref": "common.json#/$defs/option_id" },
+          "label": { "type": "string", "maxLength": 200 },
+          "reasons": { "$ref": "option.json#/properties/eliminations" }
+        }
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "required": ["ranking", "non_dominated", "margin_top2_usd", "objective_version", "escalation_reasons"],
+      "additionalProperties": false,
+      "properties": {
+        "ranking": { "type": "array", "items": { "$ref": "common.json#/$defs/option_id" } },
+        "non_dominated": { "type": "array", "items": { "$ref": "common.json#/$defs/option_id" } },
+        "margin_top2_usd": { "type": ["number", "null"] },
+        "objective_version": { "$ref": "common.json#/$defs/version" },
+        "escalation_reasons": { "type": "array", "items": { "$ref": "common.json#/$defs/escalation_reason" }, "uniqueItems": true },
+        "p_liab_attribution_only": { "oneOf": [{ "$ref": "common.json#/$defs/probability" }, { "type": "null" }] },
+        "p_liab_with_finding": { "oneOf": [{ "$ref": "common.json#/$defs/probability" }, { "type": "null" }] }
+      }
+    },
+    "precedents": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["case_id", "similarity", "action_kind", "decider_kind", "evidence_id"],
+        "additionalProperties": false,
+        "properties": {
+          "case_id": { "$ref": "common.json#/$defs/case_id" },
+          "similarity": { "$ref": "common.json#/$defs/share" },
+          "action_kind": { "type": "string", "maxLength": 64 },
+          "decider_kind": { "$ref": "common.json#/$defs/decider_kind" },
+          "value_protected_expost_usd": { "type": ["number", "null"] },
+          "sl_prediction_error_days": { "type": ["number", "null"] },
+          "evidence_id": { "$ref": "common.json#/$defs/evidence_id" }
+        }
+      }
+    },
+    "recommendation": {
+      "type": "object",
+      "description": "Q6 - the choice and why. Rule decisions carry a template narrative; agent decisions carry an audited one.",
+      "required": ["option_id", "decided_by", "decider_id", "why_structured", "narrative"],
+      "additionalProperties": false,
+      "properties": {
+        "option_id": { "$ref": "common.json#/$defs/option_id" },
+        "rec_id": { "$ref": "common.json#/$defs/rec_id" },
+        "decided_by": { "$ref": "common.json#/$defs/decider_kind" },
+        "decider_id": { "type": "string", "maxLength": 128, "description": "Rule id@version, agent name@spec version, or user name." },
+        "why_structured": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+          "description": "Reason codes, e.g. HIGHEST_RISK_ADJUSTED_NRV, NO_TIER_A_SHORTFALL, MEETS_SPEC_P_ACCEPT."
+        },
+        "narrative": { "type": "string", "maxLength": 4000 }
+      }
+    }
+  }
+}

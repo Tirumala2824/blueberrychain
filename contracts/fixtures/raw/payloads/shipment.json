@@ -1,0 +1,31 @@
+{
+  "schema": "raw/payloads/shipment.json",
+  "valid": [
+    {
+      "shipment_id": "SHP-20261006-114",
+      "carrier_party_id": "PARTY-SIERRA",
+      "origin_site_id": "SITE-EMERALD-PACK",
+      "destination_site_id": "SITE-SUMMIT-SLC",
+      "planned_departure_at": "2026-10-06T02:00:00Z",
+      "planned_arrival_at": "2026-10-07T08:00:00Z",
+      "reefer_device_id": "RF-114",
+      "bol_setpoint_c": 0.5,
+      "lots": [
+        {
+          "lot_id": "L-A",
+          "kg": 4200
+        }
+      ],
+      "status": "IN_TRANSIT"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "a shipment carries at least one lot",
+      "base": 0,
+      "set": {
+        "/lots": []
+      }
+    }
+  ]
+}

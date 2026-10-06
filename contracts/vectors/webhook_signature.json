@@ -1,0 +1,11 @@
+{
+  "description": "IoT webhook signatures (connectors/iot_webhook.json). X-BBC-Signature = 'v1=' + hex(HMAC-SHA256(secret, timestamp + '.' + raw body)). The Python simulator signs and connector-iot verifies; both must reproduce this.",
+  "vectors": [
+    {
+      "secret": "bbc-test-secret",
+      "timestamp": "1791273300",
+      "body": "{\"messages\":[{\"device_id\":\"P-A1\",\"ts\":\"2026-10-06T07:55:00Z\",\"interval_s\":300,\"values\":{\"pulp_c\":0.9}}]}",
+      "signature": "v1=fafa1d7d92ad3a69153d850082ec6277cba23c78e8e6765a78c18a824f3f8b9f"
+    }
+  ]
+}

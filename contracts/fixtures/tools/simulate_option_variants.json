@@ -1,0 +1,139 @@
+{
+  "schema": "tools/simulate_option_variants.json",
+  "valid": [
+    {
+      "run_id": "RUN-00000201",
+      "case_id": "CASE-00000017",
+      "base_option_ids": [
+        "OPT-00000141",
+        "OPT-00000142"
+      ],
+      "scenarios": [
+        {
+          "scenario_id": "err-minus-1d",
+          "kind": "PREDICTION_ERROR",
+          "params": {
+            "sl_shift_days": -1.0
+          }
+        },
+        {
+          "scenario_id": "eta-plus-6h",
+          "kind": "ETA_SHIFT",
+          "params": {
+            "hours": 6
+          }
+        },
+        {
+          "scenario_id": "to-harbor",
+          "kind": "ALT_DESTINATION",
+          "params": {
+            "lot_id": "L-B",
+            "destination_site_id": "SITE-HARBOR-OAK"
+          }
+        },
+        {
+          "scenario_id": "split",
+          "kind": "SPLIT",
+          "params": {
+            "parts": [
+              {
+                "lot_id": "L-B",
+                "kg": 1800,
+                "disposition": "CONTINUE",
+                "destination_site_id": "SITE-SUMMIT-SLC"
+              },
+              {
+                "lot_id": "L-B",
+                "kg": 1800,
+                "disposition": "REROUTE",
+                "destination_site_id": "SITE-HARBOR-OAK"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "prediction-error shifts are capped",
+      "base": 0,
+      "set": {
+        "/scenarios/0/params/sl_shift_days": 9
+      }
+    },
+    {
+      "why": "an alternative destination must be named",
+      "base": 0,
+      "delete": [
+        "/scenarios/2/params/destination_site_id"
+      ]
+    },
+    {
+      "why": "scenario params must match their kind",
+      "base": 0,
+      "set": {
+        "/scenarios/1/params": {
+          "sl_shift_days": 1
+        }
+      }
+    },
+    {
+      "why": "at most 6 scenarios per call",
+      "base": 0,
+      "set": {
+        "/scenarios": [
+          {
+            "scenario_id": "s0",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 0
+            }
+          },
+          {
+            "scenario_id": "s1",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 1
+            }
+          },
+          {
+            "scenario_id": "s2",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 2
+            }
+          },
+          {
+            "scenario_id": "s3",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 3
+            }
+          },
+          {
+            "scenario_id": "s4",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 4
+            }
+          },
+          {
+            "scenario_id": "s5",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 5
+            }
+          },
+          {
+            "scenario_id": "s6",
+            "kind": "ETA_SHIFT",
+            "params": {
+              "hours": 6
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

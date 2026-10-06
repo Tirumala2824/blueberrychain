@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/reverse_decision_result.json",
+  "title": "REVERSE_DECISION result",
+  "description": "API.REVERSE_DECISION(rec_id, reason): queues compensations through the mutation gateway. The original record stays; the ledger shows both.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "rec_id", "compensation_mutation_ids", "case_state", "ledger_seq"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "compensation_mutation_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/mutation_id" }, "minItems": 1 },
+        "case_state": { "$ref": "../common.json#/$defs/case_state" },
+        "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+      }
+    }
+  ]
+}

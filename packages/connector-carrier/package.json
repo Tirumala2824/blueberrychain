@@ -1,0 +1,37 @@
+{
+  "name": "@blueberrychain/connector-carrier",
+  "version": "0.1.0",
+  "description": "Carrier / TMS inbound connector for BlueberryChain OS: shipments, status and custody events, claim responses",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "bbc-connector-carrier": "./dist/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node --env-file-if-exists=../../.env dist/main.js"
+  },
+  "dependencies": {
+    "@blueberrychain/connector-sdk": "workspace:*",
+    "@blueberrychain/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@blueberrychain/mock-tms": "workspace:*",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

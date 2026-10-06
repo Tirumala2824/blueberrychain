@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/document_meta.json",
+  "title": "Document metadata",
+  "description": "Metadata for a file the files connector placed on EVIDENCE.DOC_STAGE. Source: files connector.",
+  "type": "object",
+  "required": [
+    "doc_id",
+    "doc_type",
+    "stage_path",
+    "sha256",
+    "source"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "doc_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "doc_type": {
+      "$ref": "../../common.json#/$defs/doc_type"
+    },
+    "stage_path": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._/-]{1,512}$"
+    },
+    "sha256": {
+      "$ref": "../../common.json#/$defs/sha256"
+    },
+    "source": {
+      "type": "string",
+      "maxLength": 128
+    },
+    "lot_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "shipment_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contract_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

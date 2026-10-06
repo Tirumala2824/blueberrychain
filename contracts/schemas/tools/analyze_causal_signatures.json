@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/tools/analyze_causal_signatures.json",
+  "title": "ANALYZE_CAUSAL_SIGNATURES input",
+  "description": "A1 - deterministic physical indicators supporting or contradicting candidate causes. Thresholds come from versioned GOV parameters.",
+  "type": "object",
+  "required": [
+    "run_id",
+    "case_id",
+    "lot_id",
+    "tests"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "$ref": "../common.json#/$defs/run_id"
+    },
+    "case_id": {
+      "$ref": "../common.json#/$defs/case_id"
+    },
+    "lot_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "WARM_LOADING",
+          "PRECOOL_DELAY",
+          "SETPOINT_MISMATCH",
+          "REEFER_PULLDOWN_FAILURE",
+          "DEFROST_ARTIFACT",
+          "DOOR_EVENTS",
+          "DOCK_DWELL",
+          "SENSOR_FAULT"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/raw/payloads/lot.json",
+  "title": "Harvest lot",
+  "description": "A harvested, packed lot (SAP batch). Source: SAP / packhouse.",
+  "type": "object",
+  "required": [
+    "lot_id",
+    "product_id",
+    "grower_party_id",
+    "harvest_site_id",
+    "harvest_at",
+    "kg",
+    "organic"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "lot_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "product_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "grower_party_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "harvest_site_id": {
+      "$ref": "../../common.json#/$defs/external_id"
+    },
+    "packhouse_site_id": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "harvest_at": {
+      "$ref": "../../common.json#/$defs/timestamp"
+    },
+    "packed_at": {
+      "oneOf": [
+        {
+          "$ref": "../../common.json#/$defs/timestamp"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "kg": {
+      "$ref": "../../common.json#/$defs/kg"
+    },
+    "organic": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,0 +1,571 @@
+openapi: 3.1.0
+info:
+  title: Mock TMS / carrier API (BlueberryChain OS)
+  version: 1.0.0
+  summary: Shipments, custody events, re-routes, evidence requests, claims - plus a mock EDI gateway.
+  description: |
+    Implemented by `apps/mock-tms`. Consumed by `packages/connector-carrier` (inbound polling /
+    webhooks) and the engine dispatcher (outbound writes).
+
+    - **Every write** requires an `Idempotency-Key` header (our mutation idempotency key) and a
+      `reference` field. Repeating a request with the same key returns the original result.
+    - **Before retrying**, the dispatcher looks the write up by `reference` (`GET ...?reference=`).
+    - **Compare-and-set**: shipment writes require `If-Match` with the shipment's current `ETag`;
+      a changed shipment returns `412`.
+    - **Errors** are RFC 9457 problem details (`application/problem+json`).
+    - **Counterparty behavior is rule-based, not scripted**: claims are answered by the mock's
+      claim desk according to configured rules (warm-loading defense when pulp at loading exceeded
+      the BOL setpoint by more than the tolerance; cap enforcement; partial offers).
+    - **Simulator entry points** (`/__sim/clock`, `/__sim/shipments`, `/__sim/events`,
+      `/__sim/reset`) let the simulator play the carrier's dispatchers and drivers. They are not
+      part of this contract: connectors and the dispatcher never call them. The mock's clock is
+      simulated time; `updated_at` and event cursors strictly increase.
+  license:
+    name: Apache-2.0
+    identifier: Apache-2.0
+servers:
+  - url: http://localhost:4005
+security:
+  - bearer: []
+tags:
+  - name: shipments
+  - name: claims
+  - name: evidence
+  - name: edi
+  - name: webhooks
+
+paths:
+  /v1/shipments:
+    get:
+      tags: [shipments]
+      operationId: listShipments
+      summary: Shipments changed since a cursor (delta polling)
+      parameters:
+        - { name: updated_since, in: query, required: false, schema: { type: string, format: date-time } }
+        - { name: page_token, in: query, required: false, schema: { type: string } }
+        - { name: page_size, in: query, required: false, schema: { type: integer, minimum: 1, maximum: 500, default: 200 } }
+      responses:
+        "200":
+          description: A page of shipments
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/Shipment" } }
+                  next_page_token: { type: [string, "null"] }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/shipments/{shipment_id}:
+    get:
+      tags: [shipments]
+      operationId: getShipment
+      parameters: [ { $ref: "#/components/parameters/ShipmentId" } ]
+      responses:
+        "200":
+          description: The shipment; the ETag header is used for compare-and-set
+          headers:
+            ETag: { schema: { type: string } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Shipment" }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/shipments/{shipment_id}/events:
+    get:
+      tags: [shipments]
+      operationId: listShipmentEvents
+      summary: Status and custody events for one shipment
+      parameters:
+        - { $ref: "#/components/parameters/ShipmentId" }
+        - { name: since, in: query, required: false, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: Events in occurrence order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/ShipmentEvent" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/events:
+    get:
+      tags: [shipments]
+      operationId: listEvents
+      summary: All status and custody events recorded after a cursor (delta polling across shipments; compares recorded_at)
+      parameters:
+        - { name: since, in: query, required: true, schema: { type: string, format: date-time } }
+        - { name: page_token, in: query, required: false, schema: { type: string } }
+      responses:
+        "200":
+          description: A page of events
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/ShipmentEvent" } }
+                  next_page_token: { type: [string, "null"] }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/shipments/{shipment_id}/reroute:
+    post:
+      tags: [shipments]
+      operationId: rerouteShipment
+      summary: Re-route a shipment in transit (REROUTE / REROUTE_BACK)
+      parameters:
+        - { $ref: "#/components/parameters/ShipmentId" }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+        - { name: If-Match, in: header, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RerouteRequest" }
+      responses:
+        "202":
+          description: Accepted; the driver is instructed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Reroute" }
+        "409":
+          description: The re-route window has closed (junction passed) or the shipment is not in transit
+          content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } }
+        "412":
+          description: The shipment changed since it was read (ETag mismatch)
+          content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/reroutes:
+    get:
+      tags: [shipments]
+      operationId: findReroutes
+      summary: Look up re-routes by our reference (idempotency check before a retry)
+      parameters: [ { $ref: "#/components/parameters/Reference" } ]
+      responses:
+        "200":
+          description: Matching re-routes (0 or 1)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/Reroute" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/evidence-requests:
+    post:
+      tags: [evidence]
+      operationId: requestEvidence
+      summary: Ask the carrier for evidence (REQUEST_EVIDENCE), e.g. a reefer download
+      parameters: [ { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EvidenceRequestCreate" }
+      responses:
+        "201":
+          description: Request recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EvidenceRequest" }
+        default: { $ref: "#/components/responses/Problem" }
+    get:
+      tags: [evidence]
+      operationId: findEvidenceRequests
+      parameters: [ { $ref: "#/components/parameters/Reference" } ]
+      responses:
+        "200":
+          description: Matching requests
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/EvidenceRequest" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/evidence-requests/{request_id}/withdraw:
+    post:
+      tags: [evidence]
+      operationId: withdrawEvidenceRequest
+      summary: Withdraw an evidence request (WITHDRAW_REQUEST)
+      parameters:
+        - { name: request_id, in: path, required: true, schema: { type: string } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      responses:
+        "200":
+          description: Withdrawn
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EvidenceRequest" }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/claims:
+    post:
+      tags: [claims]
+      operationId: createClaim
+      summary: File a claim or a notice of claim (CLAIM_NOTICE / FILE_CLAIM)
+      parameters: [ { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClaimCreate" }
+      responses:
+        "201":
+          description: Claim or notice recorded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Claim" }
+        "422":
+          description: Rejected by the carrier's intake rules (e.g. past the filing window)
+          content: { application/problem+json: { schema: { $ref: "#/components/schemas/Problem" } } }
+        default: { $ref: "#/components/responses/Problem" }
+    get:
+      tags: [claims]
+      operationId: findClaims
+      parameters: [ { $ref: "#/components/parameters/Reference" } ]
+      responses:
+        "200":
+          description: Matching claims
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/Claim" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/claims/{claim_id}:
+    get:
+      tags: [claims]
+      operationId: getClaim
+      parameters: [ { name: claim_id, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200":
+          description: The claim
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Claim" }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/claims/{claim_id}/withdraw:
+    post:
+      tags: [claims]
+      operationId: withdrawClaim
+      summary: Withdraw a claim or notice (WITHDRAW_CLAIM / WITHDRAW_NOTICE)
+      parameters:
+        - { name: claim_id, in: path, required: true, schema: { type: string } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      responses:
+        "200":
+          description: Withdrawn
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Claim" }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/claims/{claim_id}/messages:
+    post:
+      tags: [claims]
+      operationId: sendClaimMessage
+      summary: Reply to the carrier on a claim (COUNTER / APPEAL / ACCEPT_OFFER)
+      parameters:
+        - { name: claim_id, in: path, required: true, schema: { type: string } }
+        - { $ref: "#/components/parameters/IdempotencyKey" }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ClaimMessage" }
+      responses:
+        "202":
+          description: Message delivered to the carrier's claim desk
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Claim" }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/claim-responses:
+    get:
+      tags: [claims]
+      operationId: listClaimResponses
+      summary: Carrier responses since a cursor (delta polling)
+      parameters:
+        - { name: since, in: query, required: true, schema: { type: string, format: date-time } }
+      responses:
+        "200":
+          description: Responses in time order
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/ClaimResponse" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /edi/v1/messages:
+    post:
+      tags: [edi]
+      operationId: sendEdiMessage
+      summary: Mock EDI gateway - send an X12 message to a customer (REPROMISE_NOTICE / CORRECTION_NOTICE as 865)
+      parameters: [ { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EdiMessageCreate" }
+      responses:
+        "202":
+          description: Queued for the customer
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EdiMessage" }
+        default: { $ref: "#/components/responses/Problem" }
+    get:
+      tags: [edi]
+      operationId: findEdiMessages
+      parameters: [ { $ref: "#/components/parameters/Reference" } ]
+      responses:
+        "200":
+          description: Matching messages
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { type: array, items: { $ref: "#/components/schemas/EdiMessage" } }
+        default: { $ref: "#/components/responses/Problem" }
+
+  /v1/webhooks:
+    post:
+      tags: [webhooks]
+      operationId: registerWebhook
+      summary: Register a callback (optional - the connector can poll instead)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url: { type: string, format: uri }
+                events:
+                  type: array
+                  items: { enum: [shipment.status, custody.event, claim.response] }
+                secret: { type: string, description: "HMAC-SHA256 secret; deliveries carry X-Signature" }
+      responses:
+        "201":
+          description: Registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: { webhook_id: { type: string } }
+        default: { $ref: "#/components/responses/Problem" }
+
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+
+  parameters:
+    ShipmentId: { name: shipment_id, in: path, required: true, schema: { type: string } }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: The mutation idempotency key (sha256 hex). Repeats return the original result.
+      schema: { type: string, pattern: "^[0-9a-f]{64}$" }
+    Reference: { name: reference, in: query, required: true, schema: { type: string } }
+
+  responses:
+    Problem:
+      description: Error
+      content:
+        application/problem+json:
+          schema: { $ref: "#/components/schemas/Problem" }
+
+  schemas:
+    Problem:
+      type: object
+      required: [type, title, status]
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string }
+
+    ShipmentStatus:
+      enum: [PLANNED, LOADING, IN_TRANSIT, AT_DOCK, DELIVERED, REJECTED, CANCELLED]
+
+    Shipment:
+      type: object
+      required: [shipment_id, carrier_party_id, origin_site_id, destination_site_id, status, lots, updated_at]
+      properties:
+        shipment_id: { type: string }
+        carrier_party_id: { type: string }
+        origin_site_id: { type: string }
+        destination_site_id: { type: string }
+        planned_destination_site_id: { type: string, description: "Destination before any re-route" }
+        truck_id: { type: [string, "null"] }
+        planned_departure_at: { type: string, format: date-time }
+        planned_arrival_at: { type: string, format: date-time }
+        reefer_device_id: { type: [string, "null"] }
+        bol_setpoint_c: { type: [number, "null"] }
+        status: { $ref: "#/components/schemas/ShipmentStatus" }
+        next_junction_site_id: { type: [string, "null"] }
+        junction_passed: { type: boolean }
+        eta_at: { type: [string, "null"], format: date-time }
+        lots:
+          type: array
+          items:
+            type: object
+            required: [lot_id, kg]
+            properties:
+              lot_id: { type: string }
+              kg: { type: number, minimum: 0 }
+        updated_at: { type: string, format: date-time }
+
+    ShipmentEvent:
+      type: object
+      required: [event_id, shipment_id, kind, at]
+      properties:
+        event_id: { type: string }
+        shipment_id: { type: string }
+        kind: { enum: [STATUS, CUSTODY] }
+        at: { type: string, format: date-time }
+        status: { $ref: "#/components/schemas/ShipmentStatus" }
+        lat: { type: [number, "null"] }
+        lon: { type: [number, "null"] }
+        eta_at: { type: [string, "null"], format: date-time }
+        custody_event_type: { enum: [HANDOFF, LOAD, UNLOAD, ARRIVE, DEPART, null] }
+        lot_id: { type: [string, "null"] }
+        from_party_id: { type: [string, "null"] }
+        to_party_id: { type: [string, "null"] }
+        site_id: { type: [string, "null"] }
+        recorded_at:
+          type: string
+          format: date-time
+          description: When the TMS recorded the event. Polling cursors (`since`) compare against this, not `at`, so late-arriving events are never skipped.
+
+    RerouteRequest:
+      type: object
+      required: [new_destination_site_id, reason, reference]
+      properties:
+        new_destination_site_id: { type: string }
+        via_junction_site_id: { type: [string, "null"] }
+        reason: { type: string, maxLength: 500 }
+        reference: { type: string, description: "Our mutation idempotency key" }
+
+    Reroute:
+      type: object
+      required: [reroute_id, shipment_id, status, reference]
+      properties:
+        reroute_id: { type: string }
+        shipment_id: { type: string }
+        status: { enum: [ACCEPTED, REJECTED] }
+        previous_destination_site_id: { type: string }
+        new_destination_site_id: { type: string }
+        effective_at: { type: string, format: date-time }
+        reference: { type: string }
+
+    EvidenceRequestCreate:
+      type: object
+      required: [shipment_id, evidence_type, reason, needed_by, reference]
+      properties:
+        shipment_id: { type: string }
+        evidence_type: { enum: [REEFER_DOWNLOAD, BOL_COPY, REINSPECTION, PHOTOS, TEMP_RECORDER_FILE] }
+        reason: { type: string, maxLength: 500 }
+        needed_by: { type: string, format: date-time }
+        reference: { type: string }
+
+    EvidenceRequest:
+      allOf:
+        - $ref: "#/components/schemas/EvidenceRequestCreate"
+        - type: object
+          required: [request_id, status]
+          properties:
+            request_id: { type: string }
+            status: { enum: [OPEN, FULFILLED, WITHDRAWN, DECLINED] }
+            fulfilled_document_url: { type: [string, "null"] }
+
+    ClaimCreate:
+      type: object
+      required: [shipment_id, claimant_party_id, basis, notice_only, description, reference]
+      properties:
+        shipment_id: { type: string }
+        claimant_party_id: { type: string }
+        basis: { enum: [CARRIER_TEMPERATURE] }
+        notice_only: { type: boolean, description: "true = notice of claim (preserves rights); false = filed claim" }
+        amount_usd: { type: [number, "null"], minimum: 0, description: "Required when notice_only is false" }
+        description: { type: string, maxLength: 6000 }
+        evidence_pack_url: { type: [string, "null"], format: uri }
+        reference: { type: string }
+
+    Claim:
+      type: object
+      required: [claim_id, shipment_id, status, reference, created_at]
+      properties:
+        claim_id: { type: string }
+        shipment_id: { type: string }
+        status: { enum: [NOTICE_RECEIVED, FILED, UNDER_REVIEW, DENIED, PARTIAL_OFFER, SETTLED, PAID, WITHDRAWN] }
+        amount_usd: { type: [number, "null"] }
+        offered_usd: { type: [number, "null"] }
+        paid_usd: { type: [number, "null"] }
+        reference: { type: string }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    ClaimMessage:
+      type: object
+      required: [intent, body, reference]
+      properties:
+        intent: { enum: [COUNTER, APPEAL, ACCEPT_OFFER] }
+        amount_usd: { type: [number, "null"], minimum: 0 }
+        body: { type: string, maxLength: 6000 }
+        reference: { type: string }
+
+    ClaimResponse:
+      type: object
+      required: [response_id, claim_id, response_type, at]
+      properties:
+        response_id: { type: string }
+        claim_id: { type: string }
+        response_type: { enum: [ACKNOWLEDGED, DENIED, PARTIAL_OFFER, PAID, REQUEST_DOCS] }
+        amount_usd: { type: [number, "null"] }
+        defense: { enum: [WARM_LOADING, SETPOINT_NOT_ON_BOL, SENSOR_UNRELIABLE, NO_MITIGATION, LIABILITY_CAP, LATE_NOTICE, OTHER, null] }
+        text: { type: [string, "null"], maxLength: 6000 }
+        at: { type: string, format: date-time }
+
+    EdiMessageCreate:
+      type: object
+      required: [standard, transaction_set, receiver_party_id, body, reference]
+      properties:
+        standard: { enum: [X12] }
+        transaction_set: { enum: ["865"], description: "PO change acknowledgment / request - seller initiated" }
+        receiver_party_id: { type: string }
+        body: { type: object, description: "Order line, new quantity / date, reason code" }
+        reference: { type: string }
+
+    EdiMessage:
+      allOf:
+        - $ref: "#/components/schemas/EdiMessageCreate"
+        - type: object
+          required: [message_id, status]
+          properties:
+            message_id: { type: string }
+            status: { enum: [QUEUED, DELIVERED, ACKNOWLEDGED, FAILED] }

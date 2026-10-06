@@ -1,0 +1,100 @@
+{
+  "schema": "api/inbox_row.json",
+  "valid": [
+    {
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "state": "PENDING_APPROVAL",
+      "state_version": 7,
+      "change_token": "7:418",
+      "severity": "HIGH",
+      "shipment_id": "SHP-20261006-114",
+      "lot_ids": [
+        "L-A"
+      ],
+      "opened_at": "2026-10-06T07:20:40Z",
+      "onset_at": "2026-10-06T06:49:00Z",
+      "deadline_ts": "2026-10-06T09:35:00Z",
+      "due_at": "2026-10-06T09:35:00Z",
+      "fallback_at": "2026-10-06T09:35:00Z",
+      "value_at_risk_usd": 21355,
+      "decided_by": "RULE",
+      "evaluation_outcome": "APPROVE",
+      "autonomy_level": 4,
+      "awaiting_roles": [
+        "BBC_SALES_MGR",
+        "BBC_QUALITY_MGR"
+      ],
+      "awaiting_me": true,
+      "needs_reassessment": false,
+      "inbox_rank": 2,
+      "is_open": true,
+      "sealed_at": null,
+      "policy_version": "1",
+      "provenance": "LIVE",
+      "updated_at": "2026-10-06T07:22:01Z"
+    },
+    {
+      "case_id": "CASE-00000017",
+      "decision_point": "D1",
+      "state": "OUTCOME_RECORDED",
+      "state_version": 14,
+      "change_token": "14:433",
+      "severity": "HIGH",
+      "shipment_id": "SHP-20261006-114",
+      "lot_ids": [
+        "L-A"
+      ],
+      "opened_at": "2026-10-06T07:20:40Z",
+      "onset_at": "2026-10-06T06:49:00Z",
+      "deadline_ts": "2026-10-06T09:35:00Z",
+      "due_at": null,
+      "fallback_at": null,
+      "value_at_risk_usd": 21355,
+      "decided_by": "RULE",
+      "evaluation_outcome": "APPROVE",
+      "autonomy_level": 4,
+      "awaiting_roles": [],
+      "awaiting_me": false,
+      "needs_reassessment": false,
+      "inbox_rank": 2,
+      "is_open": true,
+      "sealed_at": null,
+      "policy_version": "1",
+      "provenance": "LIVE",
+      "updated_at": "2026-10-06T14:32:00Z"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "inbox ranks start at 1",
+      "base": 0,
+      "set": {
+        "/inbox_rank": 0
+      }
+    },
+    {
+      "why": "awaited roles are persona roles",
+      "base": 0,
+      "set": {
+        "/awaiting_roles": [
+          "BBC_ENGINE"
+        ]
+      }
+    },
+    {
+      "why": "awaiting_me is computed in Snowflake and always present",
+      "base": 0,
+      "delete": [
+        "/awaiting_me"
+      ]
+    },
+    {
+      "why": "the change token is state_version:ledger_seq",
+      "base": 1,
+      "set": {
+        "/change_token": "v2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/contract.json",
+  "title": "Reference: contract",
+  "description": "Structured terms plus clause text. Terms shape depends on contract_type.",
+  "type": "object",
+  "required": [
+    "contract_id",
+    "party_id",
+    "contract_type",
+    "terms",
+    "clause_text",
+    "effective_from"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "contract_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "party_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "contract_type": {
+      "enum": [
+        "CARRIER_TRANSPORT",
+        "GROWER_SUPPLY",
+        "CUSTOMER_SALES"
+      ]
+    },
+    "terms": {
+      "type": "object"
+    },
+    "clause_text": {
+      "type": "string",
+      "maxLength": 20000
+    },
+    "source_doc_id": {
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/external_id"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "effective_from": {
+      "$ref": "../common.json#/$defs/date"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "contract_type": {
+            "const": "CARRIER_TRANSPORT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "terms": {
+            "type": "object",
+            "required": [
+              "liability_cap_usd",
+              "claim_window_days",
+              "claim_min_usd",
+              "requires_bol_setpoint",
+              "temp_tolerance_c",
+              "notice_window_h"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "liability_cap_usd": {
+                "$ref": "../common.json#/$defs/usd"
+              },
+              "claim_window_days": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "claim_min_usd": {
+                "$ref": "../common.json#/$defs/usd"
+              },
+              "requires_bol_setpoint": {
+                "type": "boolean"
+              },
+              "temp_tolerance_c": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "notice_window_h": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "contract_type": {
+            "const": "GROWER_SUPPLY"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "terms": {
+            "type": "object",
+            "required": [
+              "price_usd_per_kg",
+              "precool_max_hours",
+              "precool_target_c",
+              "quality_deduction_cap_pct"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "price_usd_per_kg": {
+                "$ref": "../common.json#/$defs/usd_per_kg"
+              },
+              "precool_max_hours": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 48
+              },
+              "precool_target_c": {
+                "$ref": "../common.json#/$defs/celsius"
+              },
+              "quality_deduction_cap_pct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "contract_type": {
+            "const": "CUSTOMER_SALES"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "terms": {
+            "type": "object",
+            "required": [
+              "price_usd_per_kg",
+              "otif_penalty_pct",
+              "rejection_penalty_usd_per_kg",
+              "substitution_allowed",
+              "diversion_allowed"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "price_usd_per_kg": {
+                "$ref": "../common.json#/$defs/usd_per_kg"
+              },
+              "otif_penalty_pct": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "rejection_penalty_usd_per_kg": {
+                "$ref": "../common.json#/$defs/usd_per_kg"
+              },
+              "substitution_allowed": {
+                "type": "boolean"
+              },
+              "diversion_allowed": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "raw/payloads/custody_event.json",
+  "valid": [
+    {
+      "event_id": "CE-114-0002",
+      "event_type": "HANDOFF",
+      "at": "2026-10-06T02:00:00Z",
+      "shipment_id": "SHP-20261006-114",
+      "lot_id": "L-A",
+      "from_party_id": "PARTY-EMERALD-RIDGE",
+      "to_party_id": "PARTY-SIERRA",
+      "site_id": "SITE-EMERALD-PACK"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "event types are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/event_type": "TELEPORTED"
+      }
+    }
+  ]
+}

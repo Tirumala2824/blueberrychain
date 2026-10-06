@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/finding.json",
+  "title": "Causation finding (payload)",
+  "description": "What the Excursion Forensics agent submits through SUBMIT_CAUSATION_FINDING. The server adds finding_id, decider, run_id and timestamps, caps confidence by evidence coverage, and rejects parties that never held custody of the case lots.",
+  "type": "object",
+  "required": ["hypotheses", "most_likely_cause", "responsible_parties", "evidence_trust",
+               "sufficiency", "gaps", "confidence", "confidence_reasons", "narrative", "citations"],
+  "additionalProperties": false,
+  "properties": {
+    "hypotheses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["cause", "verdict", "evidence_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "cause": { "$ref": "common.json#/$defs/cause" },
+          "verdict": { "enum": ["SUPPORTED", "REJECTED", "INCONCLUSIVE"] },
+          "evidence_ids": { "$ref": "common.json#/$defs/citations" }
+        }
+      }
+    },
+    "most_likely_cause": { "$ref": "common.json#/$defs/cause" },
+    "responsible_parties": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["party_id", "basis", "evidence_ids"],
+        "additionalProperties": false,
+        "properties": {
+          "party_id": { "$ref": "common.json#/$defs/external_id" },
+          "basis": { "$ref": "common.json#/$defs/claim_basis" },
+          "evidence_ids": { "$ref": "common.json#/$defs/citations" }
+        }
+      }
+    },
+    "evidence_trust": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["evidence_id", "trust", "reason"],
+        "additionalProperties": false,
+        "properties": {
+          "evidence_id": { "$ref": "common.json#/$defs/evidence_id" },
+          "trust": { "$ref": "common.json#/$defs/confidence" },
+          "reason": { "type": "string", "maxLength": 500 }
+        }
+      }
+    },
+    "sufficiency": { "enum": ["SUFFICIENT", "INSUFFICIENT"] },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["description", "closing_evidence_type"],
+        "additionalProperties": false,
+        "properties": {
+          "description": { "type": "string", "maxLength": 500 },
+          "closing_evidence_type": { "$ref": "common.json#/$defs/evidence_type" }
+        }
+      }
+    },
+    "confidence": { "$ref": "common.json#/$defs/confidence" },
+    "confidence_reasons": { "type": "array", "items": { "type": "string", "maxLength": 300 }, "maxItems": 10 },
+    "narrative": { "type": "string", "maxLength": 3000 },
+    "citations": { "$ref": "common.json#/$defs/citations" }
+  }
+}

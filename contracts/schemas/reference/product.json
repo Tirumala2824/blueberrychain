@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/reference/product.json",
+  "title": "Reference: product",
+  "description": "A sellable product with its shelf-life model parameters (versioned; decisions record the version they used).",
+  "type": "object",
+  "required": [
+    "product_id",
+    "variety",
+    "pack",
+    "organic",
+    "ref_shelf_life_days",
+    "tref_c",
+    "q10",
+    "threshold_c",
+    "tolerance_min",
+    "unmonitored_assumed_temp_c",
+    "validity_min_temp_c",
+    "validity_max_temp_c",
+    "prior_sigma_days"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "product_id": {
+      "$ref": "../common.json#/$defs/external_id"
+    },
+    "variety": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "pack": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "organic": {
+      "type": "boolean"
+    },
+    "sap_material": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ref_shelf_life_days": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 60
+    },
+    "tref_c": {
+      "$ref": "../common.json#/$defs/celsius"
+    },
+    "q10": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 6
+    },
+    "threshold_c": {
+      "$ref": "../common.json#/$defs/celsius"
+    },
+    "tolerance_min": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1440
+    },
+    "unmonitored_assumed_temp_c": {
+      "$ref": "../common.json#/$defs/celsius"
+    },
+    "validity_min_temp_c": {
+      "$ref": "../common.json#/$defs/celsius"
+    },
+    "validity_max_temp_c": {
+      "$ref": "../common.json#/$defs/celsius"
+    },
+    "prior_sigma_days": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 10
+    },
+    "kg_per_pallet": {
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

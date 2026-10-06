@@ -1,0 +1,2875 @@
+{
+  "schema": "api/tape.json",
+  "valid": [
+    {
+      "tape": "S-A-MINI",
+      "title": "S-A: reefer failure, rule-decided re-route, dual approval",
+      "provenance": "SYNTHETIC (design numbers)",
+      "description": "A compressor fault on Sierra Cold Freight's trailer warms a tier-A organic lot. Detection opens the case unprompted; the engine scores five options against doing nothing; a rule decides the re-route to Bayline (no AI). Policy v1 requires Sales and Quality; the gateway then writes to SAP, the TMS and the carrier. Numbers are the design's illustrative worked example.",
+      "personas": {
+        "quality": {
+          "user": "BBC_DEMO_QUALITY",
+          "role": "BBC_QUALITY_MGR"
+        },
+        "sales": {
+          "user": "BBC_DEMO_SALES",
+          "role": "BBC_SALES_MGR"
+        },
+        "finance": {
+          "user": "BBC_DEMO_FINANCE",
+          "role": "BBC_FINANCE_MGR"
+        },
+        "auditor": {
+          "user": "BBC_DEMO_AUDITOR",
+          "role": "BBC_AUDITOR"
+        },
+        "govadmin": {
+          "user": "BBC_DEMO_GOVADMIN",
+          "role": "BBC_GOVERNANCE_ADMIN"
+        }
+      },
+      "frames": [
+        {
+          "label": "Excursion detected: case opened by the detection task",
+          "inbox": {
+            "quality": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "OPEN",
+                "state_version": 1,
+                "change_token": "1:412",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": null,
+                "due_at": null,
+                "fallback_at": null,
+                "value_at_risk_usd": null,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:20:40Z"
+              }
+            ],
+            "sales": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "OPEN",
+                "state_version": 1,
+                "change_token": "1:412",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": null,
+                "due_at": null,
+                "fallback_at": null,
+                "value_at_risk_usd": null,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:20:40Z"
+              }
+            ],
+            "finance": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "OPEN",
+                "state_version": 1,
+                "change_token": "1:412",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": null,
+                "due_at": null,
+                "fallback_at": null,
+                "value_at_risk_usd": null,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:20:40Z"
+              }
+            ],
+            "auditor": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "OPEN",
+                "state_version": 1,
+                "change_token": "1:412",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": null,
+                "due_at": null,
+                "fallback_at": null,
+                "value_at_risk_usd": null,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:20:40Z"
+              }
+            ],
+            "govadmin": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "OPEN",
+                "state_version": 1,
+                "change_token": "1:412",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": null,
+                "due_at": null,
+                "fallback_at": null,
+                "value_at_risk_usd": null,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:20:40Z"
+              }
+            ]
+          },
+          "cases": {
+            "CASE-00000017": {
+              "view": {
+                "view_version": "1",
+                "generated_at": "2026-10-06T07:20:40Z",
+                "change_token": "1:412",
+                "viewer": {
+                  "user": "BBC_DEMO_AUDITOR",
+                  "role": "BBC_AUDITOR",
+                  "available_actions": [
+                    {
+                      "action": "VERIFY_LEDGER",
+                      "enabled": true,
+                      "disabled_reason": null
+                    },
+                    {
+                      "action": "REPLAY_EVIDENCE",
+                      "enabled": false,
+                      "disabled_reason": "No evidence pack has been sealed yet"
+                    },
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": false,
+                      "disabled_reason": "No evidence pack has been sealed yet"
+                    }
+                  ]
+                },
+                "case": {
+                  "case_id": "CASE-00000017",
+                  "decision_point": "D1",
+                  "state": "OPEN",
+                  "state_version": 1,
+                  "severity": "HIGH",
+                  "episode_key": "SHP-20261006-114#2026-10-06T06:49Z",
+                  "shipment_id": "SHP-20261006-114",
+                  "onset_at": "2026-10-06T06:49:00Z",
+                  "detected_at": "2026-10-06T07:20:00Z",
+                  "opened_at": "2026-10-06T07:20:40Z",
+                  "opened_by": "SYSTEM",
+                  "holder_party_id_at_onset": "PARTY-SIERRA",
+                  "holder_type_at_onset": "CARRIER",
+                  "policy_version": "1",
+                  "deadline_ts": null,
+                  "value_at_risk_usd": null,
+                  "current_pack_id": null,
+                  "current_rec_id": null,
+                  "current_brief_hash": null,
+                  "needs_reassessment": false,
+                  "provenance": "LIVE",
+                  "updated_at": "2026-10-06T07:20:40Z",
+                  "lots": [
+                    {
+                      "lot_id": "L-A",
+                      "added_at": "2026-10-06T07:20:40Z",
+                      "onset_at": "2026-10-06T06:49:00Z",
+                      "detected_at": "2026-10-06T07:20:00Z",
+                      "breach_min_at_detection": 31,
+                      "max_pulp_c": 3,
+                      "holder_party_id_at_onset": "PARTY-SIERRA"
+                    }
+                  ]
+                },
+                "event": {
+                  "detection": {
+                    "case_id": "CASE-00000017",
+                    "decision_point": "D1",
+                    "episode_key": "SHP-20261006-114#2026-10-06T06:49Z",
+                    "shipment_id": "SHP-20261006-114",
+                    "severity": "HIGH",
+                    "onset_at": "2026-10-06T06:49:00Z",
+                    "holder_party_id_at_onset": "PARTY-SIERRA",
+                    "holder_type_at_onset": "CARRIER",
+                    "lots": [
+                      {
+                        "lot_id": "L-A",
+                        "onset_at": "2026-10-06T06:49:00Z",
+                        "detected_at": "2026-10-06T07:20:00Z",
+                        "breach_min_in_window": 31,
+                        "max_pulp_c": 3,
+                        "holder_party_id_at_onset": "PARTY-SIERRA"
+                      }
+                    ],
+                    "rule": {
+                      "detection_window_min": 60,
+                      "tolerance_min": 30,
+                      "threshold_c": 1.8,
+                      "policy_version": "1"
+                    },
+                    "run_id": "DET-20261006-0720"
+                  }
+                },
+                "analysis": {
+                  "pack": null,
+                  "packs": [],
+                  "thermal": [
+                    {
+                      "lot_id": "L-A",
+                      "threshold_c": 1.8,
+                      "as_of": "2026-10-06T07:20:00Z",
+                      "truncated": false,
+                      "buckets": [
+                        {
+                          "start": "2026-10-05T13:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 16.01,
+                          "max_pulp_c": 17.4,
+                          "excess_h": 1.2638
+                        },
+                        {
+                          "start": "2026-10-05T13:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 14.52,
+                          "max_pulp_c": 15.91,
+                          "excess_h": 1.027
+                        },
+                        {
+                          "start": "2026-10-05T13:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 13.03,
+                          "max_pulp_c": 14.42,
+                          "excess_h": 0.8259
+                        },
+                        {
+                          "start": "2026-10-05T13:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 11.54,
+                          "max_pulp_c": 12.93,
+                          "excess_h": 0.6552
+                        },
+                        {
+                          "start": "2026-10-05T14:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 10.05,
+                          "max_pulp_c": 11.44,
+                          "excess_h": 0.5102
+                        },
+                        {
+                          "start": "2026-10-05T14:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 8.56,
+                          "max_pulp_c": 9.95,
+                          "excess_h": 0.3872
+                        },
+                        {
+                          "start": "2026-10-05T14:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 7.07,
+                          "max_pulp_c": 8.46,
+                          "excess_h": 0.2827
+                        },
+                        {
+                          "start": "2026-10-05T14:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 5.58,
+                          "max_pulp_c": 6.97,
+                          "excess_h": 0.194
+                        },
+                        {
+                          "start": "2026-10-05T15:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 4.09,
+                          "max_pulp_c": 5.48,
+                          "excess_h": 0.1187
+                        },
+                        {
+                          "start": "2026-10-05T15:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.6,
+                          "max_pulp_c": 3.99,
+                          "excess_h": 0.0548
+                        },
+                        {
+                          "start": "2026-10-05T15:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.23,
+                          "max_pulp_c": 2.58,
+                          "excess_h": 0.0208
+                        },
+                        {
+                          "start": "2026-10-05T15:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 1.85,
+                          "max_pulp_c": 2.2,
+                          "excess_h": 0.0076
+                        },
+                        {
+                          "start": "2026-10-05T16:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 1,
+                          "min_pulp_c": 1.57,
+                          "max_pulp_c": 1.83,
+                          "excess_h": 0.0001
+                        },
+                        {
+                          "start": "2026-10-05T16:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.47,
+                          "max_pulp_c": 1.56,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T16:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.38,
+                          "max_pulp_c": 1.47,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T16:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.28,
+                          "max_pulp_c": 1.37,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.19,
+                          "max_pulp_c": 1.28,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.09,
+                          "max_pulp_c": 1.18,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1,
+                          "max_pulp_c": 1.08,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.99,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.8,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.8,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 1.11,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.13,
+                          "max_pulp_c": 1.41,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.43,
+                          "max_pulp_c": 1.72,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 11,
+                          "min_pulp_c": 1.74,
+                          "max_pulp_c": 2.23,
+                          "excess_h": 0.0058
+                        },
+                        {
+                          "start": "2026-10-06T07:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.26,
+                          "max_pulp_c": 2.81,
+                          "excess_h": 0.0257
+                        },
+                        {
+                          "start": "2026-10-06T07:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 5,
+                          "reading_min": 5,
+                          "breach_min": 5,
+                          "min_pulp_c": 2.85,
+                          "max_pulp_c": 3,
+                          "excess_h": 0.0133
+                        }
+                      ]
+                    }
+                  ],
+                  "findings": []
+                },
+                "options": [],
+                "decision": {
+                  "recommendations": []
+                },
+                "governance": {
+                  "policy": {
+                    "policy_version": "1",
+                    "kill_switches": {
+                      "autonomy_ceiling": 4,
+                      "shadow_mode": false,
+                      "fallback_enabled": true,
+                      "dispatch_enabled": true
+                    }
+                  },
+                  "evaluations": [],
+                  "approvals": [],
+                  "fallback": null
+                },
+                "execution": {
+                  "plans": [],
+                  "mutations": []
+                },
+                "outcome": {
+                  "lots": [],
+                  "claims": []
+                },
+                "agents": {
+                  "runs": []
+                },
+                "evidence": {
+                  "sealed": false,
+                  "sealed_at": null,
+                  "ledger": {
+                    "entries": [
+                      {
+                        "seq": 412,
+                        "ts": "2026-10-06T07:20:40.000000Z",
+                        "entry_type": "CASE_OPENED",
+                        "actor": "SYSTEM",
+                        "record_ref": "BBC_OS.DECISION.CASES#CASE-00000017",
+                        "payload_hash": "30cc469fb6018ea3e456eae6bb7b36f0d6ab9b44e6b11fffdf9509c492225567",
+                        "prev_hash": "d82b63f971fd4f520d8d31cc77ef8cd9bcc23e26b90bc333ce3b5d5ff8bf0478",
+                        "entry_hash": "e34c4efcd1f92615265acd8374e1a104c7e6fcd8b737d5c0050340f9ddfafa88"
+                      }
+                    ],
+                    "first_seq": 412,
+                    "last_seq": 412,
+                    "truncated": false
+                  }
+                }
+              },
+              "viewers": {
+                "quality": {
+                  "user": "BBC_DEMO_QUALITY",
+                  "role": "BBC_QUALITY_MGR",
+                  "available_actions": []
+                },
+                "sales": {
+                  "user": "BBC_DEMO_SALES",
+                  "role": "BBC_SALES_MGR",
+                  "available_actions": []
+                },
+                "finance": {
+                  "user": "BBC_DEMO_FINANCE",
+                  "role": "BBC_FINANCE_MGR",
+                  "available_actions": [
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": false,
+                      "disabled_reason": "No evidence pack has been sealed yet"
+                    }
+                  ]
+                },
+                "auditor": {
+                  "user": "BBC_DEMO_AUDITOR",
+                  "role": "BBC_AUDITOR",
+                  "available_actions": [
+                    {
+                      "action": "VERIFY_LEDGER",
+                      "enabled": true,
+                      "disabled_reason": null
+                    },
+                    {
+                      "action": "REPLAY_EVIDENCE",
+                      "enabled": false,
+                      "disabled_reason": "No evidence pack has been sealed yet"
+                    },
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": false,
+                      "disabled_reason": "No evidence pack has been sealed yet"
+                    }
+                  ]
+                },
+                "govadmin": {
+                  "user": "BBC_DEMO_GOVADMIN",
+                  "role": "BBC_GOVERNANCE_ADMIN",
+                  "available_actions": [
+                    {
+                      "action": "EMERGENCY_STOP",
+                      "enabled": true,
+                      "disabled_reason": null
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "label": "Evidence pack sealed; deterministic custody attribution recorded",
+          "inbox": {
+            "quality": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "FINDING_RECORDED",
+                "state_version": 3,
+                "change_token": "3:414",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": "2026-10-06T09:35:00Z",
+                "due_at": null,
+                "fallback_at": "2026-10-06T09:35:00Z",
+                "value_at_risk_usd": 21355,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:21:13Z"
+              }
+            ],
+            "sales": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "FINDING_RECORDED",
+                "state_version": 3,
+                "change_token": "3:414",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": "2026-10-06T09:35:00Z",
+                "due_at": null,
+                "fallback_at": "2026-10-06T09:35:00Z",
+                "value_at_risk_usd": 21355,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:21:13Z"
+              }
+            ],
+            "finance": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "FINDING_RECORDED",
+                "state_version": 3,
+                "change_token": "3:414",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": "2026-10-06T09:35:00Z",
+                "due_at": null,
+                "fallback_at": "2026-10-06T09:35:00Z",
+                "value_at_risk_usd": 21355,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:21:13Z"
+              }
+            ],
+            "auditor": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "FINDING_RECORDED",
+                "state_version": 3,
+                "change_token": "3:414",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": "2026-10-06T09:35:00Z",
+                "due_at": null,
+                "fallback_at": "2026-10-06T09:35:00Z",
+                "value_at_risk_usd": 21355,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:21:13Z"
+              }
+            ],
+            "govadmin": [
+              {
+                "case_id": "CASE-00000017",
+                "decision_point": "D1",
+                "state": "FINDING_RECORDED",
+                "state_version": 3,
+                "change_token": "3:414",
+                "severity": "HIGH",
+                "shipment_id": "SHP-20261006-114",
+                "lot_ids": [
+                  "L-A"
+                ],
+                "opened_at": "2026-10-06T07:20:40Z",
+                "onset_at": "2026-10-06T06:49:00Z",
+                "deadline_ts": "2026-10-06T09:35:00Z",
+                "due_at": null,
+                "fallback_at": "2026-10-06T09:35:00Z",
+                "value_at_risk_usd": 21355,
+                "decided_by": null,
+                "evaluation_outcome": null,
+                "autonomy_level": null,
+                "awaiting_roles": [],
+                "awaiting_me": false,
+                "needs_reassessment": false,
+                "inbox_rank": 2,
+                "is_open": true,
+                "sealed_at": null,
+                "policy_version": "1",
+                "provenance": "LIVE",
+                "updated_at": "2026-10-06T07:21:13Z"
+              }
+            ]
+          },
+          "cases": {
+            "CASE-00000017": {
+              "view": {
+                "view_version": "1",
+                "generated_at": "2026-10-06T07:21:13Z",
+                "change_token": "3:414",
+                "viewer": {
+                  "user": "BBC_DEMO_AUDITOR",
+                  "role": "BBC_AUDITOR",
+                  "available_actions": [
+                    {
+                      "action": "VERIFY_LEDGER",
+                      "enabled": true,
+                      "disabled_reason": null
+                    },
+                    {
+                      "action": "REPLAY_EVIDENCE",
+                      "enabled": true,
+                      "disabled_reason": null,
+                      "pack_ids": [
+                        "PACK-00000031"
+                      ]
+                    },
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": true,
+                      "disabled_reason": null
+                    }
+                  ]
+                },
+                "case": {
+                  "case_id": "CASE-00000017",
+                  "decision_point": "D1",
+                  "state": "FINDING_RECORDED",
+                  "state_version": 3,
+                  "severity": "HIGH",
+                  "episode_key": "SHP-20261006-114#2026-10-06T06:49Z",
+                  "shipment_id": "SHP-20261006-114",
+                  "onset_at": "2026-10-06T06:49:00Z",
+                  "detected_at": "2026-10-06T07:20:00Z",
+                  "opened_at": "2026-10-06T07:20:40Z",
+                  "opened_by": "SYSTEM",
+                  "holder_party_id_at_onset": "PARTY-SIERRA",
+                  "holder_type_at_onset": "CARRIER",
+                  "policy_version": "1",
+                  "deadline_ts": "2026-10-06T09:35:00Z",
+                  "value_at_risk_usd": 21355,
+                  "current_pack_id": "PACK-00000031",
+                  "current_rec_id": null,
+                  "current_brief_hash": null,
+                  "needs_reassessment": false,
+                  "provenance": "LIVE",
+                  "updated_at": "2026-10-06T07:21:13Z",
+                  "lots": [
+                    {
+                      "lot_id": "L-A",
+                      "added_at": "2026-10-06T07:20:40Z",
+                      "onset_at": "2026-10-06T06:49:00Z",
+                      "detected_at": "2026-10-06T07:20:00Z",
+                      "breach_min_at_detection": 31,
+                      "max_pulp_c": 3,
+                      "holder_party_id_at_onset": "PARTY-SIERRA"
+                    }
+                  ]
+                },
+                "event": {
+                  "detection": {
+                    "case_id": "CASE-00000017",
+                    "decision_point": "D1",
+                    "episode_key": "SHP-20261006-114#2026-10-06T06:49Z",
+                    "shipment_id": "SHP-20261006-114",
+                    "severity": "HIGH",
+                    "onset_at": "2026-10-06T06:49:00Z",
+                    "holder_party_id_at_onset": "PARTY-SIERRA",
+                    "holder_type_at_onset": "CARRIER",
+                    "lots": [
+                      {
+                        "lot_id": "L-A",
+                        "onset_at": "2026-10-06T06:49:00Z",
+                        "detected_at": "2026-10-06T07:20:00Z",
+                        "breach_min_in_window": 31,
+                        "max_pulp_c": 3,
+                        "holder_party_id_at_onset": "PARTY-SIERRA"
+                      }
+                    ],
+                    "rule": {
+                      "detection_window_min": 60,
+                      "tolerance_min": 30,
+                      "threshold_c": 1.8,
+                      "policy_version": "1"
+                    },
+                    "run_id": "DET-20261006-0720"
+                  }
+                },
+                "analysis": {
+                  "pack": {
+                    "pack_id": "PACK-00000031",
+                    "case_id": "CASE-00000017",
+                    "decision_point": "D1",
+                    "revision": 1,
+                    "as_of": "2026-10-06T07:21:00Z",
+                    "sealed_at": "2026-10-06T07:21:12Z",
+                    "param_versions": {
+                      "policy": "1",
+                      "semantic": "1",
+                      "engine": "0.1.0",
+                      "products": "1",
+                      "contracts": "1",
+                      "prices": "1",
+                      "cost_rates": "1",
+                      "lanes": "1"
+                    },
+                    "shipment": {
+                      "shipment_id": "SHP-20261006-114",
+                      "carrier_party_id": "PARTY-SIERRA",
+                      "reefer_device_id": "RF-114",
+                      "origin_site_id": "SITE-EMERALD-PACK",
+                      "destination_site_id": "SITE-SUMMIT-SLC",
+                      "bol_setpoint_c": 0.5,
+                      "state_at_as_of": "IN_TRANSIT",
+                      "next_junction_site_id": "SITE-JCT-I80-SAC",
+                      "eta_p50_at": "2026-10-07T06:00:00Z",
+                      "eta_p90_at": "2026-10-07T08:00:00Z",
+                      "reefer_state": {
+                        "as_of": "2026-10-06T07:16:00Z",
+                        "mode": "CONTINUOUS",
+                        "alarms": [
+                          "COMPRESSOR_FAULT"
+                        ],
+                        "supply_air_c": 9.8,
+                        "return_air_c": 8.9,
+                        "setpoint_c": 0.5
+                      },
+                      "evidence_id": "EV:PACK:PACK-00000031#/shipment"
+                    },
+                    "lots": [
+                      {
+                        "lot_id": "L-A",
+                        "product_id": "BB-EMERALD-ORG-12x6",
+                        "organic": true,
+                        "kg": 4200,
+                        "planned_value_usd": 47040,
+                        "grower_party_id": "PARTY-EMERALD-RIDGE",
+                        "harvest_at": "2026-10-05T13:00:00Z",
+                        "primary_probe_device_id": "P-A1",
+                        "proxy_air_only": false,
+                        "last_pulp_c": 3,
+                        "last_reading_at": "2026-10-06T07:20:00Z",
+                        "food_safety_flag": false,
+                        "model_validity": "IN_RANGE",
+                        "sigma_days": 0.8,
+                        "values": [
+                          {
+                            "name": "REMAINING_SHELF_LIFE_DAYS",
+                            "value": 9,
+                            "unit": "days",
+                            "grain": "lot",
+                            "as_of": "2026-10-06T07:20:00Z",
+                            "data_age_min": 1,
+                            "freshness": "OK",
+                            "metric_version": "1",
+                            "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/0"
+                          },
+                          {
+                            "name": "MONITORING_COVERAGE_PCT",
+                            "value": 96,
+                            "unit": "%",
+                            "grain": "lot",
+                            "as_of": "2026-10-06T07:20:00Z",
+                            "data_age_min": 1,
+                            "freshness": "OK",
+                            "metric_version": "1",
+                            "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/1"
+                          },
+                          {
+                            "name": "VALUE_AT_RISK_USD",
+                            "value": 21355,
+                            "unit": "USD",
+                            "grain": "case_lot",
+                            "as_of": "2026-10-06T07:20:00Z",
+                            "data_age_min": 0,
+                            "freshness": "OK",
+                            "metric_version": "1",
+                            "evidence_id": "EV:PACK:PACK-00000031#/lots/0/values/2"
+                          }
+                        ],
+                        "custody_exposure": [
+                          {
+                            "holder_party_id": "PARTY-SIERRA",
+                            "holder_type": "CARRIER",
+                            "excess_life_share": 0.82,
+                            "thermal_exposure_deg_h": 22.8,
+                            "breach_min": 228,
+                            "evidence_id": "EV:PACK:PACK-00000031#/lots/0/custody_exposure/0"
+                          },
+                          {
+                            "holder_party_id": "PARTY-EMERALD-RIDGE",
+                            "holder_type": "PACKHOUSE",
+                            "excess_life_share": 0.18,
+                            "thermal_exposure_deg_h": 4.9,
+                            "breach_min": 40,
+                            "evidence_id": "EV:PACK:PACK-00000031#/lots/0/custody_exposure/1"
+                          }
+                        ]
+                      }
+                    ],
+                    "custody_timeline": [
+                      {
+                        "party_id": "PARTY-EMERALD-RIDGE",
+                        "holder_type": "PACKHOUSE",
+                        "site_id": "SITE-EMERALD-PACK",
+                        "from_at": "2026-10-05T13:00:00Z",
+                        "to_at": "2026-10-06T02:00:00Z",
+                        "evidence_id": "EV:PACK:PACK-00000031#/custody_timeline/0"
+                      },
+                      {
+                        "party_id": "PARTY-SIERRA",
+                        "holder_type": "CARRIER",
+                        "site_id": null,
+                        "from_at": "2026-10-06T02:00:00Z",
+                        "to_at": null,
+                        "evidence_id": "EV:PACK:PACK-00000031#/custody_timeline/1"
+                      }
+                    ],
+                    "affected_order_lines": [
+                      {
+                        "order_line_id": "SO-6001-10",
+                        "customer_party_id": "PARTY-SUMMIT",
+                        "customer_tier": "A",
+                        "product_id": "BB-EMERALD-ORG-12x6",
+                        "organic_required": true,
+                        "kg": 4200,
+                        "price_usd_per_kg": 11.2,
+                        "requested_delivery_at": "2026-10-07T10:00:00Z",
+                        "ship_to_site_id": "SITE-SUMMIT-SLC",
+                        "min_shelf_life_days_at_receipt": 10,
+                        "max_arrival_pulp_c": 2,
+                        "assigned_lot_id": "L-A",
+                        "penalty_terms": {
+                          "otif_penalty_pct": 3
+                        },
+                        "evidence_id": "EV:PACK:PACK-00000031#/affected_order_lines/0"
+                      }
+                    ],
+                    "candidate_inventory": [
+                      {
+                        "lot_id": "L-CV-0912",
+                        "site_id": "SITE-CVDC-TRACY",
+                        "product_id": "BB-EMERALD-ORG-12x6",
+                        "organic": true,
+                        "kg_available": 38000,
+                        "remaining_shelf_life_days": 14.2,
+                        "snapshot_at": "2026-10-06T06:00:00Z",
+                        "evidence_id": "EV:PACK:PACK-00000031#/candidate_inventory/0"
+                      }
+                    ],
+                    "candidate_destinations": [
+                      {
+                        "site_id": "SITE-BAYLINE-SAC",
+                        "party_id": "PARTY-BAYLINE",
+                        "channel": "REGIONAL",
+                        "customer_tier": "B",
+                        "price_usd_per_kg": 10.64,
+                        "transit_h_p50": 6,
+                        "transit_h_p90": 7.5,
+                        "min_shelf_life_days_at_receipt": 5,
+                        "capacity_kg": 12000,
+                        "max_arrival_pulp_c": 4.4,
+                        "freight_usd": 1200,
+                        "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/0"
+                      },
+                      {
+                        "site_id": "SITE-VFP-FRESNO",
+                        "party_id": "PARTY-VFP",
+                        "channel": "PROCESSOR",
+                        "customer_tier": null,
+                        "price_usd_per_kg": 3.5,
+                        "transit_h_p50": 4,
+                        "transit_h_p90": 5,
+                        "min_shelf_life_days_at_receipt": 1,
+                        "capacity_kg": null,
+                        "max_arrival_pulp_c": null,
+                        "freight_usd": 600,
+                        "evidence_id": "EV:PACK:PACK-00000031#/candidate_destinations/1"
+                      }
+                    ],
+                    "documents": [
+                      {
+                        "doc_id": "DOC-SFI-044812",
+                        "doc_type": "INSPECTION_CERT",
+                        "sha256": "9c1d8e2f4a6b3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d",
+                        "received_at": "2026-10-06T03:10:00Z",
+                        "claims": [
+                          {
+                            "claim_key": "pulp_temp_at_loading_c",
+                            "value": 1,
+                            "unit": "C",
+                            "claimed_at": "2026-10-06T01:40:00Z",
+                            "consistency": {
+                              "verdict": "CONSISTENT",
+                              "sensor_value": 0.9,
+                              "delta": 0.1,
+                              "rule_id": "TEMP_AT_TIME@1"
+                            },
+                            "evidence_id": "EV:DOC:DOC-SFI-044812#pulp_temp_at_loading_c"
+                          }
+                        ]
+                      }
+                    ],
+                    "inspection_sites": [
+                      {
+                        "site_id": "SITE-CVDC-TRACY",
+                        "transit_h_p50": 1.5,
+                        "transit_h_p90": 2,
+                        "freight_usd": 500,
+                        "evidence_id": "EV:PACK:PACK-00000031#/inspection_sites/0"
+                      }
+                    ],
+                    "data_gaps": [],
+                    "deadline_inputs": {
+                      "windows": [
+                        {
+                          "kind": "REROUTE",
+                          "site_id": "SITE-JCT-I80-SAC",
+                          "closes_at": "2026-10-06T10:05:00Z"
+                        }
+                      ]
+                    },
+                    "content_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d"
+                  },
+                  "packs": [
+                    {
+                      "pack_id": "PACK-00000031",
+                      "decision_point": "D1",
+                      "revision": 1,
+                      "as_of": "2026-10-06T07:21:00Z",
+                      "sealed_at": "2026-10-06T07:21:12Z",
+                      "content_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d"
+                    }
+                  ],
+                  "thermal": [
+                    {
+                      "lot_id": "L-A",
+                      "threshold_c": 1.8,
+                      "as_of": "2026-10-06T07:20:00Z",
+                      "truncated": false,
+                      "buckets": [
+                        {
+                          "start": "2026-10-05T13:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 16.01,
+                          "max_pulp_c": 17.4,
+                          "excess_h": 1.2638
+                        },
+                        {
+                          "start": "2026-10-05T13:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 14.52,
+                          "max_pulp_c": 15.91,
+                          "excess_h": 1.027
+                        },
+                        {
+                          "start": "2026-10-05T13:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 13.03,
+                          "max_pulp_c": 14.42,
+                          "excess_h": 0.8259
+                        },
+                        {
+                          "start": "2026-10-05T13:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 11.54,
+                          "max_pulp_c": 12.93,
+                          "excess_h": 0.6552
+                        },
+                        {
+                          "start": "2026-10-05T14:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 10.05,
+                          "max_pulp_c": 11.44,
+                          "excess_h": 0.5102
+                        },
+                        {
+                          "start": "2026-10-05T14:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 8.56,
+                          "max_pulp_c": 9.95,
+                          "excess_h": 0.3872
+                        },
+                        {
+                          "start": "2026-10-05T14:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 7.07,
+                          "max_pulp_c": 8.46,
+                          "excess_h": 0.2827
+                        },
+                        {
+                          "start": "2026-10-05T14:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 5.58,
+                          "max_pulp_c": 6.97,
+                          "excess_h": 0.194
+                        },
+                        {
+                          "start": "2026-10-05T15:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 4.09,
+                          "max_pulp_c": 5.48,
+                          "excess_h": 0.1187
+                        },
+                        {
+                          "start": "2026-10-05T15:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.6,
+                          "max_pulp_c": 3.99,
+                          "excess_h": 0.0548
+                        },
+                        {
+                          "start": "2026-10-05T15:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.23,
+                          "max_pulp_c": 2.58,
+                          "excess_h": 0.0208
+                        },
+                        {
+                          "start": "2026-10-05T15:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 1.85,
+                          "max_pulp_c": 2.2,
+                          "excess_h": 0.0076
+                        },
+                        {
+                          "start": "2026-10-05T16:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 1,
+                          "min_pulp_c": 1.57,
+                          "max_pulp_c": 1.83,
+                          "excess_h": 0.0001
+                        },
+                        {
+                          "start": "2026-10-05T16:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.47,
+                          "max_pulp_c": 1.56,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T16:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.38,
+                          "max_pulp_c": 1.47,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T16:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.28,
+                          "max_pulp_c": 1.37,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.19,
+                          "max_pulp_c": 1.28,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.09,
+                          "max_pulp_c": 1.18,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1,
+                          "max_pulp_c": 1.08,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T17:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.99,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.9,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.9,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T18:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.89,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T19:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.89,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T20:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.88,
+                          "max_pulp_c": 0.88,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T21:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.87,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.87,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T22:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.86,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.86,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-05T23:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.85,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.85,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T00:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:00:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:15:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:30:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.84,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T01:45:00Z",
+                          "holder_party_id": "PARTY-EMERALD-RIDGE",
+                          "holder_type": "PACKHOUSE",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.84,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T02:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.83,
+                          "max_pulp_c": 0.83,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T03:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.82,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T04:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.81,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.81,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.8,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T05:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.8,
+                          "max_pulp_c": 0.8,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 0.82,
+                          "max_pulp_c": 1.11,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.13,
+                          "max_pulp_c": 1.41,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:30:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 0,
+                          "min_pulp_c": 1.43,
+                          "max_pulp_c": 1.72,
+                          "excess_h": 0
+                        },
+                        {
+                          "start": "2026-10-06T06:45:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 11,
+                          "min_pulp_c": 1.74,
+                          "max_pulp_c": 2.23,
+                          "excess_h": 0.0058
+                        },
+                        {
+                          "start": "2026-10-06T07:00:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 15,
+                          "reading_min": 15,
+                          "breach_min": 15,
+                          "min_pulp_c": 2.26,
+                          "max_pulp_c": 2.81,
+                          "excess_h": 0.0257
+                        },
+                        {
+                          "start": "2026-10-06T07:15:00Z",
+                          "holder_party_id": "PARTY-SIERRA",
+                          "holder_type": "CARRIER",
+                          "readings": 5,
+                          "reading_min": 5,
+                          "breach_min": 5,
+                          "min_pulp_c": 2.85,
+                          "max_pulp_c": 3,
+                          "excess_h": 0.0133
+                        }
+                      ]
+                    }
+                  ],
+                  "findings": [
+                    {
+                      "finding_id": "FND-00000020",
+                      "decision_point": "D1",
+                      "revision": 1,
+                      "pack_id": "PACK-00000031",
+                      "decider_kind": "RULE",
+                      "run_id": null,
+                      "status": "ACCEPTED",
+                      "unadjudicated": true,
+                      "confidence": null,
+                      "finding": null,
+                      "finding_hash": null,
+                      "created_at": "2026-10-06T07:21:13Z",
+                      "created_by": "BBC_ENGINE_SVC"
+                    }
+                  ]
+                },
+                "options": [],
+                "decision": {
+                  "recommendations": []
+                },
+                "governance": {
+                  "policy": {
+                    "policy_version": "1",
+                    "kill_switches": {
+                      "autonomy_ceiling": 4,
+                      "shadow_mode": false,
+                      "fallback_enabled": true,
+                      "dispatch_enabled": true
+                    }
+                  },
+                  "evaluations": [],
+                  "approvals": [],
+                  "fallback": {
+                    "option_id": "OPT-00000103",
+                    "label": "Inspect at Central Valley DC (safe fallback)",
+                    "runs_at": "2026-10-06T09:35:00Z"
+                  }
+                },
+                "execution": {
+                  "plans": [],
+                  "mutations": []
+                },
+                "outcome": {
+                  "lots": [],
+                  "claims": []
+                },
+                "agents": {
+                  "runs": []
+                },
+                "evidence": {
+                  "sealed": false,
+                  "sealed_at": null,
+                  "ledger": {
+                    "entries": [
+                      {
+                        "seq": 412,
+                        "ts": "2026-10-06T07:20:40.000000Z",
+                        "entry_type": "CASE_OPENED",
+                        "actor": "SYSTEM",
+                        "record_ref": "BBC_OS.DECISION.CASES#CASE-00000017",
+                        "payload_hash": "30cc469fb6018ea3e456eae6bb7b36f0d6ab9b44e6b11fffdf9509c492225567",
+                        "prev_hash": "d82b63f971fd4f520d8d31cc77ef8cd9bcc23e26b90bc333ce3b5d5ff8bf0478",
+                        "entry_hash": "e34c4efcd1f92615265acd8374e1a104c7e6fcd8b737d5c0050340f9ddfafa88"
+                      },
+                      {
+                        "seq": 413,
+                        "ts": "2026-10-06T07:21:12.000000Z",
+                        "entry_type": "ASSESSMENT_SEALED",
+                        "actor": "BBC_ENGINE_SVC",
+                        "record_ref": "BBC_OS.EVIDENCE.EVIDENCE_PACKS#PACK-00000031",
+                        "payload_hash": "94fe1ee15f5e071a3a581c094776f4e0b0afb66ef0f3a050a3f2944ce1744cbd",
+                        "prev_hash": "e34c4efcd1f92615265acd8374e1a104c7e6fcd8b737d5c0050340f9ddfafa88",
+                        "entry_hash": "79312072968e12c38b4944a17a3bdb16753deb58511757484bae1b4d1748cc46"
+                      },
+                      {
+                        "seq": 414,
+                        "ts": "2026-10-06T07:21:13.000000Z",
+                        "entry_type": "FINDING",
+                        "actor": "BBC_ENGINE_SVC",
+                        "record_ref": "BBC_OS.DECISION.CAUSATION_FINDINGS#FND-00000020",
+                        "payload_hash": "ec3c201e2fc53580f38d09a40788f007ec4ae237314e09b18675920df3fcbc88",
+                        "prev_hash": "79312072968e12c38b4944a17a3bdb16753deb58511757484bae1b4d1748cc46",
+                        "entry_hash": "2ba1a6a10e3817e4c9e563500f8f02a6f5dbab41bea4a1083e98f1715d6d346e"
+                      }
+                    ],
+                    "first_seq": 412,
+                    "last_seq": 414,
+                    "truncated": false
+                  }
+                }
+              },
+              "viewers": {
+                "quality": {
+                  "user": "BBC_DEMO_QUALITY",
+                  "role": "BBC_QUALITY_MGR",
+                  "available_actions": []
+                },
+                "sales": {
+                  "user": "BBC_DEMO_SALES",
+                  "role": "BBC_SALES_MGR",
+                  "available_actions": []
+                },
+                "finance": {
+                  "user": "BBC_DEMO_FINANCE",
+                  "role": "BBC_FINANCE_MGR",
+                  "available_actions": [
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": true,
+                      "disabled_reason": null
+                    }
+                  ]
+                },
+                "auditor": {
+                  "user": "BBC_DEMO_AUDITOR",
+                  "role": "BBC_AUDITOR",
+                  "available_actions": [
+                    {
+                      "action": "VERIFY_LEDGER",
+                      "enabled": true,
+                      "disabled_reason": null
+                    },
+                    {
+                      "action": "REPLAY_EVIDENCE",
+                      "enabled": true,
+                      "disabled_reason": null,
+                      "pack_ids": [
+                        "PACK-00000031"
+                      ]
+                    },
+                    {
+                      "action": "EXPORT_EVIDENCE_PACK",
+                      "enabled": true,
+                      "disabled_reason": null
+                    }
+                  ]
+                },
+                "govadmin": {
+                  "user": "BBC_DEMO_GOVADMIN",
+                  "role": "BBC_GOVERNANCE_ADMIN",
+                  "available_actions": [
+                    {
+                      "action": "EMERGENCY_STOP",
+                      "enabled": true,
+                      "disabled_reason": null
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ],
+      "responses": [
+        {
+          "call": "VERIFY_LEDGER",
+          "persona": "auditor",
+          "at_frames": [
+            0
+          ],
+          "match": {
+            "ledger_table": "BBC_OS.LEDGER.ENTRIES"
+          },
+          "result": {
+            "ok": true,
+            "table": "BBC_OS.LEDGER.ENTRIES",
+            "entries": 412,
+            "first_bad_seq": null,
+            "reason": null
+          },
+          "advance_to_frame": null
+        },
+        {
+          "call": "VERIFY_LEDGER",
+          "persona": "auditor",
+          "at_frames": [
+            1
+          ],
+          "match": {
+            "ledger_table": "BBC_OS.LEDGER.ENTRIES"
+          },
+          "result": {
+            "ok": true,
+            "table": "BBC_OS.LEDGER.ENTRIES",
+            "entries": 414,
+            "first_bad_seq": null,
+            "reason": null
+          },
+          "advance_to_frame": null
+        },
+        {
+          "call": "REPLAY_EVIDENCE",
+          "persona": "auditor",
+          "at_frames": [
+            1
+          ],
+          "match": {
+            "pack_id": "PACK-00000031"
+          },
+          "result": {
+            "status": "OK",
+            "pack_id": "PACK-00000031",
+            "as_of": "2026-10-06T07:21:00Z",
+            "original_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d",
+            "replayed_hash": "5e0c2a7f9b1d3e5f7a9c1e3f5a7b9d1f3e5a7c9e1f3a5b7d9f1e3a5c7e9a1b3d",
+            "equal": true,
+            "diff": [],
+            "replayed_at": "2026-10-06T07:22:13Z"
+          },
+          "advance_to_frame": null
+        },
+        {
+          "call": "EXPORT_EVIDENCE_PACK",
+          "persona": "auditor",
+          "at_frames": [
+            1
+          ],
+          "match": {
+            "case_id": "CASE-00000017"
+          },
+          "result": {
+            "status": "OK",
+            "case_id": "CASE-00000017",
+            "stage_path": "@BBC_OS.EVIDENCE.EXPORT_STAGE/CASE-00000017/evidence-414.json",
+            "url": "https://pndvhar-pt70809.snowflakecomputing.com/fixture-export/CASE-00000017/414",
+            "url_expires_at": "2026-10-06T08:22:13Z",
+            "sha256": "86248eb5c80395bf809c504aa8d8bd46e442aae2e8cf06b1136ebe0d197b5d63",
+            "bytes": 43000,
+            "ledger_from_seq": 412,
+            "ledger_to_seq": 414,
+            "exported_at": "2026-10-06T07:22:13Z"
+          },
+          "advance_to_frame": null
+        }
+      ],
+      "analyst": [
+        {
+          "question": "Which lots have less than 10 days of shelf life left?",
+          "answer": {
+            "question": "Which lots have less than 10 days of shelf life left?",
+            "semantic_view": "BBC_OS.SEM.EXCURSION_RECOVERY",
+            "interpretation": "Lots whose remaining shelf life, as of their last reading, is below 10 days.",
+            "sql": "SELECT * FROM SEMANTIC_VIEW(BBC_OS.SEM.EXCURSION_RECOVERY DIMENSIONS lots.lot_id, products.variety METRICS lot_thermal.remaining_shelf_life_days) WHERE remaining_shelf_life_days < 10 ORDER BY remaining_shelf_life_days",
+            "executed_as": {
+              "user": "BBC_DEMO_QUALITY",
+              "role": "BBC_QUALITY_MGR"
+            },
+            "columns": [
+              {
+                "name": "LOT_ID",
+                "type": "text"
+              },
+              {
+                "name": "VARIETY",
+                "type": "text"
+              },
+              {
+                "name": "REMAINING_SHELF_LIFE_DAYS",
+                "type": "fixed"
+              }
+            ],
+            "rows": [
+              [
+                "L-B",
+                "Duke",
+                7.4
+              ],
+              [
+                "L-A",
+                "Emerald",
+                9
+              ]
+            ],
+            "row_count": 2,
+            "truncated": false,
+            "request_id": "fixture-an-01",
+            "warnings": [],
+            "suggestions": [
+              "Which carriers held lots during breaches today?"
+            ],
+            "executed_at": "2026-10-06T07:30:00Z"
+          }
+        }
+      ],
+      "agent_traces": {}
+    }
+  ],
+  "invalid": [
+    {
+      "why": "provenance is synthetic or a named live recording",
+      "base": 0,
+      "set": {
+        "/provenance": "made up"
+      }
+    },
+    {
+      "why": "personas are the five demo personas",
+      "base": 0,
+      "set": {
+        "/personas/admin": {
+          "user": "ADMIN",
+          "role": "BBC_AUDITOR"
+        }
+      }
+    },
+    {
+      "why": "recorded calls are persona-facing interfaces only",
+      "base": 0,
+      "set": {
+        "/responses/0/call": "ADVANCE_CASE"
+      }
+    },
+    {
+      "why": "frames hold valid case views",
+      "base": 0,
+      "delete": [
+        "/frames/0/cases/CASE-00000017/view/case"
+      ]
+    }
+  ]
+}

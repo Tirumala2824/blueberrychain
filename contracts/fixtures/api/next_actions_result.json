@@ -1,0 +1,68 @@
+{
+  "schema": "api/next_actions_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "actions": [
+        {
+          "mutation_id": "MUT-00000301",
+          "attempt": 1,
+          "intent": {
+            "case_id": "CASE-00000017",
+            "decision_point": "D1",
+            "rec_id": "REC-00000044",
+            "option_id": "OPT-00000102",
+            "plan_id": "PLAN-00000012",
+            "step_seq": 2,
+            "action_type": "REROUTE",
+            "target_system": "TMS",
+            "target_entity": {
+              "type": "SHIPMENT",
+              "id": "SHP-20261006-114"
+            },
+            "payload": {
+              "new_destination_site_id": "SITE-BAYLINE-SAC",
+              "via_junction_site_id": "SITE-JCT-I80-SAC"
+            },
+            "idempotency_key": "c4a1e9d2b7f3a5c8e0d6b2f4a8c1e3d5b7f9a2c4e6d8b0f2a4c6e8d0b2f4a6c8",
+            "brief_hash": "7a3e5c9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c",
+            "pack_id": "PACK-00000031",
+            "expected_before": {
+              "status": "IN_TRANSIT",
+              "destination_site_id": "SITE-SUMMIT-SLC",
+              "junction_passed": false
+            },
+            "expected_after": {
+              "destination_site_id": "SITE-BAYLINE-SAC"
+            },
+            "compensation_of": null,
+            "requested_by": {
+              "kind": "ENGINE",
+              "principal": "BBC_ENGINE_SVC"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "status": "STOPPED",
+      "actions": []
+    }
+  ],
+  "invalid": [
+    {
+      "why": "the intent must be a valid mutation intent",
+      "base": 0,
+      "delete": [
+        "/actions/0/intent/idempotency_key"
+      ]
+    },
+    {
+      "why": "attempts start at 1",
+      "base": 0,
+      "set": {
+        "/actions/0/attempt": 0
+      }
+    }
+  ]
+}

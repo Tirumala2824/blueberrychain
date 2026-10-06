@@ -1,0 +1,54 @@
+{
+  "schema": "api/decide_approval_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "APPROVED",
+      "ledger_seq": 420,
+      "case_state": "PENDING_APPROVAL"
+    },
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "STALE",
+      "ledger_seq": 431,
+      "case_state": "PENDING_APPROVAL"
+    },
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "APPROVED",
+      "replayed": true
+    },
+    {
+      "status": "DENIED",
+      "errors": [
+        "the proposer cannot approve"
+      ]
+    }
+  ],
+  "invalid": [
+    {
+      "why": "approval statuses are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/approval_status": "OK"
+      }
+    },
+    {
+      "why": "an OK result names the approval",
+      "base": 0,
+      "delete": [
+        "/approval_id"
+      ]
+    },
+    {
+      "why": "case states are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/case_state": "WAITING"
+      }
+    }
+  ]
+}

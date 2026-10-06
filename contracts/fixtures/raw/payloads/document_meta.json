@@ -1,0 +1,24 @@
+{
+  "schema": "raw/payloads/document_meta.json",
+  "valid": [
+    {
+      "doc_id": "DOC-SFI-044812",
+      "doc_type": "INSPECTION_CERT",
+      "stage_path": "inspection/2026/10/06/DOC-SFI-044812.pdf",
+      "sha256": "9c1d8e2f4a6b3c5d7e9f1a2b4c6d8e0f2a4b6c8d0e2f4a6b8c0d2e4f6a8b0c2d",
+      "source": "sierra-fresh-inspections",
+      "lot_id": "L-A",
+      "shipment_id": null,
+      "contract_id": null
+    }
+  ],
+  "invalid": [
+    {
+      "why": "stage paths cannot escape with spaces or odd characters",
+      "base": 0,
+      "set": {
+        "/stage_path": "../../etc passwd"
+      }
+    }
+  ]
+}
