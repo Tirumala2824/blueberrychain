@@ -32,7 +32,7 @@ jobs:
           - service: blueberrychain-control-tower-dev
             image: control-tower
             dockerfile: Dockerfile
-            env_vars: "SNOWFLAKE_ACCOUNT=pndvhar-pt70809,SNOWFLAKE_HOST=pndvhar-pt70809.snowflakecomputing.com,BBC_DATABASE=BBC_OS,BBC_APP_WAREHOUSE=BBC_APP_WH,BBC_API_MODE=live,BBC_CT_ALLOWED_ORIGINS=https://blueberrychain-control-tower-dev-1061285537090.europe-west1.run.app"
+            env_vars: "SNOWFLAKE_ACCOUNT=pndvhar-pt70809,SNOWFLAKE_HOST=pndvhar-pt70809.snowflakecomputing.com,BBC_DATABASE=BBC_OS,BBC_APP_WAREHOUSE=BBC_APP_WH,BBC_API_MODE=fixture,BBC_CT_ALLOWED_ORIGINS=https://blueberrychain-control-tower-dev-1061285537090.europe-west1.run.app"
             secrets: "BBC_QUALITY_PAT=bbc-quality-pat:latest,BBC_SALES_PAT=bbc-sales-pat:latest,BBC_FINANCE_PAT=bbc-finance-pat:latest,BBC_AUDITOR_PAT=bbc-auditor-pat:latest,BBC_GOVADMIN_PAT=bbc-govadmin-pat:latest,BBC_CT_SESSION_SECRET=bbc-ct-session-secret:latest,BBC_CT_ACCESS_CODE=bbc-ct-access-code:latest"
           - service: blueberrychain-engine-api-dev
             image: engine-api
