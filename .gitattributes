@@ -1,0 +1,8 @@
+# Normalize text to LF everywhere (scripts, SQL and JSON hash identically across OSes)
+* text=auto eol=lf
+
+# Binary documents - never convert line endings (PDF xref byte offsets must stay exact)
+*.pdf  binary
+*.pptx binary
+*.png  binary
+*.jpg  binary

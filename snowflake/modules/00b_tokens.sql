@@ -1,0 +1,20 @@
+-- =============================================================================
+-- BlueberryChain OS - WP1 programmatic access tokens
+-- Run as ACCOUNTADMIN in a Snowsight worksheet or `snow sql` - NOT in an AI
+-- chat session: each statement returns a token secret exactly once, and chat
+-- transcripts are stored on disk. Paste each secret into your local .env
+-- (gitignored) under the variable named in the comment. Never commit them.
+--
+-- Each token is role-restricted to the user's single runtime role.
+-- To rotate later: ALTER USER <user> ROTATE PROGRAMMATIC ACCESS TOKEN BBC_PAT;
+-- =============================================================================
+USE ROLE ACCOUNTADMIN;
+
+ALTER USER BBC_INGEST_SVC    ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_INGEST'           DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_INGEST_PAT';
+ALTER USER BBC_ENGINE_SVC    ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_ENGINE'           DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_ENGINE_PAT';
+ALTER USER BBC_AGENT_SVC     ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_AGENT_RUNTIME'    DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_AGENT_PAT';
+ALTER USER BBC_DEMO_QUALITY  ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_QUALITY_MGR'      DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_QUALITY_PAT';
+ALTER USER BBC_DEMO_SALES    ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_SALES_MGR'        DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_SALES_PAT';
+ALTER USER BBC_DEMO_FINANCE  ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_FINANCE_MGR'      DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_FINANCE_PAT';
+ALTER USER BBC_DEMO_AUDITOR  ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_AUDITOR'          DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_AUDITOR_PAT';
+ALTER USER BBC_DEMO_GOVADMIN ADD PROGRAMMATIC ACCESS TOKEN BBC_PAT ROLE_RESTRICTION = 'BBC_GOVERNANCE_ADMIN' DAYS_TO_EXPIRY = 30 COMMENT = '.env BBC_GOVADMIN_PAT';
