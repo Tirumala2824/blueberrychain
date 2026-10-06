@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS PARTIES (
   version NUMBER(10,0) NOT NULL, valid_from TIMESTAMP_TZ NOT NULL, valid_to TIMESTAMP_TZ, is_current BOOLEAN NOT NULL,
   changed_by STRING NOT NULL, change_reason STRING NOT NULL, record_hash STRING NOT NULL, batch_id STRING NOT NULL
 ) COMMENT = 'Companies: own company, growers, carriers, customers, processors.';
+-- Added by WP6b (contract field party.sales_channel): the channel a buyer is priced at.
+ALTER TABLE PARTIES ADD COLUMN IF NOT EXISTS sales_channel STRING;
 
 CREATE TABLE IF NOT EXISTS SITES (
   site_id STRING NOT NULL, party_id STRING NOT NULL, site_type STRING NOT NULL, name STRING NOT NULL,

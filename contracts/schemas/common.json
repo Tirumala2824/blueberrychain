@@ -86,6 +86,25 @@
                "ORGANIC_INTEGRITY", "CONTRACT_PROHIBITS", "INVENTORY_STALE", "INSUFFICIENT_EVIDENCE"]
     },
     "policy_outcome": { "enum": ["AUTO", "APPROVE", "DENY", "SHADOW"] },
+    "evaluation_outcome": {
+      "enum": ["AUTO", "APPROVE", "HUMAN_INITIATE", "OBSERVE_ONLY", "DENY"],
+      "description": "Outcome of one policy evaluation (DECISION.POLICY_EVALUATIONS.outcome). Shadow is a separate flag, not an outcome."
+    },
+    "approval_status": { "enum": ["REQUESTED", "APPROVED", "ALTERNATIVE_CHOSEN", "REJECTED", "EXPIRED", "STALE"] },
+    "approval_verdict": {
+      "enum": ["APPROVE", "CHOOSE_ALTERNATIVE", "REJECT"],
+      "description": "What an approver submits to API.DECIDE_APPROVAL."
+    },
+    "agent_name": { "enum": ["EXCURSION_FORENSICS", "RECOVERY_STRATEGIST", "CLAIMS_RECOVERY", "EVIDENCE_AUDITOR"] },
+    "audit_status": { "enum": ["NOT_REQUIRED", "PENDING", "PASS", "FAIL", "UNVERIFIED"] },
+    "api_status": {
+      "enum": ["OK", "INVALID", "DENIED"],
+      "description": "Status of every API procedure result: OK, INVALID (malformed input) or DENIED (refused by governance)."
+    },
+    "ledger_seq": { "type": "integer", "minimum": 1 },
+    "persona_role": {
+      "enum": ["BBC_QUALITY_MGR", "BBC_SALES_MGR", "BBC_FINANCE_MGR", "BBC_AUDITOR", "BBC_GOVERNANCE_ADMIN"]
+    },
     "action_type": {
       "enum": ["STOCK_BLOCK", "STOCK_UNBLOCK", "REQUEST_EVIDENCE", "WITHDRAW_REQUEST",
                "CLAIM_NOTICE", "WITHDRAW_NOTICE", "SO_CHANGE", "SO_REVERT",

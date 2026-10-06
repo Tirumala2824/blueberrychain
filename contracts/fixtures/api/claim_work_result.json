@@ -1,0 +1,40 @@
+{
+  "schema": "api/claim_work_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "work": {
+        "case_id": "CASE-00000023",
+        "decision_point": "D1",
+        "state": "FORENSICS_PENDING",
+        "state_version": 3,
+        "step": "AGENT",
+        "agent": "EXCURSION_FORENSICS",
+        "artifact_id": null,
+        "attempt": 1,
+        "lease_owner": "engine-1/worker-0",
+        "lease_until": "2026-10-06T07:10:00Z"
+      }
+    },
+    {
+      "status": "OK",
+      "work": null
+    }
+  ],
+  "invalid": [
+    {
+      "why": "steps are ADVANCE or AGENT",
+      "base": 0,
+      "set": {
+        "/work/step": "ROUTE"
+      }
+    },
+    {
+      "why": "agents are the four registered names",
+      "base": 0,
+      "set": {
+        "/work/agent": "SUPERVISOR"
+      }
+    }
+  ]
+}

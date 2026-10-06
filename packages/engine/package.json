@@ -1,0 +1,41 @@
+{
+  "name": "@blueberrychain/engine",
+  "version": "0.1.0",
+  "description": "BlueberryChain OS engine: lifecycle worker (Snowflake-directed agent runs) and mutation dispatcher, with a loopback live-trace relay",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "bbc-engine": "./dist/main.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node --env-file-if-exists=../../.env dist/main.js"
+  },
+  "dependencies": {
+    "@blueberrychain/bbc-api": "workspace:*",
+    "@blueberrychain/connector-carrier": "workspace:*",
+    "@blueberrychain/connector-sap-s4": "workspace:*",
+    "@blueberrychain/connector-sdk": "workspace:*",
+    "@blueberrychain/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@blueberrychain/mock-tms": "workspace:*",
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}

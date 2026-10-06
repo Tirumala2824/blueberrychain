@@ -123,11 +123,11 @@ Claude re-runs step 7 read-only and marks WP2 done.
 ## Result log (fill in)
 | Item | Result | Notes / changes CoCo made |
 |---|---|---|
-| 05_code_stage.sql | | |
-| bbc deploy python | | |
-| 10 / 20 / 30 / 40 | | |
-| 50_governed_procs.sql (runtime used) | | |
-| CANONICAL_HASH smoke | | |
-| bbc ref load (first / second run) | | |
-| policy draft / activate as builder / as govadmin | | |
-| bbc test sql | | |
+| 05_code_stage.sql | PASS (2026-10-06) | — |
+| bbc deploy python | PASS | — |
+| 10 / 20 / 30 / 40 | PASS | Unchanged; GOV 9, LEDGER 2, RAW 4, REF 9; HEAD genesis row |
+| 50_governed_procs.sql (runtime used) | PASS, 3.12 | Fixed: `COMMENT` must precede `EXECUTE AS` (same fix in 55 and 81) |
+| CANONICAL_HASH smoke | PASS | `2a01d03b…3356` |
+| bbc ref load (first / second run) | PASS | First run exposed two bugs, both fixed: VARIANT args now `PARSE_JSON(?)` in the CALL; `bind_nulls` stops Snowpark binding `None` as `'None'`. The 9 bad bootstrap rows were reset; then 9 batches = ledger #1-#9; second run all `no change` |
+| policy draft / activate as builder / as govadmin | PASS | Auditor model set to openai-gpt-5 (S7). Draft = ledger #10; builder activation DENIED; govadmin OK = ledger #11 |
+| bbc test sql | PASS | 23/23 (00, 02_*) |

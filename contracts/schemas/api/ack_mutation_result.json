@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/ack_mutation_result.json",
+  "title": "ACK_MUTATION result",
+  "description": "API.ACK_MUTATION(mutation_id, report), called by the engine. Snowflake re-checks the report against the intent, records it, advances the plan and the case, and writes the ledger.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "mutation_id", "mutation_status", "plan_status", "case_state"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "mutation_id": { "$ref": "../common.json#/$defs/mutation_id" },
+        "mutation_status": { "$ref": "../common.json#/$defs/mutation_status" },
+        "plan_status": {
+          "oneOf": [{ "enum": ["PLANNED", "EXECUTING", "DONE", "PARTIAL", "COMPENSATING", "COMPENSATED", "FAILED"] }, { "type": "null" }]
+        },
+        "case_state": { "oneOf": [{ "$ref": "../common.json#/$defs/case_state" }, { "type": "null" }] }
+      }
+    }
+  ]
+}

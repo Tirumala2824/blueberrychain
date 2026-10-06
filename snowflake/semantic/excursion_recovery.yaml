@@ -43,6 +43,28 @@ views:
     SELECT s.*, COALESCE(a.allocated_kg, 0) AS allocated_kg,
            GREATEST(s.unrestricted_kg - COALESCE(a.allocated_kg, 0), 0) AS atp_kg
     FROM s LEFT JOIN a ON a.lot_id = s.lot_id
+  # Inside a semantic view a fact that reads a column named like a metric resolves to the metric
+  # ("Cyclic reference of expressions"), so the two columns that share a governed metric's name
+  # are renamed here. Values are the OPS Dynamic Tables', unchanged.
+  LOT_THERMAL: |
+    SELECT * RENAME (remaining_shelf_life_days AS remaining_days) FROM BBC_OS.OPS.LOT_THERMAL_STATE
+  CUSTODY_EXPOSURE: |
+    SELECT * RENAME (excess_life_share AS share) FROM BBC_OS.OPS.LOT_CUSTODY_EXPOSURE
+  # Decision layer (WP6b). Column names differ from the metric names for the same reason.
+  CASE_FACTS: |
+    SELECT case_id, decision_point, state AS case_state, severity, holder_type_at_onset,
+           DATE(CONVERT_TIMEZONE('UTC', detected_at)) AS detected_date,
+           DATEDIFF('second', onset_at, detected_at) / 60 AS detect_min, 1 AS one
+    FROM BBC_OS.DECISION.CASES
+  DECISIONS: |
+    SELECT rec_id, case_id, decision_point, decided_by, policy_outcome, autonomy_level, option_key,
+           planned_value_usd AS planned_usd, default_counterfactual_usd AS default_nrv_usd,
+           value_at_risk_usd AS risk_usd, predicted_nrv_usd AS chosen_nrv_usd,
+           time_to_decision_min AS decide_min, approval_latency_min AS approve_min,
+           IFF(decided_by = 'RULE', 1, 0) AS by_rule, IFF(decided_by = 'AGENT', 1, 0) AS by_agent,
+           IFF(alternatives_chosen > 0, 1, 0) AS overridden,
+           IFF(approvals_requested > 0, 1, NULL) AS approval_needed
+    FROM BBC_OS.DECISION.V_DECISIONS WHERE status <> 'SUPERSEDED'
 
 tables:
   - alias: lots
@@ -74,11 +96,11 @@ tables:
     primary_key: [site_id]
     comment: Stock locations.
   - alias: lot_thermal
-    table: BBC_OS.OPS.LOT_THERMAL_STATE
+    table: BBC_OS.SEM.LOT_THERMAL
     primary_key: [lot_id]
     comment: Lot physics as of the last reading.
   - alias: custody_exposure
-    table: BBC_OS.OPS.LOT_CUSTODY_EXPOSURE
+    table: BBC_OS.SEM.CUSTODY_EXPOSURE
     primary_key: [lot_id, holder_party_id]
     comment: Lot physics per custody holder.
   - alias: shipments
@@ -97,6 +119,14 @@ tables:
     table: BBC_OS.SEM.INVENTORY_POSITIONS
     primary_key: [site_id, lot_id, snapshot_at]
     comment: Stock positions per snapshot (semi-additive over snapshot_at).
+  - alias: cases
+    table: BBC_OS.SEM.CASE_FACTS
+    primary_key: [case_id]
+    comment: Recovery Cases (one excursion episode each).
+  - alias: decisions
+    table: BBC_OS.SEM.DECISIONS
+    primary_key: [rec_id]
+    comment: Recommendations with their values, verdict and approval latency (one per decision).
 
 # Many-to-one only (Phase 9 fan-out rule).
 relationships:
@@ -112,6 +142,7 @@ relationships:
   - { name: order_lot, from: order_lines, columns: [assigned_lot_id], to: lots }
   - { name: inventory_lot, from: inventory, columns: [lot_id], to: lots }
   - { name: inventory_site, from: inventory, columns: [site_id], to: sites }
+  - { name: decision_case, from: decisions, columns: [case_id], to: cases }
 
 dimensions:
   - { name: lots.lot_id, expr: lots.lot_id }
@@ -134,20 +165,42 @@ dimensions:
   - { name: order_lines.order_line_id, expr: order_lines.order_line_id }
   - { name: order_lines.order_status, expr: order_lines.status }
   - { name: inventory.snapshot_at, expr: inventory.snapshot_at, comment: Stock snapshot time; inventory metrics never sum across it }
+  - { name: cases.case_id, expr: cases.case_id }
+  - { name: cases.case_state, expr: cases.case_state }
+  - { name: cases.severity, expr: cases.severity }
+  - { name: cases.holder_type_at_onset, expr: cases.holder_type_at_onset, synonyms: [custody holder at onset] }
+  - { name: cases.detected_date, expr: cases.detected_date, comment: UTC date of detection (event time) }
+  - { name: decisions.rec_id, expr: decisions.rec_id }
+  - { name: decisions.decision_point, expr: decisions.decision_point }
+  - { name: decisions.decided_by, expr: decisions.decided_by, synonyms: [decider kind], comment: RULE, AGENT, HUMAN or FALLBACK }
+  - { name: decisions.policy_outcome, expr: decisions.policy_outcome, comment: AUTO, APPROVE, HUMAN_INITIATE, OBSERVE_ONLY or DENY }
+  - { name: decisions.chosen_option, expr: decisions.option_key }
 
 facts:
-  - { name: lot_thermal.remaining_days, expr: lot_thermal.remaining_shelf_life_days }
+  - { name: lot_thermal.remaining_days, expr: lot_thermal.remaining_days }
   - { name: lot_thermal.monitored_min, expr: lot_thermal.monitored_min }
   - { name: lot_thermal.breach_min, expr: lot_thermal.breach_min }
   - { name: lot_thermal.elapsed_h, expr: lot_thermal.elapsed_h }
   - { name: lot_thermal.as_of, expr: lot_thermal.as_of }
   - { name: custody_exposure.attributable_excess_h, expr: custody_exposure.attributable_excess_h }
-  - { name: custody_exposure.share, expr: custody_exposure.excess_life_share }
+  - { name: custody_exposure.share, expr: custody_exposure.share }
   - { name: custody_exposure.degree_min_above, expr: custody_exposure.degree_min_above }
   - { name: shipment_lots.kg, expr: shipment_lots.kg }
   - { name: order_lines.kg, expr: order_lines.kg }
   - { name: order_lines.value_usd, expr: order_lines.kg * order_lines.price_usd_per_kg }
   - { name: inventory.atp_kg, expr: inventory.atp_kg }
+  - { name: cases.one, expr: cases.one }
+  - { name: cases.detect_min, expr: cases.detect_min }
+  - { name: decisions.planned_usd, expr: decisions.planned_usd }
+  - { name: decisions.default_nrv_usd, expr: decisions.default_nrv_usd }
+  - { name: decisions.risk_usd, expr: decisions.risk_usd }
+  - { name: decisions.chosen_nrv_usd, expr: decisions.chosen_nrv_usd }
+  - { name: decisions.decide_min, expr: decisions.decide_min }
+  - { name: decisions.approve_min, expr: decisions.approve_min }
+  - { name: decisions.by_rule, expr: decisions.by_rule }
+  - { name: decisions.by_agent, expr: decisions.by_agent }
+  - { name: decisions.overridden, expr: decisions.overridden }
+  - { name: decisions.approval_needed, expr: decisions.approval_needed }
 
 # `registry` names the GOV.METRIC_REGISTRY entry a metric implements (its definition is hashed).
 metrics:
@@ -190,7 +243,53 @@ metrics:
   - name: order_lines.order_value_usd
     expr: SUM(order_lines.value_usd)
     comment: Order-line value at contract price.
+  # Decision layer (WP6b). Values are the engine's, frozen at decision time (OPTIONS).
+  - name: decisions.planned_value_usd
+    registry: PLANNED_VALUE_USD
+    expr: SUM(decisions.planned_usd)
+    comment: Contract value of the case lots as planned (kg x order price).
+  - name: decisions.default_counterfactual_usd
+    registry: DEFAULT_COUNTERFACTUAL_USD
+    expr: SUM(decisions.default_nrv_usd)
+    comment: Expected net realisable value of doing nothing, scored ex ante with the chosen option.
+  - name: decisions.value_at_risk_usd
+    registry: VALUE_AT_RISK_USD
+    expr: SUM(decisions.risk_usd)
+    comment: Planned value minus the expected value of doing nothing.
+  - name: decisions.predicted_nrv_usd
+    registry: PREDICTED_NRV_USD
+    expr: SUM(decisions.chosen_nrv_usd)
+    comment: Expected net realisable value of the chosen option.
+  - name: decisions.time_to_decision_min
+    registry: TIME_TO_DECISION_MIN
+    expr: AVG(decisions.decide_min)
+    comment: Case opened to recommendation (wall clock).
+  - name: decisions.approval_latency_min
+    registry: APPROVAL_LATENCY_MIN
+    expr: AVG(decisions.approve_min)
+    comment: Approval requested to decided, slowest role per decision (wall clock).
+  - name: decisions.rule_decided_share
+    registry: RULE_DECIDED_SHARE
+    expr: AVG(decisions.by_rule)
+    comment: Share of decisions made by the rule (no LLM).
+  - name: decisions.agent_decided_share
+    registry: AGENT_DECIDED_SHARE
+    expr: AVG(decisions.by_agent)
+    comment: Share of decisions chosen by an agent among non-dominated options.
+  - name: decisions.human_override_rate
+    registry: HUMAN_OVERRIDE_RATE
+    expr: AVG(decisions.overridden * decisions.approval_needed)
+    comment: Among decisions that needed approval, the share where an approver chose another option.
+  - name: cases.case_count
+    registry: CASE_COUNT
+    expr: SUM(cases.one)
+    comment: Recovery Cases.
+  - name: cases.time_to_detect_min
+    registry: TIME_TO_DETECT_MIN
+    expr: AVG(cases.detect_min)
+    comment: Breach onset to the reading at which the detection rule held (event time).
 
 ai_sql_generation: >-
   Never sum remaining shelf life, exposure or shares across lots. Never sum inventory
-  across snapshot times. Use the metrics as defined; do not recompute physics.
+  across snapshot times. Use the metrics as defined; do not recompute physics. Options are
+  mutually exclusive alternatives: decision values describe the chosen option only.

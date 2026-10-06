@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/export_result.json",
+  "title": "EXPORT_EVIDENCE_PACK result",
+  "description": "API.EXPORT_EVIDENCE_PACK(case_id): writes the pack(s) and the case's ledger slice as JSON to a stage and returns a presigned URL.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "case_id", "stage_path", "url", "url_expires_at", "sha256", "bytes", "ledger_from_seq", "ledger_to_seq", "exported_at"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "case_id": { "$ref": "../common.json#/$defs/case_id" },
+        "stage_path": { "type": "string", "maxLength": 500 },
+        "url": { "type": "string", "pattern": "^https://", "maxLength": 4000 },
+        "url_expires_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "sha256": { "$ref": "../common.json#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "ledger_from_seq": { "$ref": "../common.json#/$defs/ledger_seq" },
+        "ledger_to_seq": { "$ref": "../common.json#/$defs/ledger_seq" },
+        "exported_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    }
+  ]
+}

@@ -58,6 +58,32 @@ def test_canonical_hash_udf_matches_vectors():
         assert snow.udf_canonical_hash(v["input"]) == v["sha256"]
 
 
+# ---------------------------------------------------------------- null binding
+def test_none_parameters_become_null_literals():
+    q, p = snow.bind_nulls("INSERT INTO t SELECT ?, ?, PARSE_JSON(?), ?", ["a", None, "{}", None])
+    assert q == "INSERT INTO t SELECT ?, NULL, PARSE_JSON(?), NULL"
+    assert p == ["a", "{}"]
+
+
+def test_placeholders_inside_literals_are_untouched():
+    q, p = snow.bind_nulls("SELECT '?', $$a ? b$$, 'it''s ?', ?", [None])
+    assert q == "SELECT '?', $$a ? b$$, 'it''s ?', NULL"
+    assert p == []
+
+
+def test_no_none_leaves_query_as_is_and_counts_are_checked():
+    assert snow.bind_nulls("SELECT ?", [1]) == ("SELECT ?", [1])
+    with pytest.raises(ValueError):
+        snow.bind_nulls("SELECT ?, ?", [None])
+
+
+def test_only_real_snowpark_sessions_are_rewritten():
+    fake = FakeSnowflake()
+    snow.proc_ledger_append(fake, "TRANSITION", "", "a", "r", {})
+    insert = next(p for q, p in fake.statements if q.startswith("INSERT INTO BBC_OS.LEDGER"))
+    assert len(insert) == 11 and insert[4] is None  # the fake still sees every bind
+
+
 # -------------------------------------------------------------- reference data
 def test_reference_load_is_versioned_and_idempotent():
     fake = FakeSnowflake()

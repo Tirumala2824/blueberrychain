@@ -1,0 +1,13 @@
+.box {
+  border-left: 4px solid var(--amber);
+  background: var(--amber-wash);
+  padding: var(--space-3) var(--space-4);
+  display: grid;
+  gap: var(--space-1);
+  max-width: 760px;
+}
+
+.bad {
+  border-left-color: var(--breach);
+  background: var(--breach-wash);
+}

@@ -27,7 +27,9 @@ HOLDER_TYPES = {
     "PROCESSOR": "PROCESSOR",
     "PACKHOUSE": "PACKHOUSE",
 }
-CHANNELS = {"PARTY-BAYLINE": "REGIONAL", "PARTY-HARBOR": "FOODSERVICE", "PARTY-VFP": "PROCESSOR"}
+# Re-route destinations: every buyer whose reference record names a spot sales channel
+# (party.sales_channel). The contract customer's own channel is the plan, not a diversion.
+SPOT_CHANNELS = ("REGIONAL", "FOODSERVICE", "PROCESSOR")
 
 
 def _hash(value: Any) -> str:
@@ -266,7 +268,12 @@ def assess(
 
     destinations = []
     if before_junction:
-        for party_id, channel in CHANNELS.items():
+        buyers = [
+            (p["party_id"], p["sales_channel"])
+            for p in world["parties"]
+            if p.get("sales_channel") in SPOT_CHANNELS
+        ]
+        for party_id, channel in buyers:
             site_id = next(s["site_id"] for s in world["sites"] if s["party_id"] == party_id)
             lane = lanes.get((junction[0], site_id))
             if lane is None or site_id == shipment.destination_site_id:

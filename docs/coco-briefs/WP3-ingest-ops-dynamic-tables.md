@@ -16,7 +16,7 @@
 | `55_ingest.sql` | `API.INGEST_BATCH`, `API.GET_CONNECTOR_STATE`; `BBC_INGEST` gets USAGE on these two and nothing else |
 | `60_ops_functions.sql` | `OPS.SHELF_LIFE_RATE`, `OPS.PROJECT_SHELF_LIFE_DAYS` (SQL, IMMUTABLE) |
 | `61_ops_typed.sql` | 10 Dynamic Tables: `LOTS`, `SHIPMENTS`, `SHIPMENT_LOTS`, `CUSTODY_EVENTS`, `DEVICE_ASSIGNMENTS`, `ORDER_LINES`, `DELIVERIES`, `INVENTORY_SNAPSHOTS`, `QC_INSPECTIONS`, `COUNTERPARTY_RESPONSES` |
-| `62_ops_thermal.sql` | 6 Dynamic Tables: `LOT_CUSTODY`, `TELEMETRY_ASSIGNED`, `REEFER_TELEMETRY`, `LOT_THERMAL_BUCKETS`, `LOT_THERMAL_STATE`, `LOT_CUSTODY_EXPOSURE` |
+| `62_ops_thermal.sql` | 8 Dynamic Tables: `LOT_CUSTODY`, `DEVICE_ASSIGNMENT_INTERVALS`, `LOT_CUSTODY_INTERVALS` (S1 fallback), `TELEMETRY_ASSIGNED`, `REEFER_TELEMETRY`, `LOT_THERMAL_BUCKETS`, `LOT_THERMAL_STATE`, `LOT_CUSTODY_EXPOSURE` |
 
 **Already proven before this brief.** `snowflake/spikes/wp3_thermal_dryrun.py` ran the thermal Dynamic Table SQL from `62_ops_thermal.sql`, unchanged, as a read-only query over simulated S-A and S-B trips.
 - Every lot and custody figure matched `bbc_engine.physics` to within 1e-6: 19/19 for S-A, 22/22 for S-B.
@@ -127,11 +127,11 @@ Say **"WP3 done"**, and paste:
 ## Result log (fill in)
 | Item | Result | Notes / changes CoCo made |
 |---|---|---|
-| bbc deploy python | | |
-| 55_ingest.sql | | |
-| 60_ops_functions.sql | | |
-| 61_ops_typed.sql (refresh modes) | | |
-| 62_ops_thermal.sql (refresh modes; ASOF or fallback) | | |
-| Connector identity live test | | |
-| Webhook: first run / replay / RAW rows | | |
-| bbc test sql 03_* | | |
+| bbc deploy python | PASS (2026-10-06) | — |
+| 55_ingest.sql | PASS | Fixed: parameter `ROWS` is reserved, renamed `BATCH_ROWS`; connector SDK CALL now `PARSE_JSON(?)` for the VARIANT batch |
+| 60_ops_functions.sql | PASS | — |
+| 61_ops_typed.sql (refresh modes) | PASS | All 10 INCREMENTAL. AUTO chose FULL for SHIPMENTS ("complex query") which forced the whole thermal chain to FULL; SHIPMENTS and SHIPMENT_LOTS are now pinned INCREMENTAL |
+| 62_ops_thermal.sql (refresh modes; ASOF or fallback) | PASS, S1 fallback | Interval joins via `DEVICE_ASSIGNMENT_INTERVALS` / `LOT_CUSTODY_INTERVALS` (LEAD); custody uses a grower sentinel interval per lot so the join stays inner (incremental rejects outer joins on ranges). Chain pinned INCREMENTAL; `LOT_THERMAL_STATE` and `LOT_CUSTODY_EXPOSURE` FULL (allowed). Dry run on the fallback: S-A 19/19, S-B 22/22 |
+| Connector identity live test | PASS | 15/15; live test timeout raised to 60 s (cold Python procedure) |
+| Webhook: first run / replay / RAW rows | PASS | accepted 7 / accepted 7; healthz inserted 7, duplicates 7; 0 ingest errors |
+| bbc test sql 03_* | PASS | 16/16 |

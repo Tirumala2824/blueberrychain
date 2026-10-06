@@ -1,0 +1,43 @@
+.mine {
+  border: 1px solid var(--bloom);
+  border-left-width: 4px;
+  background: var(--bloom-wash);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-s);
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.form textarea {
+  width: min(560px, 100%);
+}
+
+.cannot {
+  color: var(--ink-2);
+  border-left: 3px solid var(--frost);
+  padding-left: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.fallback {
+  margin-top: var(--space-3);
+  color: var(--amber);
+  font-size: var(--t-s);
+}
+
+.outcome {
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+}
+
+.reasons {
+  margin: var(--space-3) 0;
+  padding-left: 1.1em;
+  font-size: var(--t-s);
+}

@@ -1,0 +1,552 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/case_view.json",
+  "title": "Case view",
+  "description": "The read model returned by API.GET_CASE_VIEW(case_id) to persona roles: everything the control tower shows for one case, one section per lifecycle stage. Every section is always present (empty arrays / nulls before its stage is reached). It is a projection of existing DECISION, EVIDENCE, OPS, GOV and LEDGER rows; the app derives nothing. `viewer.available_actions` is computed in Snowflake for CURRENT_USER() and is presentation only: the procedures behind each action still enforce every rule.",
+  "type": "object",
+  "required": ["view_version", "generated_at", "change_token", "viewer", "case", "event", "analysis", "options",
+               "decision", "governance", "execution", "outcome", "agents", "evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "view_version": { "const": "1" },
+    "generated_at": { "$ref": "../common.json#/$defs/timestamp" },
+    "change_token": { "type": "string", "pattern": "^[0-9]+:[0-9]+$", "description": "state_version || ':' || last ledger seq of the case." },
+    "viewer": { "$ref": "#/$defs/viewer" },
+    "case": { "$ref": "#/$defs/case" },
+    "event": {
+      "type": "object",
+      "required": ["detection"],
+      "additionalProperties": false,
+      "properties": {
+        "detection": {
+          "type": "object",
+          "description": "DECISION.CASES.detection: the CASE_OPENED payload written by OPEN_CASES (lots, onset, holder, detection rule)."
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "required": ["pack", "packs", "thermal", "findings"],
+      "additionalProperties": false,
+      "properties": {
+        "pack": {
+          "oneOf": [{ "$ref": "../evidence_pack.json" }, { "type": "null" }],
+          "description": "EVIDENCE.EVIDENCE_PACKS.pack for CASES.current_pack_id."
+        },
+        "packs": {
+          "type": "array", "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": ["pack_id", "decision_point", "revision", "as_of", "sealed_at", "content_hash"],
+            "additionalProperties": false,
+            "properties": {
+              "pack_id": { "$ref": "../common.json#/$defs/pack_id" },
+              "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+              "revision": { "type": "integer", "minimum": 1 },
+              "as_of": { "$ref": "../common.json#/$defs/timestamp" },
+              "sealed_at": { "$ref": "../common.json#/$defs/timestamp" },
+              "content_hash": { "$ref": "../common.json#/$defs/sha256" }
+            }
+          }
+        },
+        "thermal": { "type": "array", "items": { "$ref": "#/$defs/lot_thermal" }, "maxItems": 50 },
+        "findings": { "type": "array", "items": { "$ref": "#/$defs/finding_row" }, "maxItems": 50 }
+      }
+    },
+    "options": {
+      "type": "array", "items": { "$ref": "../option.json" }, "maxItems": 100,
+      "description": "DECISION.OPTIONS.option for the current decision point's latest option set, including agent variants and eliminated options."
+    },
+    "decision": {
+      "type": "object",
+      "required": ["recommendations"],
+      "additionalProperties": false,
+      "properties": {
+        "recommendations": { "type": "array", "items": { "$ref": "#/$defs/recommendation_row" }, "maxItems": 50 }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "required": ["policy", "evaluations", "approvals", "fallback"],
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "type": "object",
+          "required": ["policy_version", "kill_switches"],
+          "additionalProperties": false,
+          "properties": {
+            "policy_version": { "$ref": "../common.json#/$defs/version" },
+            "kill_switches": { "$ref": "#/$defs/kill_switches" }
+          }
+        },
+        "evaluations": { "type": "array", "items": { "$ref": "#/$defs/evaluation_row" }, "maxItems": 50 },
+        "approvals": { "type": "array", "items": { "$ref": "#/$defs/approval_row" }, "maxItems": 50 },
+        "fallback": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["option_id", "label", "runs_at"],
+              "additionalProperties": false,
+              "properties": {
+                "option_id": { "$ref": "../common.json#/$defs/option_id" },
+                "label": { "type": "string", "maxLength": 200 },
+                "runs_at": {
+                  "$ref": "../common.json#/$defs/timestamp",
+                  "description": "When the deadline watchdog (DECISION.T_DEADLINE_WATCHDOG) executes this option if nothing has executed."
+                }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "required": ["plans", "mutations"],
+      "additionalProperties": false,
+      "properties": {
+        "plans": { "type": "array", "items": { "$ref": "#/$defs/plan_row" }, "maxItems": 50 },
+        "mutations": { "type": "array", "items": { "$ref": "#/$defs/mutation_row" }, "maxItems": 100 }
+      }
+    },
+    "outcome": {
+      "type": "object",
+      "required": ["lots", "claims"],
+      "additionalProperties": false,
+      "properties": {
+        "lots": { "type": "array", "items": { "$ref": "#/$defs/outcome_row" }, "maxItems": 50 },
+        "claims": { "type": "array", "items": { "$ref": "#/$defs/claim_row" }, "maxItems": 50 }
+      }
+    },
+    "agents": {
+      "type": "object",
+      "required": ["runs"],
+      "additionalProperties": false,
+      "properties": {
+        "runs": { "type": "array", "items": { "$ref": "#/$defs/agent_run_row" }, "maxItems": 50 }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["sealed", "sealed_at", "ledger"],
+      "additionalProperties": false,
+      "properties": {
+        "sealed": { "type": "boolean" },
+        "sealed_at": { "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }] },
+        "ledger": {
+          "type": "object",
+          "required": ["entries", "first_seq", "last_seq", "truncated"],
+          "additionalProperties": false,
+          "properties": {
+            "entries": {
+              "type": "array", "items": { "$ref": "#/$defs/ledger_entry" }, "maxItems": 1000,
+              "description": "LEDGER.ENTRIES where case_id = the case, ascending seq (payload omitted; payload_hash kept)."
+            },
+            "first_seq": { "oneOf": [{ "$ref": "../common.json#/$defs/ledger_seq" }, { "type": "null" }] },
+            "last_seq": { "oneOf": [{ "$ref": "../common.json#/$defs/ledger_seq" }, { "type": "null" }] },
+            "truncated": { "type": "boolean" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nullable_timestamp": { "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }] },
+    "nullable_usd": { "oneOf": [{ "$ref": "../common.json#/$defs/usd" }, { "type": "null" }] },
+    "nullable_text": { "oneOf": [{ "type": "string", "maxLength": 4000 }, { "type": "null" }] },
+
+    "viewer": {
+      "type": "object",
+      "description": "Who is looking (CURRENT_USER(), CURRENT_ROLE()) and what Snowflake says they may do now.",
+      "required": ["user", "role", "available_actions"],
+      "additionalProperties": false,
+      "properties": {
+        "user": { "type": "string", "pattern": "^[A-Z][A-Z0-9_$]{0,254}$" },
+        "role": { "$ref": "../common.json#/$defs/persona_role" },
+        "available_actions": { "type": "array", "items": { "$ref": "#/$defs/available_action" }, "maxItems": 50 }
+      }
+    },
+    "available_action": {
+      "type": "object",
+      "description": "One action the viewer could take. enabled = false carries the governance reason (wrong role, proposer cannot approve, approval stale, deadline passed, ...). Advisory only: the procedure re-checks everything.",
+      "required": ["action", "enabled", "disabled_reason"],
+      "additionalProperties": false,
+      "properties": {
+        "action": { "enum": ["DECIDE_APPROVAL", "REVERSE_DECISION", "VERIFY_LEDGER", "REPLAY_EVIDENCE", "EXPORT_EVIDENCE_PACK", "EMERGENCY_STOP"] },
+        "enabled": { "type": "boolean" },
+        "disabled_reason": { "oneOf": [{ "type": "string", "maxLength": 300 }, { "type": "null" }] },
+        "approval_id": { "$ref": "../common.json#/$defs/approval_id" },
+        "required_role": { "$ref": "../common.json#/$defs/persona_role" },
+        "verdicts": { "type": "array", "items": { "$ref": "../common.json#/$defs/approval_verdict" }, "uniqueItems": true },
+        "choosable_option_ids": {
+          "type": "array", "items": { "$ref": "../common.json#/$defs/option_id" }, "uniqueItems": true,
+          "description": "Scored, feasible, unexpired options an approver may choose instead (CHOOSE_ALTERNATIVE)."
+        },
+        "reason_required_for": { "type": "array", "items": { "$ref": "../common.json#/$defs/approval_verdict" }, "uniqueItems": true },
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "pack_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/pack_id" }, "uniqueItems": true },
+        "due_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "kill_switches": {
+      "type": "object",
+      "description": "The active policy's kill switches (GOV.PARAMETERS).",
+      "required": ["autonomy_ceiling", "shadow_mode", "fallback_enabled", "dispatch_enabled"],
+      "additionalProperties": false,
+      "properties": {
+        "autonomy_ceiling": { "$ref": "../common.json#/$defs/autonomy_level" },
+        "shadow_mode": { "type": "boolean" },
+        "fallback_enabled": { "type": "boolean" },
+        "dispatch_enabled": { "type": "boolean" }
+      }
+    },
+    "case": {
+      "type": "object",
+      "description": "DECISION.CASES (lease columns omitted) + DECISION.CASE_LOTS.",
+      "required": ["case_id", "decision_point", "state", "state_version", "severity", "episode_key", "shipment_id",
+                   "onset_at", "detected_at", "opened_at", "opened_by", "holder_party_id_at_onset", "holder_type_at_onset",
+                   "policy_version", "deadline_ts", "value_at_risk_usd", "current_pack_id", "current_rec_id",
+                   "current_brief_hash", "needs_reassessment", "provenance", "updated_at", "lots"],
+      "additionalProperties": false,
+      "properties": {
+        "case_id": { "$ref": "../common.json#/$defs/case_id" },
+        "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+        "state": { "$ref": "../common.json#/$defs/case_state" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "severity": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+        "episode_key": { "type": "string", "maxLength": 200 },
+        "shipment_id": { "oneOf": [{ "$ref": "../common.json#/$defs/external_id" }, { "type": "null" }] },
+        "onset_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "detected_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "opened_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "opened_by": { "type": "string", "maxLength": 255 },
+        "holder_party_id_at_onset": { "oneOf": [{ "$ref": "../common.json#/$defs/external_id" }, { "type": "null" }] },
+        "holder_type_at_onset": { "oneOf": [{ "$ref": "../common.json#/$defs/holder_type" }, { "type": "null" }] },
+        "policy_version": { "$ref": "../common.json#/$defs/version" },
+        "deadline_ts": { "$ref": "#/$defs/nullable_timestamp" },
+        "value_at_risk_usd": { "$ref": "#/$defs/nullable_usd" },
+        "current_pack_id": { "oneOf": [{ "$ref": "../common.json#/$defs/pack_id" }, { "type": "null" }] },
+        "current_rec_id": { "oneOf": [{ "$ref": "../common.json#/$defs/rec_id" }, { "type": "null" }] },
+        "current_brief_hash": { "oneOf": [{ "$ref": "../common.json#/$defs/sha256" }, { "type": "null" }] },
+        "needs_reassessment": { "type": "boolean" },
+        "provenance": { "enum": ["LIVE", "SIMULATION_BACKFILL"] },
+        "updated_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "lots": {
+          "type": "array", "minItems": 1, "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": ["lot_id", "added_at", "onset_at", "detected_at", "breach_min_at_detection", "max_pulp_c", "holder_party_id_at_onset"],
+            "additionalProperties": false,
+            "properties": {
+              "lot_id": { "$ref": "../common.json#/$defs/external_id" },
+              "added_at": { "$ref": "../common.json#/$defs/timestamp" },
+              "onset_at": { "$ref": "../common.json#/$defs/timestamp" },
+              "detected_at": { "$ref": "../common.json#/$defs/timestamp" },
+              "breach_min_at_detection": { "type": "number", "minimum": 0 },
+              "max_pulp_c": { "oneOf": [{ "$ref": "../common.json#/$defs/celsius" }, { "type": "null" }] },
+              "holder_party_id_at_onset": { "oneOf": [{ "$ref": "../common.json#/$defs/external_id" }, { "type": "null" }] }
+            }
+          }
+        }
+      }
+    },
+    "lot_thermal": {
+      "type": "object",
+      "description": "OPS.LOT_THERMAL_BUCKETS for one case lot (15-minute buckets per custody holder), ascending, capped at 600 buckets; threshold from REF.PRODUCTS.",
+      "required": ["lot_id", "threshold_c", "as_of", "truncated", "buckets"],
+      "additionalProperties": false,
+      "properties": {
+        "lot_id": { "$ref": "../common.json#/$defs/external_id" },
+        "threshold_c": { "$ref": "../common.json#/$defs/celsius" },
+        "as_of": { "$ref": "#/$defs/nullable_timestamp" },
+        "truncated": { "type": "boolean" },
+        "buckets": {
+          "type": "array", "maxItems": 600,
+          "items": {
+            "type": "object",
+            "required": ["start", "holder_party_id", "holder_type", "readings", "reading_min", "breach_min", "min_pulp_c", "max_pulp_c", "excess_h"],
+            "additionalProperties": false,
+            "properties": {
+              "start": { "$ref": "../common.json#/$defs/timestamp" },
+              "holder_party_id": { "$ref": "../common.json#/$defs/external_id" },
+              "holder_type": { "oneOf": [{ "$ref": "../common.json#/$defs/holder_type" }, { "type": "null" }] },
+              "readings": { "type": "integer", "minimum": 0 },
+              "reading_min": { "type": "number", "minimum": 0 },
+              "breach_min": { "type": "number", "minimum": 0 },
+              "min_pulp_c": { "$ref": "../common.json#/$defs/celsius" },
+              "max_pulp_c": { "$ref": "../common.json#/$defs/celsius" },
+              "excess_h": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "finding_row": {
+      "type": "object",
+      "description": "DECISION.CAUSATION_FINDINGS (validation omitted).",
+      "required": ["finding_id", "decision_point", "revision", "pack_id", "decider_kind", "run_id", "status", "unadjudicated", "confidence", "finding", "finding_hash", "created_at", "created_by"],
+      "additionalProperties": false,
+      "properties": {
+        "finding_id": { "$ref": "../common.json#/$defs/finding_id" },
+        "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+        "revision": { "type": "integer", "minimum": 1 },
+        "pack_id": { "$ref": "../common.json#/$defs/pack_id" },
+        "decider_kind": { "enum": ["AGENT", "RULE"] },
+        "run_id": { "oneOf": [{ "$ref": "../common.json#/$defs/run_id" }, { "type": "null" }] },
+        "status": { "enum": ["ACCEPTED", "REJECTED", "SUPERSEDED"] },
+        "unadjudicated": { "type": "boolean", "description": "True when no agent finding exists and the deterministic attribution stands (claims stay DEFERRED)." },
+        "confidence": { "oneOf": [{ "$ref": "../common.json#/$defs/confidence" }, { "type": "null" }] },
+        "finding": { "oneOf": [{ "$ref": "../finding.json" }, { "type": "null" }] },
+        "finding_hash": { "oneOf": [{ "$ref": "../common.json#/$defs/sha256" }, { "type": "null" }] },
+        "created_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "created_by": { "type": "string", "maxLength": 255 }
+      }
+    },
+    "recommendation_row": {
+      "type": "object",
+      "description": "DECISION.RECOMMENDATIONS. audited_text is the exact text the audit verdict's span offsets index (code points).",
+      "required": ["rec_id", "decision_point", "option_id", "decided_by", "decider_id", "run_id", "escalation_reasons", "status",
+                   "audit_status", "brief", "brief_hash", "submission", "audit_verdict", "audited_text", "created_at"],
+      "additionalProperties": false,
+      "properties": {
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+        "option_id": { "$ref": "../common.json#/$defs/option_id" },
+        "decided_by": { "$ref": "../common.json#/$defs/decider_kind" },
+        "decider_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "run_id": { "oneOf": [{ "$ref": "../common.json#/$defs/run_id" }, { "type": "null" }] },
+        "escalation_reasons": { "type": "array", "items": { "$ref": "../common.json#/$defs/escalation_reason" }, "uniqueItems": true },
+        "status": { "enum": ["ACTIVE", "SUPERSEDED", "REJECTED"] },
+        "audit_status": { "$ref": "../common.json#/$defs/audit_status" },
+        "brief": { "oneOf": [{ "$ref": "../brief.json" }, { "type": "null" }] },
+        "brief_hash": { "oneOf": [{ "$ref": "../common.json#/$defs/sha256" }, { "type": "null" }] },
+        "submission": {
+          "oneOf": [{ "$ref": "../recommendation.json" }, { "$ref": "../claim_recommendation.json" }, { "type": "null" }],
+          "description": "The agent's validated submission (AGENT decisions only)."
+        },
+        "audit_verdict": { "oneOf": [{ "$ref": "../audit_verdict.json" }, { "type": "null" }] },
+        "audited_text": { "oneOf": [{ "type": "string", "maxLength": 20000 }, { "type": "null" }] },
+        "created_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "evaluation_row": {
+      "type": "object",
+      "description": "DECISION.POLICY_EVALUATIONS; `dimensions` and `reasons` come from the evaluation VARIANT (bbc_engine.autonomy.Authorization).",
+      "required": ["eval_id", "rec_id", "policy_version", "outcome", "autonomy_level", "required_roles", "dual_approval", "shadow",
+                   "matched_rules", "value_at_risk_usd", "reasons", "dimensions", "created_at"],
+      "additionalProperties": false,
+      "properties": {
+        "eval_id": { "$ref": "../common.json#/$defs/eval_id" },
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "policy_version": { "$ref": "../common.json#/$defs/version" },
+        "outcome": { "$ref": "../common.json#/$defs/evaluation_outcome" },
+        "autonomy_level": { "$ref": "../common.json#/$defs/autonomy_level" },
+        "required_roles": { "type": "array", "items": { "$ref": "../common.json#/$defs/persona_role" }, "uniqueItems": true },
+        "dual_approval": { "type": "boolean" },
+        "shadow": { "type": "boolean" },
+        "matched_rules": { "type": "array", "items": { "type": "string", "maxLength": 64 } },
+        "value_at_risk_usd": { "$ref": "#/$defs/nullable_usd" },
+        "reasons": { "type": "array", "items": { "type": "string", "maxLength": 300 }, "maxItems": 50 },
+        "dimensions": {
+          "type": "array", "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": ["dimension", "metric", "value", "band", "approver_roles"],
+            "additionalProperties": false,
+            "properties": {
+              "dimension": { "type": "string", "maxLength": 64 },
+              "metric": { "type": "string", "maxLength": 64 },
+              "value": { "type": ["number", "string", "boolean", "null"] },
+              "band": { "enum": ["L0", "L1", "L2", "L3", "L4", "DUAL_APPROVAL", "FALLBACK_ONLY"] },
+              "approver_roles": { "type": "array", "items": { "$ref": "../common.json#/$defs/persona_role" } }
+            }
+          }
+        },
+        "created_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "approval_row": {
+      "type": "object",
+      "description": "DECISION.APPROVALS (one row per required role).",
+      "required": ["approval_id", "eval_id", "rec_id", "required_role", "status", "requested_at", "due_at", "brief_hash_at_request",
+                   "proposer", "decided_by", "decided_role", "decided_at", "chosen_option_id", "reason", "freshness"],
+      "additionalProperties": false,
+      "properties": {
+        "approval_id": { "$ref": "../common.json#/$defs/approval_id" },
+        "eval_id": { "$ref": "../common.json#/$defs/eval_id" },
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "required_role": { "$ref": "../common.json#/$defs/persona_role" },
+        "status": { "$ref": "../common.json#/$defs/approval_status" },
+        "requested_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "due_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "brief_hash_at_request": { "$ref": "../common.json#/$defs/sha256" },
+        "proposer": { "type": "string", "maxLength": 255 },
+        "decided_by": { "oneOf": [{ "type": "string", "maxLength": 255 }, { "type": "null" }] },
+        "decided_role": { "oneOf": [{ "$ref": "../common.json#/$defs/persona_role" }, { "type": "null" }] },
+        "decided_at": { "$ref": "#/$defs/nullable_timestamp" },
+        "chosen_option_id": { "oneOf": [{ "$ref": "../common.json#/$defs/option_id" }, { "type": "null" }] },
+        "reason": { "$ref": "#/$defs/nullable_text" },
+        "freshness": {
+          "oneOf": [
+            {
+              "type": "object",
+              "required": ["brief_fresh", "pack_fresh", "checked_at"],
+              "additionalProperties": false,
+              "properties": {
+                "brief_fresh": { "type": "boolean" },
+                "pack_fresh": { "type": "boolean" },
+                "checked_at": { "$ref": "../common.json#/$defs/timestamp" }
+              }
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "plan_row": {
+      "type": "object",
+      "description": "DECISION.EXECUTION_PLANS.",
+      "required": ["plan_id", "rec_id", "atomicity", "status", "steps", "created_at", "updated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "plan_id": { "$ref": "../common.json#/$defs/plan_id" },
+        "rec_id": { "$ref": "../common.json#/$defs/rec_id" },
+        "atomicity": { "enum": ["ALL_OR_NOTHING", "BEST_EFFORT"] },
+        "status": { "enum": ["PLANNED", "EXECUTING", "DONE", "PARTIAL", "COMPENSATING", "COMPENSATED", "FAILED"] },
+        "steps": {
+          "type": "array", "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": ["step_seq", "action_type", "target_system", "mutation_id"],
+            "additionalProperties": false,
+            "properties": {
+              "step_seq": { "type": "integer", "minimum": 1 },
+              "action_type": { "$ref": "../common.json#/$defs/action_type" },
+              "target_system": { "$ref": "../common.json#/$defs/target_system" },
+              "mutation_id": { "oneOf": [{ "$ref": "../common.json#/$defs/mutation_id" }, { "type": "null" }] }
+            }
+          }
+        },
+        "created_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "updated_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "mutation_row": {
+      "type": "object",
+      "description": "DECISION.MUTATIONS key columns + intent + the gateway's record (null until the gateway has written one).",
+      "required": ["mutation_id", "plan_id", "step_seq", "status", "action_type", "target_system", "compensation_of", "compensated_by", "updated_at", "intent", "record"],
+      "additionalProperties": false,
+      "properties": {
+        "mutation_id": { "$ref": "../common.json#/$defs/mutation_id" },
+        "plan_id": { "oneOf": [{ "$ref": "../common.json#/$defs/plan_id" }, { "type": "null" }] },
+        "step_seq": { "oneOf": [{ "type": "integer", "minimum": 1 }, { "type": "null" }] },
+        "status": { "$ref": "../common.json#/$defs/mutation_status" },
+        "action_type": { "$ref": "../common.json#/$defs/action_type" },
+        "target_system": { "$ref": "../common.json#/$defs/target_system" },
+        "compensation_of": { "oneOf": [{ "$ref": "../common.json#/$defs/mutation_id" }, { "type": "null" }] },
+        "compensated_by": { "oneOf": [{ "$ref": "../common.json#/$defs/mutation_id" }, { "type": "null" }] },
+        "updated_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "intent": { "$ref": "../mutation_intent.json" },
+        "record": { "oneOf": [{ "$ref": "../mutation_record.json" }, { "type": "null" }] }
+      }
+    },
+    "outcome_row": {
+      "type": "object",
+      "description": "DECISION.OUTCOMES per lot. value_protected_expost_usd = realized NRV - the default option's NRV re-scored with observed facts, computed in Snowflake.",
+      "required": ["lot_id", "outcome_status", "accepted_at_receipt", "realized_nrv_usd", "predicted_nrv_usd", "default_nrv_usd",
+                   "value_protected_expost_usd", "sl_prediction_error_days", "observed", "predicted", "computed_at"],
+      "additionalProperties": false,
+      "properties": {
+        "lot_id": { "$ref": "../common.json#/$defs/external_id" },
+        "outcome_status": { "enum": ["OBSERVED", "UNKNOWN", "PROVISIONAL"] },
+        "accepted_at_receipt": { "oneOf": [{ "type": "boolean" }, { "type": "null" }] },
+        "realized_nrv_usd": { "$ref": "#/$defs/nullable_usd" },
+        "predicted_nrv_usd": { "$ref": "#/$defs/nullable_usd" },
+        "default_nrv_usd": { "$ref": "#/$defs/nullable_usd" },
+        "value_protected_expost_usd": { "$ref": "#/$defs/nullable_usd" },
+        "sl_prediction_error_days": { "oneOf": [{ "type": "number" }, { "type": "null" }] },
+        "observed": { "type": "object", "description": "OUTCOMES.observed (receipt QC, actual shelf life, sale value)." },
+        "predicted": { "type": "object", "description": "OUTCOMES.predicted (the chosen option's prediction)." },
+        "computed_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "claim_row": {
+      "type": "object",
+      "description": "DECISION.CLAIMS (the letter is omitted; it is in the claim recommendation).",
+      "required": ["claim_id", "counterparty_party_id", "basis", "status", "amount_usd", "paid_usd", "notice_sent_at", "filed_at",
+                   "filing_due_at", "variant_option_id", "evidence_pack_id", "updated_at"],
+      "additionalProperties": false,
+      "properties": {
+        "claim_id": { "$ref": "../common.json#/$defs/claim_id" },
+        "counterparty_party_id": { "$ref": "../common.json#/$defs/external_id" },
+        "basis": { "$ref": "../common.json#/$defs/claim_basis" },
+        "status": { "enum": ["NOTICE_SENT", "FILED", "RESPONDED", "SETTLED", "DENIED", "ABSORBED", "WITHDRAWN"] },
+        "amount_usd": { "$ref": "#/$defs/nullable_usd" },
+        "paid_usd": { "$ref": "#/$defs/nullable_usd" },
+        "notice_sent_at": { "$ref": "#/$defs/nullable_timestamp" },
+        "filed_at": { "$ref": "#/$defs/nullable_timestamp" },
+        "filing_due_at": { "$ref": "#/$defs/nullable_timestamp" },
+        "variant_option_id": { "oneOf": [{ "$ref": "../common.json#/$defs/option_id" }, { "type": "null" }] },
+        "evidence_pack_id": { "oneOf": [{ "$ref": "../common.json#/$defs/pack_id" }, { "type": "null" }] },
+        "updated_at": { "$ref": "../common.json#/$defs/timestamp" }
+      }
+    },
+    "agent_run_row": {
+      "type": "object",
+      "description": "DECISION.AGENT_RUNS + its DECISION.TOOL_CALLS. trace is the recorded, normalized event list (END_AGENT_RUN).",
+      "required": ["run_id", "decision_point", "agent", "provider", "model", "spec_version", "status", "call_budget", "calls_used",
+                   "started_at", "ended_at", "latency_ms", "trace", "trace_truncated", "tool_calls"],
+      "additionalProperties": false,
+      "properties": {
+        "run_id": { "$ref": "../common.json#/$defs/run_id" },
+        "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+        "agent": { "$ref": "../common.json#/$defs/agent_name" },
+        "provider": { "type": "string", "maxLength": 64 },
+        "model": { "type": "string", "maxLength": 128 },
+        "spec_version": { "$ref": "../common.json#/$defs/version" },
+        "status": { "enum": ["STARTED", "COMPLETED", "FAILED", "EXPIRED"] },
+        "call_budget": { "type": "integer", "minimum": 0 },
+        "calls_used": { "type": "integer", "minimum": 0 },
+        "started_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "ended_at": { "$ref": "#/$defs/nullable_timestamp" },
+        "latency_ms": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
+        "trace": { "type": "array", "items": { "$ref": "agent_trace_event.json" }, "maxItems": 2000 },
+        "trace_truncated": { "type": "boolean" },
+        "tool_calls": {
+          "type": "array", "maxItems": 200,
+          "items": {
+            "type": "object",
+            "required": ["call_seq", "tool", "status", "latency_ms", "evidence_ids", "args_hash", "result_hash", "called_at"],
+            "additionalProperties": false,
+            "properties": {
+              "call_seq": { "type": "integer", "minimum": 1 },
+              "tool": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+              "status": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+              "latency_ms": { "oneOf": [{ "type": "integer", "minimum": 0 }, { "type": "null" }] },
+              "evidence_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/evidence_id" }, "maxItems": 500 },
+              "args_hash": { "$ref": "../common.json#/$defs/sha256" },
+              "result_hash": { "oneOf": [{ "$ref": "../common.json#/$defs/sha256" }, { "type": "null" }] },
+              "called_at": { "$ref": "../common.json#/$defs/timestamp" }
+            }
+          }
+        }
+      }
+    },
+    "ledger_entry": {
+      "type": "object",
+      "required": ["seq", "ts", "entry_type", "actor", "record_ref", "payload_hash", "prev_hash", "entry_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "seq": { "$ref": "../common.json#/$defs/ledger_seq" },
+        "ts": { "$ref": "../common.json#/$defs/timestamp" },
+        "entry_type": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" },
+        "actor": { "type": "string", "maxLength": 255 },
+        "record_ref": { "type": "string", "maxLength": 500 },
+        "payload_hash": { "$ref": "../common.json#/$defs/sha256" },
+        "prev_hash": { "$ref": "../common.json#/$defs/sha256" },
+        "entry_hash": { "$ref": "../common.json#/$defs/sha256" }
+      }
+    }
+  }
+}

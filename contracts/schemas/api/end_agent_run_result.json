@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/end_agent_run_result.json",
+  "title": "END_AGENT_RUN result",
+  "description": "API.END_AGENT_RUN(run_id, record), called by the engine: closes the run, records the trace and releases the case lease.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "run_id", "run_status", "case_state", "lease_released"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "run_id": { "$ref": "../common.json#/$defs/run_id" },
+        "run_status": { "enum": ["COMPLETED", "FAILED", "EXPIRED"] },
+        "case_state": { "$ref": "../common.json#/$defs/case_state" },
+        "lease_released": { "type": "boolean" }
+      }
+    }
+  ]
+}

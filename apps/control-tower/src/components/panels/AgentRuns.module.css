@@ -1,0 +1,98 @@
+.runs {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.run {
+  border-left: 3px solid var(--agent);
+  padding-left: var(--space-3);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+}
+
+.head .faint {
+  font-size: var(--t-xs);
+}
+
+.events {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--t-s);
+  display: grid;
+  gap: 2px;
+}
+
+.events li {
+  display: grid;
+  grid-template-columns: 92px 64px 1fr;
+  gap: var(--space-2);
+  padding: 2px 0;
+  border-bottom: 1px solid var(--frost-2);
+}
+
+.t {
+  color: var(--ink-3);
+}
+
+.kind {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.status {
+  margin-right: 4px;
+  color: var(--chill);
+  font-weight: 600;
+}
+
+.agentWords {
+  color: var(--agent);
+}
+
+.kTHINKING .body {
+  color: var(--ink-2);
+  font-style: italic;
+}
+
+.err {
+  color: var(--breach);
+}
+
+.live {
+  background: var(--bloom-wash);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-s);
+}
+
+.liveNote {
+  font-size: var(--t-xs);
+  color: var(--bloom-ink);
+  margin-bottom: 4px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .live .events li:last-child {
+    animation: arrive 400ms ease-out;
+  }
+  @keyframes arrive {
+    from {
+      background: rgba(79, 88, 168, 0.18);
+    }
+    to {
+      background: transparent;
+    }
+  }
+}

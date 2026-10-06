@@ -1,0 +1,133 @@
+.head {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.filters {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--frost);
+  margin-bottom: var(--space-4);
+}
+
+.filters button {
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: var(--t-l);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.filters .on {
+  color: var(--ink);
+  border-bottom-color: var(--bloom);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+}
+
+.table th {
+  text-align: left;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: var(--t-s);
+  color: var(--ink-2);
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 2px solid var(--ink);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--frost);
+  vertical-align: top;
+}
+
+.table tr.mine td:first-child {
+  box-shadow: inset 4px 0 0 var(--bloom);
+}
+
+.right {
+  text-align: right;
+}
+
+.caseLink {
+  font-size: var(--t-l);
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--bloom);
+}
+
+.caseLink:hover {
+  color: var(--bloom-ink);
+}
+
+.sub {
+  color: var(--ink-2);
+  font-size: var(--t-s);
+  margin-top: 2px;
+  max-width: 34ch;
+}
+
+.stage {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dp {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+.roles {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.you {
+  color: var(--bloom-ink);
+  font-weight: 600;
+  font-size: var(--t-s);
+  margin-top: 4px;
+}
+
+.fallback {
+  font-size: var(--t-xs);
+  color: var(--amber);
+  margin-top: 2px;
+}
+
+.feed {
+  color: var(--amber);
+  font-size: var(--t-s);
+  margin-bottom: var(--space-3);
+}
+
+.empty {
+  padding: var(--space-6) 0;
+  color: var(--ink-2);
+}
+
+@media (max-width: 900px) {
+  .table thead {
+    display: none;
+  }
+  .table tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-bottom: 1px solid var(--frost);
+  }
+  .table td {
+    border: 0;
+  }
+}

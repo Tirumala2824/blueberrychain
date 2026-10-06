@@ -19,7 +19,7 @@ def test_rendered_view_has_every_part():
     for t in MODEL["tables"]:
         assert f"    {t['alias']} AS {t['table']} PRIMARY KEY" in sql
     assert (
-        "inventory.quality_adjusted_atp_kg NON ADDITIVE BY (inventory.snapshot_at DESC) AS SUM("
+        "inventory.quality_adjusted_atp_kg NON ADDITIVE BY (inventory.snapshot_at ASC) AS SUM("
         in sql
     )
     assert "lot''s value" in sql  # quotes in comments are escaped

@@ -54,10 +54,11 @@ def test_ref_load_reports_invalid_batches(tmp_path):
 
 
 def test_policy_draft_and_activate(tmp_path):
-    rec = Recorder({"status": "OK", "policy_version": "1"})
+    rec = Recorder({"status": "OK", "policy_version": "2"})
     args = argparse.Namespace(path=world_cmds.DEFAULT_POLICY, identity="builder")
     assert governed_cmds.run_policy_draft(args, runner=rec) == 0
-    assert json.loads(rec.calls[0][1][0])["policy_version"] == "1"
+    current = json.loads(world_cmds.DEFAULT_POLICY.read_text(encoding="utf-8"))["policy_version"]
+    assert json.loads(rec.calls[0][1][0])["policy_version"] == current
 
     rec = Recorder({"status": "DENIED", "errors": ["separation of duties"]})
     args = argparse.Namespace(version="1", reason="go live", identity="govadmin")

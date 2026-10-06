@@ -1,0 +1,24 @@
+.ledger td {
+  white-space: nowrap;
+}
+
+.ledger td:nth-child(4) {
+  white-space: normal;
+}
+
+.lane {
+  display: inline-block;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: var(--t-xs);
+  padding: 0 6px;
+  border-radius: 2px;
+  border-left: 3px solid;
+  background: var(--frost-2);
+}
+
+.Detection { border-color: var(--amber); }
+.Engine { border-color: var(--ink); }
+.Agents { border-color: var(--agent); }
+.People { border-color: var(--bloom); }
+.Gateway { border-color: var(--chill); }

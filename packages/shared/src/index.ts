@@ -45,5 +45,17 @@ export {
   sha256Hex,
   telemetryKey,
 } from "./canonical.js";
-export { SqlApiClient, SqlApiError, sqlApiConfigFromEnv, type Bind, type SqlApiConfig } from "./sqlapi.js";
+export {
+  SqlApiClient,
+  SqlApiError,
+  decodeCell,
+  sqlApiConfigFromEnv,
+  type Bind,
+  type Cell,
+  type ColumnMeta,
+  type QueryOptions,
+  type QueryResult,
+  type SqlApiConfig,
+} from "./sqlapi.js";
+export { CASE_STATES, COCKPIT_STAGES, cockpitStageOf, type CaseState, type CockpitStage } from "./cockpit.js";
 export type * from "./generated/index.js";

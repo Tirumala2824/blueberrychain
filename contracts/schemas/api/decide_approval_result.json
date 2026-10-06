@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/decide_approval_result.json",
+  "title": "DECIDE_APPROVAL result",
+  "description": "API.DECIDE_APPROVAL(approval_id, verdict, chosen_option_id, reason), called by a persona under their own identity. Snowflake enforces CURRENT_USER(), IS_ROLE_IN_SESSION(required_role), proposer != approver, Brief-hash freshness and the deadline; a refusal carries the reason code.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "approval_id", "approval_status", "decided_by", "decided_role", "decided_at", "chosen_option_id",
+                   "brief_hash", "case_state", "state_version", "remaining_approval_ids", "ledger_seq"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "approval_id": { "$ref": "../common.json#/$defs/approval_id" },
+        "approval_status": { "enum": ["APPROVED", "ALTERNATIVE_CHOSEN", "REJECTED"] },
+        "decided_by": { "type": "string", "maxLength": 255 },
+        "decided_role": { "$ref": "../common.json#/$defs/persona_role" },
+        "decided_at": { "$ref": "../common.json#/$defs/timestamp" },
+        "chosen_option_id": { "oneOf": [{ "$ref": "../common.json#/$defs/option_id" }, { "type": "null" }] },
+        "brief_hash": { "$ref": "../common.json#/$defs/sha256" },
+        "case_state": { "$ref": "../common.json#/$defs/case_state" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "remaining_approval_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/approval_id" }, "uniqueItems": true },
+        "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+      }
+    }
+  ]
+}

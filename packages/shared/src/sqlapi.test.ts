@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SqlApiClient, SqlApiError, sqlApiConfigFromEnv } from "./sqlapi.js";
+import { SqlApiClient, SqlApiError, decodeCell, sqlApiConfigFromEnv } from "./sqlapi.js";
 
 type Call = { url: string; init: RequestInit };
 
@@ -86,6 +86,54 @@ describe("SqlApiClient", () => {
       .query("SELECT 1")
       .catch((e) => e);
     expect(error).toMatchObject({ status: 503, retryable: true });
+  });
+
+  it("tags statements with the client and per-call query tag and timeout", async () => {
+    const f = fakeFetch([{ status: 200, body: { data: [["1"]] } }, { status: 200, body: { data: [["1"]] } }]);
+    const client = new SqlApiClient({ ...base, queryTag: "bbc-ct", fetch: f.impl });
+    await client.query("SELECT 1", [], { queryTag: "analyst:r1", timeoutS: 30 });
+    await new SqlApiClient({ ...base, fetch: f.impl }).query("SELECT 1");
+    const first = JSON.parse(String(f.calls[0]!.init.body));
+    expect(first).toMatchObject({ timeout: 30, parameters: { query_tag: "bbc-ct:analyst:r1" } });
+    expect(JSON.parse(String(f.calls[1]!.init.body)).parameters).toBeUndefined();
+  });
+
+  it("returns column metadata and decodes SQL API encodings", async () => {
+    const rowType = [
+      { name: "CASE_ID", type: "TEXT", nullable: false },
+      { name: "STATE_VERSION", type: "FIXED", scale: 0 },
+      { name: "VALUE_AT_RISK_USD", type: "FIXED", scale: 2 },
+      { name: "AWAITING_ME", type: "BOOLEAN" },
+      { name: "DEADLINE_TS", type: "TIMESTAMP_TZ" },
+      { name: "SNAPSHOT_AT", type: "TIMESTAMP_NTZ" },
+      { name: "HARVEST_DATE", type: "DATE" },
+      { name: "AWAITING_ROLES", type: "ARRAY" },
+      { name: "NOTE", type: "TEXT" },
+    ];
+    const row = ["CASE-00000017", "3", "21355.00", "true", "1791278100.000000000 1440", "1791271200.500", "20366",
+                 '["BBC_SALES_MGR"]', null];
+    const f = fakeFetch([
+      { status: 200, body: { data: [row], resultSetMetaData: { rowType } } },
+      { status: 200, body: { data: [row], resultSetMetaData: { rowType } } },
+    ]);
+    const client = new SqlApiClient({ ...base, fetch: f.impl });
+    const meta = await client.queryWithMeta("SELECT * FROM V");
+    expect(meta.columns[1]).toEqual({ name: "STATE_VERSION", type: "fixed", scale: 0, nullable: true });
+    expect(meta.rows[0]).toEqual([
+      "CASE-00000017", 3, 21355, true, "2026-10-06T09:15:00.000Z", "2026-10-06T07:20:00.500Z", "2025-10-05",
+      ["BBC_SALES_MGR"], null,
+    ]);
+    const [obj] = await client.queryRows("SELECT * FROM V");
+    expect(obj).toMatchObject({ case_id: "CASE-00000017", awaiting_me: true, awaiting_roles: ["BBC_SALES_MGR"] });
+  });
+
+  it("keeps integers that don't fit a double as text", () => {
+    expect(decodeCell("123456789012345678901", { name: "X", type: "fixed", scale: 0, nullable: true })).toBe(
+      "123456789012345678901",
+    );
+    expect(decodeCell("-1.5", { name: "X", type: "timestamp_ntz", scale: 9, nullable: true })).toBe(
+      "1969-12-31T23:59:58.500Z",
+    );
   });
 
   it("builds its config from .env names and refuses a missing token", () => {

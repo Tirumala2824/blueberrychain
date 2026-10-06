@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/next_actions_result.json",
+  "title": "NEXT_ACTIONS result",
+  "description": "API.NEXT_ACTIONS(dispatcher_id, limit), called by the engine: leases authorized mutations from API.V_DISPATCHABLE (none while dispatch_enabled = false).",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "items"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "items": {
+          "type": "array", "maxItems": 100,
+          "items": {
+            "type": "object",
+            "required": ["mutation_id", "attempt", "status", "idempotency_key", "intent", "lease_until"],
+            "additionalProperties": false,
+            "properties": {
+              "mutation_id": { "$ref": "../common.json#/$defs/mutation_id" },
+              "attempt": { "type": "integer", "minimum": 1 },
+              "status": { "$ref": "../common.json#/$defs/mutation_status" },
+              "idempotency_key": { "$ref": "../common.json#/$defs/sha256" },
+              "intent": { "$ref": "../mutation_intent.json" },
+              "lease_until": { "$ref": "../common.json#/$defs/timestamp" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

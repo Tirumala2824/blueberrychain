@@ -8,6 +8,10 @@
 --
 -- REFRESH_MODE = AUTO: Snowflake picks INCREMENTAL where the query allows it. CoCo
 -- reports the chosen mode (SHOW DYNAMIC TABLES) in the WP3 result log.
+-- SHIPMENTS and SHIPMENT_LOTS are pinned INCREMENTAL: they feed the thermal chain in
+-- 62_ops_thermal.sql, and AUTO chose FULL for SHIPMENTS ("complex query"), which forced
+-- every downstream table to FULL (a FULL DT has no change tracking) and left the detection
+-- stream nothing to read.
 -- TARGET_LAG = 1 minute: refreshes are skipped when RAW has not changed.
 -- =============================================================================
 USE ROLE BBC_OWNER;
@@ -33,7 +37,7 @@ WHERE entity_type = 'LOT'
 QUALIFY ROW_NUMBER() OVER (PARTITION BY external_id ORDER BY event_ts DESC, received_at DESC) = 1;
 
 CREATE OR REPLACE DYNAMIC TABLE SHIPMENTS
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
   COMMENT = 'Shipments: latest plan (TMS SHIPMENT) plus latest status, position and ETA (SHIPMENT_STATUS).'
 AS
 WITH plan AS (
@@ -77,7 +81,7 @@ FROM plan p
 LEFT JOIN status s ON s.shipment_id = p.shipment_id;
 
 CREATE OR REPLACE DYNAMIC TABLE SHIPMENT_LOTS
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
   COMMENT = 'Which lots ride on which shipment, and how many kg (from the latest shipment plan).'
 AS
 SELECT s.shipment_id, f.value:lot_id::STRING AS lot_id, f.value:kg::NUMBER(14,3) AS kg

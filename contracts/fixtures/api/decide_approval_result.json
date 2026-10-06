@@ -1,0 +1,58 @@
+{
+  "schema": "api/decide_approval_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "approval_id": "APR-00000060",
+      "approval_status": "APPROVED",
+      "decided_by": "BBC_DEMO_SALES",
+      "decided_role": "BBC_SALES_MGR",
+      "decided_at": "2026-10-06T08:12:10Z",
+      "chosen_option_id": null,
+      "brief_hash": "7a3e5c9b1d2f4a6c8e0b2d4f6a8c0e2b4d6f8a0c2e4b6d8f0a2c4e6b8d0f2a4c",
+      "case_state": "PENDING_APPROVAL",
+      "state_version": 9,
+      "remaining_approval_ids": [
+        "APR-00000061"
+      ],
+      "ledger_seq": 431
+    },
+    {
+      "status": "DENIED",
+      "errors": [
+        "approval APR-00000060 needs role BBC_SALES_MGR in session"
+      ],
+      "code": "WRONG_ROLE"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "an approval cannot come back REQUESTED",
+      "base": 0,
+      "set": {
+        "/approval_status": "REQUESTED"
+      }
+    },
+    {
+      "why": "the deciding role is a persona role",
+      "base": 0,
+      "set": {
+        "/decided_role": "BBC_ENGINE"
+      }
+    },
+    {
+      "why": "OK results carry the ledger entry",
+      "base": 0,
+      "delete": [
+        "/ledger_seq"
+      ]
+    },
+    {
+      "why": "a refusal has no approval fields",
+      "base": 1,
+      "set": {
+        "/approval_id": "APR-00000060"
+      }
+    }
+  ]
+}

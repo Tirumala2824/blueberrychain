@@ -1,0 +1,54 @@
+.drawer {
+  width: 340px;
+  background: var(--paper);
+  padding: var(--space-4);
+  overflow: auto;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.close {
+  background: none;
+  border: 1px solid var(--frost);
+  border-radius: var(--radius-s);
+  padding: 1px 8px;
+  cursor: pointer;
+}
+
+.eid {
+  font-size: var(--t-s);
+  word-break: break-all;
+  white-space: normal;
+  margin: var(--space-2) 0;
+}
+
+.where {
+  font-size: var(--t-s);
+  color: var(--ink-2);
+  margin-bottom: var(--space-3);
+}
+
+.where :global(.id) {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.missing {
+  color: var(--ink-2);
+}
+
+@media (max-width: 1100px) {
+  .drawer {
+    position: fixed;
+    right: 0;
+    top: var(--shell-h);
+    bottom: 0;
+    z-index: 20;
+    box-shadow: -8px 0 24px rgba(29, 33, 64, 0.15);
+    max-height: none;
+  }
+}

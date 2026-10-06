@@ -1,0 +1,115 @@
+.strip {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.strip > span {
+  width: 9px;
+  height: 9px;
+  border-radius: 1px;
+}
+
+.done { background: var(--bloom); }
+.here { background: var(--ink); outline: 2px solid var(--bloom-wash); width: 13px !important; }
+.todo { background: var(--frost); }
+
+.role {
+  display: inline-block;
+  font-family: var(--font-cond);
+  font-weight: 600;
+  font-size: var(--t-s);
+  padding: 0 7px;
+  border-radius: 10px;
+  border: 1px solid var(--frost);
+  color: var(--ink-2);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+.roleMine {
+  border-color: var(--bloom);
+  background: var(--bloom);
+  color: #fff;
+}
+
+.countdown {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.cdLabel {
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+
+.cdValue {
+  font-weight: 600;
+  font-size: var(--t-l);
+}
+
+.cdAt {
+  font-size: var(--t-xs);
+  color: var(--ink-3);
+}
+
+.large .cdValue { font-size: var(--t-3xl); font-weight: 700; }
+
+.calm .cdValue { color: var(--ink); }
+.soon .cdValue { color: var(--amber); }
+.now .cdValue { color: var(--breach); }
+.over .cdValue { color: var(--breach); text-decoration: underline wavy; text-underline-offset: 4px; }
+.none .cdValue { color: var(--ink-3); font-weight: 500; }
+
+.decider {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 1px 8px;
+  border-radius: var(--radius-s);
+  font-size: var(--t-s);
+  border: 1px solid var(--frost);
+  background: var(--surface);
+}
+
+.deciderKind {
+  font-family: var(--font-cond);
+  font-weight: 700;
+}
+
+.deciderRULE { border-color: var(--ink); }
+.deciderRULE .deciderKind { color: var(--ink); }
+.deciderAGENT { border-color: var(--agent); background: var(--agent-wash); }
+.deciderAGENT .deciderKind { color: var(--agent); }
+.deciderFALLBACK { border-color: var(--amber); background: var(--amber-wash); }
+.deciderHUMAN { border-color: var(--bloom); }
+
+.audit {
+  font-size: var(--t-xs);
+  color: var(--chill);
+}
+
+.audit[data-audit="FAIL"],
+.audit[data-audit="UNVERIFIED"] {
+  color: var(--breach);
+}
+
+.cite {
+  font-family: var(--font-cond);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  color: var(--bloom-ink);
+  background: var(--bloom-wash);
+  border: 0;
+  border-radius: 2px;
+  padding: 0 5px;
+  margin: 0 2px;
+  cursor: pointer;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+
+.cite:hover {
+  background: #d6d9f0;
+}

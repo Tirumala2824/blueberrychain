@@ -76,15 +76,42 @@ export interface PullSource<Row extends RawRow = RawRow> {
   pull(stream: string, cursor: string | null): Promise<PullPage<Row>>;
 }
 
+/** What a target says happened to an idempotency key. */
+export interface TargetStatus {
+  state: "UNKNOWN" | "APPLIED" | "FAILED";
+  /** The target's reference for the applied write, so the dispatcher can read it back. */
+  externalRef?: string;
+  detail?: unknown;
+}
+
 /** Outbound side, used by the dispatcher (Day 7). The key makes every call safe to retry. */
 export interface ActionHandler<Intent = Record<string, unknown>> {
+  /** Action types this handler executes (contracts/schemas/common.json action_type). */
   readonly actionTypes: readonly string[];
+  /** The target system it writes to (common.json target_system). */
+  readonly targetSystem: string;
   /** Read the target's current state just before the write (observed_before). */
   readBefore(intent: Intent): Promise<Record<string, unknown>>;
   /** Apply the action; the target must treat a repeated key as the same request. */
   execute(intent: Intent, idempotencyKey: string): Promise<{ externalRef: string; response: unknown }>;
   /** Ask the target what happened to a key, before ever resending after a timeout. */
-  status(idempotencyKey: string): Promise<"UNKNOWN" | "APPLIED" | "FAILED">;
+  status(intent: Intent, idempotencyKey: string): Promise<TargetStatus>;
   /** Read the target's state after the ACK (observed_after). */
   readAfter(intent: Intent, externalRef: string): Promise<Record<string, unknown>>;
+}
+
+/**
+ * The target definitively refused the action (validation, a precondition, a closed
+ * window). The dispatcher reports it as FAILED and never retries; any other error is
+ * treated as "outcome unknown" and answered by asking the target for the key's status.
+ */
+export class TargetRejectedError extends Error {
+  constructor(
+    readonly status: number,
+    readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "TargetRejectedError";
+  }
 }

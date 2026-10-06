@@ -11,7 +11,8 @@ import {
   type WriteOptions,
 } from "./types.js";
 
-const INGEST = "CALL BBC_OS.API.INGEST_BATCH(?, ?, ?, ?, ?)";
+// ROWS is VARIANT: Snowflake does not cast a text binding to VARIANT in a CALL.
+const INGEST = "CALL BBC_OS.API.INGEST_BATCH(?, ?, PARSE_JSON(?), ?, ?)";
 const STATE = "CALL BBC_OS.API.GET_CONNECTOR_STATE(?)";
 
 type IngestResponse = IngestResult | { status: "INVALID"; errors: string[] };

@@ -1,0 +1,89 @@
+.lot {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.lot h4 {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+}
+
+.compare {
+  display: grid;
+  gap: 6px;
+  max-width: 760px;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 300px 1fr 90px;
+  gap: var(--space-3);
+  align-items: center;
+  font-size: var(--t-s);
+}
+
+.barLabel {
+  color: var(--ink-2);
+}
+
+.track {
+  height: 14px;
+  background: var(--frost-2);
+  border-radius: 0 4px 4px 0;
+}
+
+.fill {
+  display: block;
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+}
+
+.realized { background: var(--bloom); }
+.predicted { background: #9ea4d6; }
+.default { background: var(--ink-3); }
+
+.barValue {
+  text-align: right;
+  font-weight: 600;
+}
+
+.observed summary {
+  cursor: pointer;
+  color: var(--bloom-ink);
+  font-size: var(--t-s);
+}
+
+.claim {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.claimPath {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.claimPath li {
+  padding: 2px var(--space-4) 2px var(--space-2);
+  border-top: 3px solid var(--frost);
+  color: var(--ink-3);
+  font-size: var(--t-s);
+  font-family: var(--font-cond);
+  font-weight: 600;
+}
+
+.claimPath li.reached {
+  border-top-color: var(--chill);
+  color: var(--ink);
+}
+
+@media (max-width: 760px) {
+  .bar {
+    grid-template-columns: 1fr;
+  }
+}

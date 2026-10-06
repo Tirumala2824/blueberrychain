@@ -23,14 +23,15 @@ CREATE OR REPLACE PROCEDURE OPEN_CASES()
   PACKAGES = ('snowflake-snowpark-python', 'jsonschema')
   IMPORTS = ('@BBC_OS.GOV.CODE/bbc_toolkit/0.1.0/bbc_toolkit-0.1.0.zip')
   HANDLER = 'bbc_toolkit.snow.proc_open_cases'
-  EXECUTE AS OWNER
-  COMMENT = 'Internal only (the detection task). Opens / joins / extends cases; one open case per lot.';
+  COMMENT = 'Internal only (the detection task). Opens / joins / extends cases; one open case per lot.'
+  EXECUTE AS OWNER;
 
 -- S2 PASS: a triggered task (no schedule) - runs when the stream has data.
+-- Task clause order: COMMENT before WHEN.
 CREATE OR REPLACE TASK T_DETECT
   WAREHOUSE = BBC_TRANSFORM_WH
-  WHEN SYSTEM$STREAM_HAS_DATA('BBC_OS.DECISION.S_THERMAL_BUCKETS')
   COMMENT = 'Detection: thermal bucket changes -> OPEN_CASES.'
+  WHEN SYSTEM$STREAM_HAS_DATA('BBC_OS.DECISION.S_THERMAL_BUCKETS')
 AS
   CALL BBC_OS.DECISION.OPEN_CASES();
 
@@ -38,8 +39,8 @@ AS
 -- CREATE OR REPLACE TASK T_DETECT
 --   WAREHOUSE = BBC_TRANSFORM_WH
 --   SCHEDULE = '1 MINUTE'
---   WHEN SYSTEM$STREAM_HAS_DATA('BBC_OS.DECISION.S_THERMAL_BUCKETS')
 --   COMMENT = 'Detection: thermal bucket changes -> OPEN_CASES (scheduled fallback, spike S2).'
+--   WHEN SYSTEM$STREAM_HAS_DATA('BBC_OS.DECISION.S_THERMAL_BUCKETS')
 -- AS
 --   CALL BBC_OS.DECISION.OPEN_CASES();
 

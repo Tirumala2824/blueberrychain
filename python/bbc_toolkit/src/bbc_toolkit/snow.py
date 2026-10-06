@@ -28,13 +28,59 @@ def _as_obj(value: Any) -> Any:
     return json.loads(value) if isinstance(value, str) else value
 
 
+def bind_nulls(query: str, params: list[Any]) -> tuple[str, list[Any]]:
+    """Inline ``NULL`` for every ``None`` parameter.
+
+    Snowpark binds a Python ``None`` as the string ``'None'``: a nullable text column then
+    stores ``'None'`` (and the ledger hash no longer matches the row) and a numeric column
+    fails. Placeholders inside quoted literals are left alone.
+    """
+    if all(p is not None for p in params):
+        return query, params
+    out, kept, i, n, quote = [], [], 0, 0, None
+    while i < len(query):
+        ch = query[i]
+        if quote:
+            out.append(ch)
+            if query.startswith(quote, i):
+                out.append(query[i + 1 : i + len(quote)])
+                i += len(quote) - 1
+                quote = None
+        elif query.startswith("$$", i) or ch == "'":
+            quote = "$$" if ch == "$" else "'"
+            out.append(quote)
+            i += len(quote) - 1
+        elif ch == "?":
+            if n >= len(params):
+                raise ValueError("more placeholders than parameters")
+            if params[n] is None:
+                out.append("NULL")
+            else:
+                out.append("?")
+                kept.append(params[n])
+            n += 1
+        else:
+            out.append(ch)
+        i += 1
+    if n != len(params):
+        raise ValueError(f"query has {n} placeholders but {len(params)} parameters")
+    return "".join(out), kept
+
+
+def _sql(session: Any, query: str, params: list[Any] | None = None) -> Any:
+    params = list(params or [])
+    if type(session).__module__.startswith("snowflake.snowpark"):
+        query, params = bind_nulls(query, params)
+    return session.sql(query, params=params)
+
+
 def _one(session: Any, query: str, params: list[Any] | None = None) -> tuple | None:
-    rows = session.sql(query, params=params or []).collect()
+    rows = _sql(session, query, params).collect()
     return tuple(rows[0]) if rows else None
 
 
 def _exec(session: Any, query: str, params: list[Any] | None = None) -> None:
-    session.sql(query, params=params or []).collect()
+    _sql(session, query, params).collect()
 
 
 def _current_user(session: Any) -> str:
@@ -141,8 +187,8 @@ def proc_apply_reference_change(session: Any, entity_type: str, records: Any, re
 
     _exec(session, "BEGIN")
     try:
-        rows = session.sql(
-            f"SELECT {key_cols}, version, record_hash FROM {ent.table} WHERE is_current"
+        rows = _sql(
+            session, f"SELECT {key_cols}, version, record_hash FROM {ent.table} WHERE is_current"
         ).collect()
         n = len(ent.key)
         current = {
@@ -520,8 +566,8 @@ def proc_ingest_batch(
     try:
         inserted = 0
         if prepared.rows:
-            result = session.sql(
-                MERGE_SQL[target], params=[json.dumps(prepared.rows), connector_id]
+            result = _sql(
+                session, MERGE_SQL[target], [json.dumps(prepared.rows), connector_id]
             ).collect()
             inserted = int(next(iter(result[0]))) if result else 0
         if prepared.rejected:
@@ -550,10 +596,11 @@ def proc_ingest_batch(
 
 
 def proc_get_connector_state(session: Any, connector_id: str):
-    rows = session.sql(
+    rows = _sql(
+        session,
         f"SELECT stream, cursor_value, updated_at FROM {RAW}.CONNECTOR_STATE "
         "WHERE connector_id = ? ORDER BY stream",
-        params=[connector_id],
+        [connector_id],
     ).collect()
     return {
         "status": "OK",
@@ -595,12 +642,11 @@ def proc_open_cases(session: Any):
         _exec(session, cases.LOCK_SQL, [f"OPEN_CASES {run_id}"])
         _exec(session, cases.CONSUME_SQL, [run_id])
         detections = [
-            cases.Detection.from_row(r)
-            for r in session.sql(cases.DETECT_SQL, params=[run_id]).collect()
+            cases.Detection.from_row(r) for r in _sql(session, cases.DETECT_SQL, [run_id]).collect()
         ]
         open_cases = [
             cases.OpenCase(str(r[0]), str(r[1]), str(r[2]), frozenset(_as_obj(r[3]) or []))
-            for r in session.sql(cases.OPEN_CASES_SQL).collect()
+            for r in _sql(session, cases.OPEN_CASES_SQL).collect()
         ]
         todo = cases.plan(detections, open_cases)
         opened, joined = [], []

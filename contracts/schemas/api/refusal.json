@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/refusal.json",
+  "title": "API refusal",
+  "description": "What every API procedure returns when it refuses a call: INVALID (malformed input) or DENIED (governance said no). Matches the existing procedures ({status, errors}); `code` is a stable machine-readable reason for new procedures (see docs/frontend-spec.md, denial codes).",
+  "type": "object",
+  "required": ["status", "errors"],
+  "additionalProperties": false,
+  "properties": {
+    "status": { "enum": ["INVALID", "DENIED"] },
+    "errors": { "type": "array", "items": { "type": "string", "maxLength": 2000 }, "maxItems": 50 },
+    "code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+  }
+}

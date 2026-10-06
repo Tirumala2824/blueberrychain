@@ -1,0 +1,150 @@
+/*
+ * BlueberryChain control tower: design tokens.
+ * Ink is blueberry indigo on cold-room white. Colour carries meaning only: chill = fresh,
+ * verified, inside limits; amber = warming, due soon; breach = over the limit, refused,
+ * overdue; plum marks AI-written text. Barlow (cut from California road signage) with
+ * tabular figures for every number that is compared or counted down.
+ */
+
+:root {
+  --ink: #1d2140;
+  --ink-2: #4a4f6e;
+  --ink-3: #767b95;
+  --paper: #f4f6f8;
+  --surface: #ffffff;
+  --frost: #d9e1e7;
+  --frost-2: #e9eef2;
+  --bloom: #4f58a8;
+  --bloom-ink: #363e86;
+  --bloom-wash: #e6e8f5;
+  --chill: #2b7469;
+  --chill-wash: #e0f0ec;
+  --amber: #b86b0c;
+  --amber-wash: #fbeed6;
+  --breach: #b2362b;
+  --breach-wash: #f8e2df;
+  --agent: #864b79;
+  --agent-wash: #f3e7ef;
+  --fixture: #e3a51b;
+
+  --font-body: "Barlow", system-ui, sans-serif;
+  --font-cond: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+
+  /* type scale (px): 12 13 14 16 18 21 28 36 */
+  --t-xs: 0.75rem;
+  --t-s: 0.8125rem;
+  --t-m: 0.875rem;
+  --t-l: 1rem;
+  --t-xl: 1.125rem;
+  --t-2xl: 1.3125rem;
+  --t-3xl: 1.75rem;
+  --t-4xl: 2.25rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  --radius-s: 3px;
+  --radius-m: 6px;
+  --shell-h: 52px;
+  --focus: 0 0 0 2px var(--surface), 0 0 0 4px var(--bloom);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--t-m);
+  line-height: 1.45;
+  font-feature-settings: "lnum";
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-cond);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: 0.005em;
+}
+
+h1 { font-size: var(--t-3xl); }
+h2 { font-size: var(--t-2xl); }
+h3 { font-size: var(--t-xl); }
+h4 { font-size: var(--t-l); }
+
+p {
+  margin: 0;
+  max-width: 72ch;
+}
+
+a {
+  color: var(--bloom-ink);
+  text-underline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus);
+  border-radius: var(--radius-s);
+}
+
+.num {
+  font-family: var(--font-cond);
+  font-feature-settings: "tnum", "lnum";
+}
+
+.id {
+  font-family: var(--font-cond);
+  font-weight: 500;
+  font-feature-settings: "tnum";
+  white-space: nowrap;
+}
+
+.muted { color: var(--ink-2); }
+.faint { color: var(--ink-3); }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

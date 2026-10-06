@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/inbox_row.json",
+  "title": "Case inbox row",
+  "description": "One row of the view API.V_CASE_INBOX (column names lower-cased), read by persona roles. A projection of DECISION.CASES, CASE_LOTS, the open APPROVALS, the ACTIVE RECOMMENDATIONS row, the latest POLICY_EVALUATIONS row and MAX(LEDGER.ENTRIES.seq) for the case. Snowflake computes inbox_rank and awaiting_me; the app only orders and renders.",
+  "type": "object",
+  "required": ["case_id", "decision_point", "state", "state_version", "change_token", "severity", "shipment_id",
+               "lot_ids", "opened_at", "onset_at", "deadline_ts", "due_at", "fallback_at", "value_at_risk_usd",
+               "decided_by", "evaluation_outcome", "autonomy_level", "awaiting_roles", "awaiting_me",
+               "needs_reassessment", "inbox_rank", "is_open", "sealed_at", "policy_version", "provenance", "updated_at"],
+  "additionalProperties": false,
+  "properties": {
+    "case_id": { "$ref": "../common.json#/$defs/case_id" },
+    "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+    "state": { "$ref": "../common.json#/$defs/case_state" },
+    "state_version": { "type": "integer", "minimum": 1 },
+    "change_token": {
+      "type": "string", "pattern": "^[0-9]+:[0-9]+$",
+      "description": "state_version || ':' || last ledger seq of the case. Changes whenever anything about the case changes."
+    },
+    "severity": { "enum": ["LOW", "MEDIUM", "HIGH"] },
+    "shipment_id": { "oneOf": [{ "$ref": "../common.json#/$defs/external_id" }, { "type": "null" }] },
+    "lot_ids": { "type": "array", "items": { "$ref": "../common.json#/$defs/external_id" }, "minItems": 1 },
+    "opened_at": { "$ref": "../common.json#/$defs/timestamp" },
+    "onset_at": { "$ref": "../common.json#/$defs/timestamp" },
+    "deadline_ts": { "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }] },
+    "due_at": {
+      "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }],
+      "description": "Earliest due_at of the case's REQUESTED approvals."
+    },
+    "fallback_at": {
+      "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }],
+      "description": "When the deadline watchdog will execute the safe fallback if nothing is executed first."
+    },
+    "value_at_risk_usd": { "oneOf": [{ "$ref": "../common.json#/$defs/usd" }, { "type": "null" }] },
+    "decided_by": { "oneOf": [{ "$ref": "../common.json#/$defs/decider_kind" }, { "type": "null" }] },
+    "evaluation_outcome": { "oneOf": [{ "$ref": "../common.json#/$defs/evaluation_outcome" }, { "type": "null" }] },
+    "autonomy_level": { "oneOf": [{ "$ref": "../common.json#/$defs/autonomy_level" }, { "type": "null" }] },
+    "awaiting_roles": {
+      "type": "array", "items": { "$ref": "../common.json#/$defs/persona_role" }, "uniqueItems": true,
+      "description": "Required roles of the case's REQUESTED approvals."
+    },
+    "awaiting_me": {
+      "type": "boolean",
+      "description": "True when a REQUESTED approval needs a role active in the caller's session (IS_ROLE_IN_SESSION) and the caller is not its proposer."
+    },
+    "needs_reassessment": { "type": "boolean" },
+    "inbox_rank": {
+      "type": "integer", "minimum": 1,
+      "description": "Position in the inbox: open cases by decision deadline and value at risk, computed in the view."
+    },
+    "is_open": { "type": "boolean" },
+    "sealed_at": { "oneOf": [{ "$ref": "../common.json#/$defs/timestamp" }, { "type": "null" }] },
+    "policy_version": { "$ref": "../common.json#/$defs/version" },
+    "provenance": { "enum": ["LIVE", "SIMULATION_BACKFILL"] },
+    "updated_at": { "$ref": "../common.json#/$defs/timestamp" }
+  }
+}

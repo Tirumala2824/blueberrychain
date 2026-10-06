@@ -30,6 +30,8 @@ ROOT = Path(__file__).resolve().parents[2]
 THERMAL_SQL = ROOT / "snowflake" / "modules" / "62_ops_thermal.sql"
 BODIES = [
     "LOT_CUSTODY",
+    "DEVICE_ASSIGNMENT_INTERVALS",
+    "LOT_CUSTODY_INTERVALS",
     "TELEMETRY_ASSIGNED",
     "LOT_THERMAL_BUCKETS",
     "LOT_THERMAL_STATE",

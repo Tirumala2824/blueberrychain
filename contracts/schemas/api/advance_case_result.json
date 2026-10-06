@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/advance_case_result.json",
+  "title": "ADVANCE_CASE result",
+  "description": "API.ADVANCE_CASE(case_id, expected_state), called by the engine. Runs the next deterministic stage(s) idempotently and enforces allowed transitions; refuses (DENIED, code STATE_MISMATCH) when expected_state is stale. Releases the lease.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "case_id", "from_state", "to_state", "state_version", "transitions", "next", "lease_released"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "case_id": { "$ref": "../common.json#/$defs/case_id" },
+        "from_state": { "$ref": "../common.json#/$defs/case_state" },
+        "to_state": { "$ref": "../common.json#/$defs/case_state" },
+        "state_version": { "type": "integer", "minimum": 1 },
+        "transitions": {
+          "type": "array", "maxItems": 50,
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "ledger_seq"],
+            "additionalProperties": false,
+            "properties": {
+              "from": { "$ref": "../common.json#/$defs/case_state" },
+              "to": { "$ref": "../common.json#/$defs/case_state" },
+              "ledger_seq": { "$ref": "../common.json#/$defs/ledger_seq" }
+            }
+          }
+        },
+        "next": { "enum": ["ADVANCE", "AGENT", "WAIT_HUMAN", "WAIT_EXTERNAL", "DONE"] },
+        "lease_released": { "type": "boolean" }
+      }
+    }
+  ]
+}

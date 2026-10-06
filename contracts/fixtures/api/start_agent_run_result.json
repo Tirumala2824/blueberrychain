@@ -1,0 +1,42 @@
+{
+  "schema": "api/start_agent_run_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "run_id": "RUN-00000210",
+      "case_id": "CASE-00000023",
+      "decision_point": "D1",
+      "agent": "EXCURSION_FORENSICS",
+      "agent_fqn": "BBC_OS.AGENT.EXCURSION_FORENSICS",
+      "provider": "cortex-agent",
+      "model": "claude-sonnet-4-5",
+      "spec_version": "1",
+      "tool_allowlist": [
+        "GET_CASE_CONTEXT",
+        "GET_TELEMETRY_WINDOW",
+        "GET_DOCUMENT_EVIDENCE",
+        "ANALYZE_CAUSAL_SIGNATURES",
+        "SUBMIT_CAUSATION_FINDING"
+      ],
+      "call_budget": 12,
+      "expires_at": "2026-10-06T07:15:00Z",
+      "message": "Run RUN-00000210: investigate case CASE-00000023 (D1) and submit a causation finding."
+    }
+  ],
+  "invalid": [
+    {
+      "why": "agents live in BBC_OS.AGENT",
+      "base": 0,
+      "set": {
+        "/agent_fqn": "OTHER_DB.PUBLIC.AGENT"
+      }
+    },
+    {
+      "why": "a run has at least one tool",
+      "base": 0,
+      "set": {
+        "/tool_allowlist": []
+      }
+    }
+  ]
+}

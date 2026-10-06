@@ -1,0 +1,855 @@
+{
+  "schema": "api/active_policy.json",
+  "valid": [
+    {
+      "policy_version": "1",
+      "status": "ACTIVE",
+      "content_hash": "9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f",
+      "description": "Policy v1 (demo)",
+      "drafted_by": "DURGAPRASAD17",
+      "drafted_at": "2026-10-06T05:00:00Z",
+      "activated_by": "BBC_DEMO_GOVADMIN",
+      "activated_at": "2026-10-06T05:10:00Z",
+      "activation_reason": "initial policy",
+      "document": {
+        "policy_version": "1",
+        "description": "Initial policy for the Central Valley world. Model names are provisional until WP1 spike S7 confirms what this account can run (ADR-0002); update model_registry before activating.",
+        "parameters": {
+          "autonomy_ceiling": 4,
+          "shadow_mode": false,
+          "fallback_enabled": true,
+          "dispatch_enabled": true,
+          "approval_buffer_min": 30,
+          "min_acceptance_probability": 0.8,
+          "risk_aversion_lambda": 0.25,
+          "tier_a_weight_kappa_usd_per_kg": 1.0,
+          "near_tie_margin_pct": 10,
+          "near_tie_margin_usd": 2000,
+          "high_exposure_usd": 25000,
+          "detection_window_min": 60,
+          "consistency_tolerance_c": 1.0,
+          "fault_persistence_prior": 0.7,
+          "failure_to_mitigate_factor": 0.7,
+          "p_liab_by_finding": {
+            "HIGH": 0.9,
+            "MEDIUM": 0.75,
+            "LOW": 0.5,
+            "ATTRIBUTION_ONLY": 0.7
+          },
+          "montecarlo_samples": 2000,
+          "staleness_limit_min": 120,
+          "snapshot_staleness_limit_h": 6,
+          "min_evidence_coverage_pct": 60,
+          "settlement_band_pct": {
+            "min": 60,
+            "max": 100
+          },
+          "agent_call_budget": 40
+        },
+        "decision_rights": [
+          {
+            "rule_id": "DR-01",
+            "priority": 10,
+            "conditions": {
+              "action_types": [
+                "STOCK_BLOCK",
+                "REQUEST_EVIDENCE",
+                "CLAIM_NOTICE"
+              ]
+            },
+            "outcome": "AUTO",
+            "required_roles": [],
+            "note": "Protective, reversible or rights-preserving actions."
+          },
+          {
+            "rule_id": "DR-02",
+            "priority": 20,
+            "conditions": {
+              "food_safety_flag": true,
+              "action_types": [
+                "REROUTE",
+                "SO_CREATE",
+                "SO_CHANGE",
+                "REPLACEMENT_ALLOCATION"
+              ]
+            },
+            "outcome": "DENY",
+            "required_roles": [],
+            "note": "Food-safety flagged product may only be held, inspected or disposed."
+          },
+          {
+            "rule_id": "DR-03",
+            "priority": 30,
+            "conditions": {
+              "action_types": [
+                "DISPOSE"
+              ]
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_QUALITY_MGR"
+            ],
+            "note": "Disposal is irreversible."
+          },
+          {
+            "rule_id": "DR-04",
+            "priority": 40,
+            "conditions": {
+              "action_types": [
+                "REROUTE",
+                "SO_CREATE"
+              ],
+              "min_value_usd": 25000
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_SALES_MGR"
+            ],
+            "note": "Selling a lot to a different customer above $25k."
+          },
+          {
+            "rule_id": "DR-05",
+            "priority": 50,
+            "conditions": {
+              "action_types": [
+                "SO_CHANGE",
+                "REPROMISE_NOTICE",
+                "REPLACEMENT_ALLOCATION"
+              ],
+              "customer_tiers": [
+                "A"
+              ]
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_SALES_MGR"
+            ],
+            "note": "Any change to a tier-A customer commitment."
+          },
+          {
+            "rule_id": "DR-06",
+            "priority": 60,
+            "conditions": {
+              "action_types": [
+                "FILE_CLAIM"
+              ]
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_FINANCE_MGR"
+            ],
+            "note": "Filing a claim is an external legal step."
+          },
+          {
+            "rule_id": "DR-07",
+            "priority": 70,
+            "conditions": {
+              "action_types": [
+                "GROWER_DEDUCTION",
+                "ABSORB"
+              ],
+              "min_value_usd": 10000
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_FINANCE_MGR"
+            ]
+          },
+          {
+            "rule_id": "DR-08",
+            "priority": 80,
+            "conditions": {
+              "decision_points": [
+                "D1"
+              ],
+              "decider_kinds": [
+                "AGENT"
+              ],
+              "min_value_usd": 10000
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_QUALITY_MGR"
+            ],
+            "note": "An AI-chosen recovery above $10k never self-executes."
+          },
+          {
+            "rule_id": "DR-09",
+            "priority": 90,
+            "conditions": {
+              "decision_points": [
+                "D2"
+              ],
+              "decider_kinds": [
+                "AGENT"
+              ],
+              "min_value_usd": 10000
+            },
+            "outcome": "APPROVE",
+            "required_roles": [
+              "BBC_FINANCE_MGR"
+            ],
+            "note": "An AI-chosen settlement above $10k never self-executes."
+          },
+          {
+            "rule_id": "DR-99",
+            "priority": 999,
+            "conditions": {},
+            "outcome": "AUTO",
+            "required_roles": [],
+            "note": "Otherwise the autonomy thresholds decide (L3 automatic vs L4 approval)."
+          }
+        ],
+        "router_rules": [
+          {
+            "trigger": "EVIDENCE_CONFLICT",
+            "enabled": true,
+            "target_agent": "EXCURSION_FORENSICS"
+          },
+          {
+            "trigger": "CAUSE_AMBIGUOUS",
+            "enabled": true,
+            "target_agent": "EXCURSION_FORENSICS"
+          },
+          {
+            "trigger": "MULTI_PARTY_LIABILITY",
+            "enabled": true,
+            "target_agent": "EXCURSION_FORENSICS",
+            "params": {
+              "max_single_party_share": 0.7
+            }
+          },
+          {
+            "trigger": "NEAR_TIE",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          },
+          {
+            "trigger": "HIGH_EXPOSURE",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          },
+          {
+            "trigger": "STRATEGIC_CUSTOMER",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST",
+            "params": {
+              "tiers": [
+                "A"
+              ],
+              "only_when_shortfall": true
+            }
+          },
+          {
+            "trigger": "MODEL_OUT_OF_RANGE",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          },
+          {
+            "trigger": "QUALITATIVE_SIGNAL",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          },
+          {
+            "trigger": "PRECEDENT_CONFLICT",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST",
+            "params": {
+              "min_precedents": 3,
+              "min_disagreeing_share": 0.6
+            }
+          },
+          {
+            "trigger": "NO_FEASIBLE_OPTION",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          },
+          {
+            "trigger": "NOVEL",
+            "enabled": true,
+            "target_agent": "RECOVERY_STRATEGIST"
+          }
+        ],
+        "hard_limits": [
+          {
+            "limit_id": "HL-01",
+            "product_id": "*",
+            "max_pulp_c": 15.0,
+            "max_minutes_above": 240,
+            "consequence": "INSPECT_HOLD_OR_DISPOSE_ONLY"
+          },
+          {
+            "limit_id": "HL-02",
+            "product_id": "*",
+            "max_pulp_c": 25.0,
+            "max_minutes_above": 30,
+            "consequence": "INSPECT_HOLD_OR_DISPOSE_ONLY"
+          }
+        ],
+        "autonomy_thresholds": {
+          "financial": [
+            {
+              "metric": "action_value_usd",
+              "l3_max": 10000,
+              "l4_max": 100000,
+              "beyond_l4": "DUAL_APPROVAL",
+              "approver_roles": [
+                "BBC_FINANCE_MGR"
+              ]
+            },
+            {
+              "metric": "value_at_risk_usd",
+              "l3_max": 25000,
+              "l4_max": 100000,
+              "beyond_l4": "DUAL_APPROVAL",
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            }
+          ],
+          "customer": [
+            {
+              "metric": "tier_a_lines_affected",
+              "l3_max": 0,
+              "l4_max": 10,
+              "beyond_l4": "DUAL_APPROVAL",
+              "approver_roles": [
+                "BBC_SALES_MGR"
+              ]
+            },
+            {
+              "metric": "p_otif_shortfall",
+              "l3_max": 0.05,
+              "l4_max": 1.0,
+              "approver_roles": [
+                "BBC_SALES_MGR"
+              ]
+            },
+            {
+              "metric": "lines_affected",
+              "l3_max": 2,
+              "l4_max": 10,
+              "beyond_l4": "DUAL_APPROVAL",
+              "approver_roles": [
+                "BBC_SALES_MGR"
+              ]
+            }
+          ],
+          "inventory": [
+            {
+              "metric": "replacement_share_of_site_atp",
+              "l3_max": 0.2,
+              "l4_max": 1.0,
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            },
+            {
+              "metric": "stockout_risk_lines",
+              "l3_max": 0,
+              "l4_max": 100,
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            }
+          ],
+          "operational": [
+            {
+              "metric": "p_reject",
+              "l3_max": 0.05,
+              "l4_max": 0.2,
+              "beyond_l4": "L2",
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            },
+            {
+              "metric": "reversibility_rank",
+              "l3_max": 0,
+              "l4_max": 2,
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            },
+            {
+              "metric": "food_safety_flag",
+              "l3_max": false,
+              "l4_max": false,
+              "beyond_l4": "FALLBACK_ONLY",
+              "approver_roles": [
+                "BBC_QUALITY_MGR"
+              ]
+            }
+          ],
+          "confidence": [
+            {
+              "metric": "confidence_rank",
+              "l3_max": 0,
+              "l4_max": 1,
+              "beyond_l4": "L2"
+            }
+          ],
+          "data_quality": [
+            {
+              "metric": "data_age_min",
+              "l3_max": 30,
+              "l4_max": 120,
+              "beyond_l4": "L2"
+            },
+            {
+              "metric": "data_age_min",
+              "l3_max": 360,
+              "l4_max": 360,
+              "beyond_l4": "L1"
+            },
+            {
+              "metric": "coverage_shortfall_pct",
+              "l3_max": 20,
+              "l4_max": 40,
+              "beyond_l4": "L2"
+            },
+            {
+              "metric": "unresolved_conflicts",
+              "l3_max": 0,
+              "l4_max": 0,
+              "beyond_l4": "L2"
+            },
+            {
+              "metric": "snapshot_age_h",
+              "l3_max": 6,
+              "l4_max": 24,
+              "beyond_l4": "L2"
+            }
+          ]
+        },
+        "action_types": [
+          {
+            "action_type": "STOCK_BLOCK",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 3,
+            "compensation": "STOCK_UNBLOCK",
+            "preconditions": [
+              "stock_unrestricted",
+              "quantity_matches"
+            ]
+          },
+          {
+            "action_type": "STOCK_UNBLOCK",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 3,
+            "compensation": "STOCK_BLOCK",
+            "preconditions": [
+              "stock_blocked"
+            ]
+          },
+          {
+            "action_type": "REQUEST_EVIDENCE",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 3,
+            "compensation": "WITHDRAW_REQUEST",
+            "preconditions": []
+          },
+          {
+            "action_type": "WITHDRAW_REQUEST",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 3,
+            "compensation": null,
+            "preconditions": [
+              "request_open"
+            ]
+          },
+          {
+            "action_type": "CLAIM_NOTICE",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 3,
+            "compensation": "WITHDRAW_NOTICE",
+            "preconditions": [
+              "not_already_noticed"
+            ]
+          },
+          {
+            "action_type": "WITHDRAW_NOTICE",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 3,
+            "compensation": null,
+            "preconditions": [
+              "notice_open"
+            ]
+          },
+          {
+            "action_type": "SO_CHANGE",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 4,
+            "compensation": "SO_REVERT",
+            "preconditions": [
+              "line_etag_unchanged",
+              "not_shipped"
+            ]
+          },
+          {
+            "action_type": "SO_REVERT",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "line_etag_unchanged",
+              "not_shipped"
+            ]
+          },
+          {
+            "action_type": "SO_CREATE",
+            "target_system": "SAP",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": "CANCEL_SO",
+            "preconditions": []
+          },
+          {
+            "action_type": "CANCEL_SO",
+            "target_system": "SAP",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "not_shipped"
+            ]
+          },
+          {
+            "action_type": "REPLACEMENT_ALLOCATION",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 4,
+            "compensation": "DEALLOCATE",
+            "preconditions": [
+              "replacement_atp_sufficient"
+            ]
+          },
+          {
+            "action_type": "DEALLOCATE",
+            "target_system": "SAP",
+            "reversibility": "REVERSIBLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "not_goods_issued"
+            ]
+          },
+          {
+            "action_type": "REROUTE",
+            "target_system": "TMS",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": "REROUTE_BACK",
+            "preconditions": [
+              "in_transit",
+              "destination_matches",
+              "junction_not_passed"
+            ]
+          },
+          {
+            "action_type": "REROUTE_BACK",
+            "target_system": "TMS",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "in_transit",
+              "junction_not_passed"
+            ]
+          },
+          {
+            "action_type": "REPROMISE_NOTICE",
+            "target_system": "CUSTOMER_EDI",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": "CORRECTION_NOTICE",
+            "preconditions": [
+              "line_etag_unchanged"
+            ]
+          },
+          {
+            "action_type": "CORRECTION_NOTICE",
+            "target_system": "CUSTOMER_EDI",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": []
+          },
+          {
+            "action_type": "DISPOSE",
+            "target_system": "SAP",
+            "reversibility": "IRREVERSIBLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "food_safety_or_no_value_confirmed"
+            ]
+          },
+          {
+            "action_type": "FILE_CLAIM",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": "WITHDRAW_CLAIM",
+            "preconditions": [
+              "evidence_sufficient",
+              "filing_window_open"
+            ]
+          },
+          {
+            "action_type": "WITHDRAW_CLAIM",
+            "target_system": "CARRIER",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "claim_open"
+            ]
+          },
+          {
+            "action_type": "GROWER_DEDUCTION",
+            "target_system": "SAP",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": "REVERSAL_POSTING",
+            "preconditions": [
+              "settlement_period_open"
+            ]
+          },
+          {
+            "action_type": "ABSORB",
+            "target_system": "SAP",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 3,
+            "compensation": "REVERSAL_POSTING",
+            "preconditions": []
+          },
+          {
+            "action_type": "REVERSAL_POSTING",
+            "target_system": "SAP",
+            "reversibility": "COMPENSATABLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": [
+              "document_exists"
+            ]
+          },
+          {
+            "action_type": "CASE_STATE",
+            "target_system": "INTERNAL",
+            "reversibility": "REVERSIBLE",
+            "max_level": 4,
+            "compensation": null,
+            "preconditions": []
+          }
+        ],
+        "model_registry": [
+          {
+            "agent": "EXCURSION_FORENSICS",
+            "provider": "CORTEX",
+            "model": "claude-sonnet-4-6",
+            "role": "PRIMARY",
+            "data_classes": [
+              "OPERATIONAL",
+              "CONTRACTUAL"
+            ]
+          },
+          {
+            "agent": "RECOVERY_STRATEGIST",
+            "provider": "CORTEX",
+            "model": "claude-sonnet-4-6",
+            "role": "PRIMARY",
+            "data_classes": [
+              "OPERATIONAL",
+              "COMMERCIAL"
+            ]
+          },
+          {
+            "agent": "CLAIMS_RECOVERY",
+            "provider": "CORTEX",
+            "model": "claude-sonnet-4-6",
+            "role": "PRIMARY",
+            "data_classes": [
+              "OPERATIONAL",
+              "COMMERCIAL",
+              "CONTRACTUAL"
+            ]
+          },
+          {
+            "agent": "EVIDENCE_AUDITOR",
+            "provider": "CORTEX",
+            "model": "llama4-maverick",
+            "role": "PRIMARY",
+            "data_classes": [
+              "OPERATIONAL",
+              "COMMERCIAL",
+              "CONTRACTUAL"
+            ],
+            "must_differ_from_author": true
+          }
+        ],
+        "metric_registry": [
+          {
+            "name": "REMAINING_SHELF_LIFE_DAYS",
+            "version": "1",
+            "canonical": true,
+            "unit": "days",
+            "grain": "lot",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "PREDICTED_SL_AT_ETA_DAYS",
+            "version": "1",
+            "canonical": true,
+            "unit": "days",
+            "grain": "case_lot_destination",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "SPEC_MARGIN_DAYS",
+            "version": "1",
+            "canonical": true,
+            "unit": "days",
+            "grain": "case_lot_destination",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "EXCESS_LIFE_SHARE",
+            "version": "1",
+            "canonical": true,
+            "unit": "share",
+            "grain": "lot_holder",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "PLANNED_VALUE_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "case_lot",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "DEFAULT_COUNTERFACTUAL_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "decision",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "VALUE_AT_RISK_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "case_lot",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "PREDICTED_NRV_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "decision",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "REALIZED_NRV_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "case",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "VALUE_PROTECTED_USD",
+            "version": "1",
+            "canonical": true,
+            "unit": "USD",
+            "grain": "case",
+            "owner_role": "BBC_FINANCE_MGR",
+            "staleness_limit_min": null
+          },
+          {
+            "name": "QUALITY_ADJUSTED_ATP_KG",
+            "version": "1",
+            "canonical": true,
+            "unit": "kg",
+            "grain": "lot_site_snapshot",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 360
+          },
+          {
+            "name": "TEMPERATURE_COMPLIANCE_PCT",
+            "version": "1",
+            "canonical": false,
+            "unit": "%",
+            "grain": "lot",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "MONITORING_COVERAGE_PCT",
+            "version": "1",
+            "canonical": false,
+            "unit": "%",
+            "grain": "lot",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "THERMAL_EXPOSURE_DEG_H",
+            "version": "1",
+            "canonical": false,
+            "unit": "deg_h",
+            "grain": "lot_holder",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": 120
+          },
+          {
+            "name": "DATA_AGE_MIN",
+            "version": "1",
+            "canonical": false,
+            "unit": "min",
+            "grain": "lot",
+            "owner_role": "BBC_QUALITY_MGR",
+            "staleness_limit_min": null
+          }
+        ]
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "why": "only the ACTIVE version is shown",
+      "base": 0,
+      "set": {
+        "/status": "DRAFT"
+      }
+    },
+    {
+      "why": "the document must be a valid policy",
+      "base": 0,
+      "delete": [
+        "/document/decision_rights"
+      ]
+    }
+  ]
+}

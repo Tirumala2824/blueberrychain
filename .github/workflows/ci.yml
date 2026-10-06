@@ -34,7 +34,7 @@ jobs:
       - name: Tests (golden worked example, determinism, contracts, scenarios, drift guards)
         run: uv run pytest
       - name: Policy v1 is valid
-        run: uv run bbc policy check snowflake/seed/policy/v1.json
+        run: uv run bbc policy check snowflake/seed/policy/v3.json
 
   node:
     name: TypeScript (contracts, connectors, mocks)

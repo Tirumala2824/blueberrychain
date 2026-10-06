@@ -23,7 +23,7 @@ from bbc_toolkit import ledger
 
 ROOT = Path(__file__).resolve().parents[4]
 MODEL = ROOT / "snowflake" / "semantic" / "excursion_recovery.yaml"
-POLICY = ROOT / "snowflake" / "seed" / "policy" / "v1.json"
+POLICY = ROOT / "snowflake" / "seed" / "policy" / "v3.json"  # the current policy seed
 REF = re.compile(r"\b([a-z_]+)\.([a-z_]+)\b")
 
 
@@ -76,7 +76,9 @@ def render_sql(model: dict[str, Any]) -> str:
     def metric(m: dict[str, Any]) -> str:
         nab = ""
         if m.get("non_additive_by"):
-            nab = " NON ADDITIVE BY (" + ", ".join(f"{d} DESC" for d in m["non_additive_by"]) + ")"
+            # The engine keeps the LAST rows in this sort order: ASC = latest snapshot
+            # (DESC would silently return the earliest one).
+            nab = " NON ADDITIVE BY (" + ", ".join(f"{d} ASC" for d in m["non_additive_by"]) + ")"
         return f"    {m['name']}{nab} AS {m['expr']}{_extras(m)}"
 
     metrics = ",\n".join(metric(m) for m in model["metrics"])

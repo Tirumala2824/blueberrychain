@@ -108,11 +108,11 @@ Say **"WP5 done"**, and paste:
 ## Result log (fill in)
 | Item | Result | Notes / changes CoCo made |
 |---|---|---|
-| Policy v1 definition hashes present | | |
-| bbc sim run (S-A to +1.5 h) | | |
-| Latency: excursion visible after | | |
-| 03_ops + 04_world_consistency | | |
-| 70_semantic_view.sql | | |
-| DESCRIBE: metric rows | | |
-| Smoke query (L-A custody shares) | | |
-| 05_semantic | | |
+| Policy v1 definition hashes present | PASS (2026-10-06) | v1 carried 7 hashes; superseded by v2 below |
+| bbc sim run (S-A to +1.5 h) | PASS | 59 actions (IOT 8, S4 18, TMS 33), 2631 readings, rejected 0. dev-stack needs absolute `BBC_SAP_KEY_MAP` / `BBC_DEAD_LETTER_DIR` (pnpm runs it from apps/dev-stack) |
+| Latency: excursion visible after | PASS | 61 s |
+| 03_ops + 04_world_consistency | PASS | 26/26 |
+| 70_semantic_view.sql | PASS after 2 fixes | (1) facts reading a column named like a metric resolve to the metric ("Cyclic reference"); YAML adds helper views `SEM.LOT_THERMAL` / `SEM.CUSTODY_EXPOSURE` that rename the two columns, which re-hashed 6 metrics, so **policy v2** (draft #12 by builder, activate #13 by govadmin). (2) `NON ADDITIVE BY (... DESC)` returns the EARLIEST snapshot (engine keeps the last rows in sort order); generator now emits ASC - the governed hash is unchanged |
+| DESCRIBE: metric rows | PASS | 9 metrics |
+| Smoke query (L-A custody shares) | PASS | L-A: CARRIER 1.0, GROWER 0 (23.4 deg-h of field heat inside the pre-cool window) |
+| 05_semantic | PASS | 4/4 |

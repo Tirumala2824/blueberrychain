@@ -12,7 +12,7 @@ from blueberrychain import semantic
 from blueberrychain.sim import world as world_mod
 
 DEFAULT_OUT = Path(".artifacts/sim/reference")
-DEFAULT_POLICY = Path("snowflake/seed/policy/v1.json")
+DEFAULT_POLICY = Path("snowflake/seed/policy/v3.json")  # the current policy seed
 
 
 def add_sim_init(parser: argparse.ArgumentParser) -> None:

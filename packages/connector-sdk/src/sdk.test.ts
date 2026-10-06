@@ -77,7 +77,7 @@ describe("SnowflakeSink", () => {
     const sink = new SnowflakeSink(CONNECTOR, client([ok], seen));
     await expect(sink.write("TELEMETRY", [reading(0)], { stream: "s", cursor: "c" })).resolves.toMatchObject(ok);
     const body = seen[0]!.body as { statement: string; bindings: Record<string, { value: string }> };
-    expect(body.statement).toBe("CALL BBC_OS.API.INGEST_BATCH(?, ?, ?, ?, ?)");
+    expect(body.statement).toBe("CALL BBC_OS.API.INGEST_BATCH(?, ?, PARSE_JSON(?), ?, ?)");
     expect(body.bindings["1"]!.value).toBe("TELEMETRY");
     expect(body.bindings["2"]!.value).toBe(CONNECTOR);
     expect(JSON.parse(body.bindings["3"]!.value)).toEqual([reading(0)]);
@@ -222,5 +222,5 @@ describe.skipIf(!live)("SnowflakeSink against the account (BBC_IT=1)", () => {
     });
     expect(await sink.write("TELEMETRY", [row])).toMatchObject({ inserted: 1 });
     expect(await sink.write("TELEMETRY", [row])).toMatchObject({ inserted: 0, duplicates: 1 });
-  });
+  }, 60_000); // a cold Python procedure takes several seconds on its first call
 });

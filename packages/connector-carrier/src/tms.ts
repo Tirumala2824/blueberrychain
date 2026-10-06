@@ -1,4 +1,4 @@
-/** Read-only client for the TMS / carrier API (contracts/apis/mock-tms.openapi.yaml). */
+/** Client for the TMS / carrier API (contracts/apis/mock-tms.openapi.yaml): reads for the connector, writes for the dispatcher. */
 
 export interface TmsConfig {
   baseUrl: string;
@@ -46,5 +46,31 @@ export class TmsClient {
       throw new TmsError(response.status, `GET ${path}: HTTP ${response.status} ${detail}`);
     }
     return JSON.parse(text) as T;
+  }
+
+  /** Any call, with status and headers (the dispatcher needs ETags and exact status codes). */
+  async request(
+    method: "GET" | "POST",
+    path: string,
+    options: { body?: Json; headers?: Record<string, string> } = {},
+  ): Promise<{ status: number; headers: Headers; body: Json }> {
+    const response = await this.fetchImpl(`${this.config.baseUrl}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${this.config.token}`,
+        Accept: "application/json",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
+      ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    });
+    const text = await response.text();
+    let body: Json = {};
+    try {
+      body = text ? (JSON.parse(text) as Json) : {};
+    } catch {
+      body = { detail: text };
+    }
+    return { status: response.status, headers: response.headers, body };
   }
 }

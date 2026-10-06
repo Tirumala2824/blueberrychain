@@ -22,14 +22,18 @@ parties:
     party_type: CUSTOMER
     name: Summit Club Warehouse
     customer_tier: A
+    sales_channel: CONTRACT
     sap_business_partner: "100301"
     account_notes: >-
       Club-format retailer. Rejects on any receipt below spec. Flagged two late deliveries last quarter;
       buyer has said a third service failure triggers a supplier review.
-  - { party_id: PARTY-BAYLINE, party_type: CUSTOMER, name: Bayline Markets, customer_tier: B, sap_business_partner: "100302",
+  - { party_id: PARTY-BAYLINE, party_type: CUSTOMER, name: Bayline Markets, customer_tier: B, sales_channel: REGIONAL,
+      sap_business_partner: "100302",
       account_notes: "Regional grocer. Accepts short-notice organic volume at regional pricing." }
-  - { party_id: PARTY-HARBOR, party_type: CUSTOMER, name: Harbor Foodservice, customer_tier: C, sap_business_partner: "100303" }
-  - { party_id: PARTY-VFP, party_type: PROCESSOR, name: Valley Fruit Processing, sap_business_partner: "100304" }
+  - { party_id: PARTY-HARBOR, party_type: CUSTOMER, name: Harbor Foodservice, customer_tier: C, sales_channel: FOODSERVICE,
+      sap_business_partner: "100303" }
+  - { party_id: PARTY-VFP, party_type: PROCESSOR, name: Valley Fruit Processing, sales_channel: PROCESSOR,
+      sap_business_partner: "100304" }
 
 sites:
   - { site_id: SITE-RANCH14-B7, party_id: PARTY-EMERALD-RIDGE, site_type: RANCH_BLOCK, name: "Ranch 14 Block 7", city: Kingsburg, state: CA, lat: 36.514, lon: -119.554 }

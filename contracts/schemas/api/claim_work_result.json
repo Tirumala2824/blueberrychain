@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blueberrychain.dev/schemas/api/claim_work_result.json",
+  "title": "CLAIM_WORK result",
+  "description": "API.CLAIM_WORK(worker_id, lease_s), called by the engine. Leases the next case that needs a step (expired leases can be reclaimed) and says what the step is. Snowflake's state machine decides; the engine only executes the step.",
+  "oneOf": [
+    { "$ref": "refusal.json" },
+    {
+      "type": "object",
+      "required": ["status", "work"],
+      "additionalProperties": false,
+      "properties": {
+        "status": { "const": "OK" },
+        "work": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "required": ["case_id", "decision_point", "state", "state_version", "step", "agent", "artifact_id", "attempt", "lease_owner", "lease_until"],
+              "additionalProperties": false,
+              "properties": {
+                "case_id": { "$ref": "../common.json#/$defs/case_id" },
+                "decision_point": { "$ref": "../common.json#/$defs/decision_point" },
+                "state": { "$ref": "../common.json#/$defs/case_state" },
+                "state_version": { "type": "integer", "minimum": 1 },
+                "step": { "enum": ["ADVANCE", "AGENT"] },
+                "agent": { "oneOf": [{ "$ref": "../common.json#/$defs/agent_name" }, { "type": "null" }] },
+                "artifact_id": {
+                  "oneOf": [{ "$ref": "../common.json#/$defs/artifact_id" }, { "type": "null" }],
+                  "description": "The artifact to audit when agent = EVIDENCE_AUDITOR."
+                },
+                "attempt": { "type": "integer", "minimum": 1 },
+                "lease_owner": { "type": "string", "minLength": 1, "maxLength": 128 },
+                "lease_until": { "$ref": "../common.json#/$defs/timestamp" }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

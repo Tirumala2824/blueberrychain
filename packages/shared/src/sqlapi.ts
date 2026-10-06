@@ -8,6 +8,8 @@
  *   statement at most once even when a response is lost.
  * - 202 responses are polled until the statement finishes; multi-partition results
  *   are fetched in full.
+ * - `queryWithMeta` / `queryRows` also return column metadata and decode the SQL API's
+ *   text encodings (epoch timestamps, numbers, booleans, VARIANT JSON).
  */
 
 import { randomUUID } from "node:crypto";
@@ -29,7 +31,32 @@ export interface SqlApiConfig {
   /** Base backoff between retries, ms (doubles each attempt, with jitter). */
   backoffMs?: number;
   userAgent?: string;
+  /** QUERY_TAG for every statement (e.g. "bbc-engine"); a per-call tag is appended. */
+  queryTag?: string;
   fetch?: typeof fetch;
+}
+
+/** Per-statement options. */
+export interface QueryOptions {
+  /** Appended to the client's QUERY_TAG (`<client>:<call>`). */
+  queryTag?: string;
+  /** Server-side timeout for this statement, seconds. */
+  timeoutS?: number;
+}
+
+export interface ColumnMeta {
+  name: string;
+  /** Snowflake type as the SQL API reports it, lower case (fixed, text, timestamp_tz, variant, ...). */
+  type: string;
+  scale: number | null;
+  nullable: boolean;
+}
+
+export type Cell = string | number | boolean | null | Record<string, unknown> | unknown[];
+
+export interface QueryResult {
+  columns: ColumnMeta[];
+  rows: Cell[][];
 }
 
 export class SqlApiError extends Error {
@@ -47,9 +74,16 @@ export class SqlApiError extends Error {
 
 const RETRYABLE_STATUS = new Set([408, 429, 500, 502, 503, 504]);
 
+interface RowType {
+  name: string;
+  type: string;
+  scale?: number | null;
+  nullable?: boolean;
+}
+
 interface StatementResponse {
   data?: (string | null)[][];
-  resultSetMetaData?: { partitionInfo?: unknown[] };
+  resultSetMetaData?: { partitionInfo?: unknown[]; rowType?: RowType[] };
   statementHandle?: string;
   statementStatusUrl?: string;
   code?: string;
@@ -72,13 +106,38 @@ export class SqlApiClient {
   }
 
   /** Run one statement and return every row (values as strings, as the SQL API returns them). */
-  async query(statement: string, binds: Bind[] = []): Promise<(string | null)[][]> {
+  async query(statement: string, binds: Bind[] = [], options: QueryOptions = {}): Promise<(string | null)[][]> {
+    return (await this.execute(statement, binds, options)).rows;
+  }
+
+  /** Run one statement; return column metadata and decoded values. */
+  async queryWithMeta(statement: string, binds: Bind[] = [], options: QueryOptions = {}): Promise<QueryResult> {
+    const { rowType, rows } = await this.execute(statement, binds, options);
+    const columns = rowType.map((c) => ({
+      name: c.name,
+      type: c.type.toLowerCase(),
+      scale: c.scale ?? null,
+      nullable: c.nullable ?? true,
+    }));
+    return { columns, rows: rows.map((row) => row.map((cell, i) => decodeCell(cell, columns[i]))) };
+  }
+
+  /** Rows as objects keyed by lower-cased column name, with decoded values. */
+  async queryRows(statement: string, binds: Bind[] = [], options: QueryOptions = {}): Promise<Record<string, Cell>[]> {
+    const { columns, rows } = await this.queryWithMeta(statement, binds, options);
+    const keys = columns.map((c) => c.name.toLowerCase());
+    return rows.map((row) => Object.fromEntries(keys.map((k, i) => [k, row[i] ?? null])));
+  }
+
+  private async execute(statement: string, binds: Bind[], options: QueryOptions) {
+    const tag = [this.config.queryTag, options.queryTag].filter(Boolean).join(":");
     const body = JSON.stringify({
       statement,
-      timeout: this.config.timeoutS ?? 120,
+      timeout: options.timeoutS ?? this.config.timeoutS ?? 120,
       role: this.config.role,
       ...(this.config.warehouse ? { warehouse: this.config.warehouse } : {}),
       ...(this.config.database ? { database: this.config.database } : {}),
+      ...(tag ? { parameters: { query_tag: tag } } : {}),
       bindings: Object.fromEntries(
         binds.map((value, i) => [String(i + 1), { type: "TEXT", value: toText(value) }]),
       ),
@@ -103,12 +162,12 @@ export class SqlApiClient {
       const page = await this.withRetries(() => this.send("GET", url));
       rows.push(...(page.json.data ?? []));
     }
-    return rows;
+    return { rowType: result.json.resultSetMetaData?.rowType ?? [], rows };
   }
 
   /** Run a CALL whose procedure returns VARIANT and parse its single value as JSON. */
-  async callJson<T = Record<string, unknown>>(statement: string, binds: Bind[] = []): Promise<T> {
-    const rows = await this.query(statement, binds);
+  async callJson<T = Record<string, unknown>>(statement: string, binds: Bind[] = [], options: QueryOptions = {}): Promise<T> {
+    const rows = await this.query(statement, binds, options);
     const cell = rows[0]?.[0];
     if (cell == null) throw new SqlApiError(`no result from: ${statement}`, 200, false);
     return JSON.parse(cell) as T;
@@ -157,6 +216,46 @@ export class SqlApiClient {
       json.code,
       json.sqlState,
     );
+  }
+}
+
+/** Epoch seconds with a fraction ("1696000000.123456789") -> ISO-8601 UTC. */
+function epochToIso(text: string): string {
+  const [whole = "0", frac = ""] = text.split(".");
+  const ms = Number(whole) * 1000 + Number((frac + "000").slice(0, 3)) * (text.startsWith("-") ? -1 : 1);
+  return new Date(ms).toISOString();
+}
+
+/** Decode one SQL API cell by its column type. TIMESTAMP_TZ arrives as "<epoch> <offset+1440>". */
+export function decodeCell(cell: string | null, column: ColumnMeta | undefined): Cell {
+  if (cell === null || column === undefined) return cell;
+  switch (column.type) {
+    case "fixed":
+    case "real":
+    case "float":
+    case "number": {
+      const n = Number(cell);
+      return Number.isFinite(n) && (column.type !== "fixed" || (column.scale ?? 0) > 0 || Number.isSafeInteger(n)) ? n : cell;
+    }
+    case "boolean":
+      return cell === "true" || cell === "1" || cell === "TRUE";
+    case "date":
+      return new Date(Number(cell) * 86_400_000).toISOString().slice(0, 10);
+    case "timestamp_tz":
+      return epochToIso(cell.split(" ")[0] ?? cell);
+    case "timestamp_ltz":
+    case "timestamp_ntz":
+      return epochToIso(cell);
+    case "variant":
+    case "object":
+    case "array":
+      try {
+        return JSON.parse(cell) as Cell;
+      } catch {
+        return cell;
+      }
+    default:
+      return cell;
   }
 }
 

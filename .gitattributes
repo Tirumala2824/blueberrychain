@@ -6,3 +6,6 @@
 *.pptx binary
 *.png  binary
 *.jpg  binary
+
+# Generated fixture tapes (packages/bbc-api: corepack pnpm --filter @blueberrychain/bbc-api tapes)
+contracts/tapes/*.json linguist-generated=true -diff

@@ -150,11 +150,11 @@ Say **"WP6a done"**, and paste:
 ## Result log (fill in)
 | Item | Result | Notes / changes CoCo made |
 |---|---|---|
-| Pre-flight: 05_semantic, policy parameters | | |
-| bbc deploy python | | |
-| ref load (cost_rate) | | |
-| 80_decision_store.sql (tables, counters) | | |
-| 81_detection.sql (triggered or scheduled; stream, task) | | |
-| Manual OPEN_CASES call | | |
-| S-B case opened: latency | | |
-| bbc test sql 05_case_store + 02_ledger | | |
+| Pre-flight: 05_semantic, policy parameters | PASS (2026-10-06) | 4/4; 60 / 1000 / 100000 (policy v2) |
+| bbc deploy python | PASS | — |
+| ref load (cost_rate) | PASS | `no change` (COST-DETENTION-CVDC was in the WP2 load) |
+| 80_decision_store.sql (tables, counters) | PASS | 16 tables, 11 counters at 1, EVIDENCE_PACKS |
+| 81_detection.sql (triggered or scheduled; stream, task) | PASS, triggered | Fixed: task `COMMENT` must precede `WHEN` (and procedure `COMMENT` before `EXECUTE AS`). Stream not stale, task started |
+| Manual OPEN_CASES call | PASS | `{"status":"OK","detected":0}` |
+| S-B case opened: latency | PASS | 52 s: CASE-00000001 OPEN, MEDIUM, PARTY-COASTLINE, onset 14:05 (S-B departing 2026-10-07T14:00Z) |
+| bbc test sql 05_case_store + 02_ledger | PASS | 19/19 |

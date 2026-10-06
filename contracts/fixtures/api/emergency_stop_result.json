@@ -1,0 +1,29 @@
+{
+  "schema": "api/emergency_stop_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "dispatch_enabled": false,
+      "stopped_by": "BBC_DEMO_GOVADMIN",
+      "stopped_at": "2026-10-06T08:40:00Z",
+      "reason": "TMS reports duplicate reroutes; halting dispatch",
+      "ledger_seq": 460
+    }
+  ],
+  "invalid": [
+    {
+      "why": "an emergency stop always disables dispatch",
+      "base": 0,
+      "set": {
+        "/dispatch_enabled": true
+      }
+    },
+    {
+      "why": "a reason is required",
+      "base": 0,
+      "set": {
+        "/reason": ""
+      }
+    }
+  ]
+}

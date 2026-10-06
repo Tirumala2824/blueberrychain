@@ -84,12 +84,13 @@ Say "WP1 done". Claude then:
 ## Result log (fill in)
 | Item | Result | Notes / changes CoCo made |
 |---|---|---|
-| 00_account.sql | | |
-| 00b_tokens.sql | | |
-| S1 | | |
-| S2 | | |
-| S3 | | |
-| S4 | | |
-| S5 | | |
-| S6 | | |
-| S7 | | |
+| 00_account.sql | PASS (2026-10-06) | Ran unchanged; `00_foundation.sql` 8/8 PASS |
+| 00b_tokens.sql | PASS | 8 role-restricted PATs written straight into `.env` by a local script (secrets never printed) |
+| S1 | FALLBACK | ASOF JOIN rejected in an incremental DT; S1b interval join is INCREMENTAL |
+| S2 | PASS | Triggered task fired 30 s after the insert |
+| S3 | PASS | AI_EXTRACT returned every expected value |
+| S4 | PASS | Python 3.12.13, scipy 1.18.1, jsonschema 4.26.0, milp [0, 1] |
+| S5 | PASS | Distance = 1 |
+| S6 | PASS | 30 days |
+| S7 | PASS | Claude 4.x + openai-gpt-5; llama4-maverick unavailable, so the Auditor uses openai-gpt-5 |
+| S8 / S9 / S10 | PASS | See ADR-0002; SANDBOX and SPIKE_AGENT dropped afterwards |

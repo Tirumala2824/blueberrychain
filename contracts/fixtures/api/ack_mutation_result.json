@@ -1,0 +1,21 @@
+{
+  "schema": "api/ack_mutation_result.json",
+  "valid": [
+    {
+      "status": "OK",
+      "mutation_id": "MUT-00000301",
+      "mutation_status": "VERIFIED",
+      "plan_status": "EXECUTING",
+      "case_state": "EXECUTING"
+    }
+  ],
+  "invalid": [
+    {
+      "why": "mutation statuses are a frozen vocabulary",
+      "base": 0,
+      "set": {
+        "/mutation_status": "DONE"
+      }
+    }
+  ]
+}

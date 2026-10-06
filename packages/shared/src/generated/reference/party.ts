@@ -13,4 +13,8 @@ export interface ReferenceParty {
   customer_tier?: ("A" | "B" | "C") | null;
   sap_business_partner?: string | null;
   account_notes?: string | null;
+  /**
+   * Channel a customer or processor buys through (prices: REF.CHANNEL_PRICES); re-route destinations are priced by it.
+   */
+  sales_channel?: ("CONTRACT" | "REGIONAL" | "FOODSERVICE" | "PROCESSOR" | "DONATION") | null;
 }

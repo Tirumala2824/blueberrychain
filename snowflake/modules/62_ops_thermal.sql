@@ -8,21 +8,23 @@
 --   breach_min   = interval_min when T > threshold
 --   remaining    = ref_life_h - consumed_h - unmonitored_h * rate(T_assumed), as of the last reading
 -- A reading at reading_ts covers (reading_ts - interval_s, reading_ts], so it belongs to the
--- assignment and custody holder in force just before reading_ts: hence the strict '>' in
--- every MATCH_CONDITION and '<=' against assigned_to.
+-- assignment and custody holder in force just before reading_ts: hence the strict '>' on every
+-- interval start and '<=' against its end (next start, assigned_to).
 -- Only the lot's PRIMARY pulp probe drives lot physics. Reefer readings are kept as
 -- evidence (OPS.REEFER_TELEMETRY), never fanned out into lot physics.
 --
--- Spike S1 decides the join form. Primary: ASOF JOIN (below). If S1 showed that ASOF
--- JOIN keeps these tables from refreshing incrementally, use the interval-join
--- variant at the end of this file instead (commented out).
+-- Spike S1 FALLBACK (ADR-0002): ASOF JOIN is rejected in an incremental Dynamic Table on this
+-- account ("Change tracking is not supported on queries with joins of type [ASOF_JOIN]"), so
+-- assignments and custody events become intervals (start, next start] and readings range-join
+-- them. A reading matches the interval whose start is the latest one strictly before
+-- reading_ts - exactly the ASOF semantics, and the tables stay incremental.
 -- =============================================================================
 USE ROLE BBC_OWNER;
 USE SCHEMA BBC_OS.OPS;
 
 -- Custody per lot: lot-level events, plus shipment-level events applied to every lot on it.
 CREATE OR REPLACE DYNAMIC TABLE LOT_CUSTODY
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
   COMMENT = 'Custody events expanded to lot level: who holds each lot from each event on.'
 AS
 SELECT e.event_id, e.lot_id, e.at, e.event_type, e.from_party_id, e.to_party_id, e.site_id, e.shipment_id
@@ -34,18 +36,44 @@ FROM CUSTODY_EVENTS e
 JOIN SHIPMENT_LOTS sl ON sl.shipment_id = e.shipment_id
 WHERE e.lot_id IS NULL;
 
+-- Each device assignment is in force from assigned_from until the device's next assignment starts.
+CREATE OR REPLACE DYNAMIC TABLE DEVICE_ASSIGNMENT_INTERVALS
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
+  COMMENT = 'Device assignments with next_from (the start of the device''s next assignment; NULL = latest).'
+AS
+SELECT a.assignment_id, a.device_id, a.target_type, a.target_id, a.role, a.assigned_from, a.assigned_to,
+       LEAD(a.assigned_from) OVER (PARTITION BY a.device_id ORDER BY a.assigned_from, a.assignment_id) AS next_from
+FROM DEVICE_ASSIGNMENTS a;
+
+-- Each custody event's holder holds the lot until the lot's next custody event. Every lot opens
+-- with a sentinel interval in which its grower holds it (before any handoff the grower holds the
+-- lot), so readings inner-join custody: incremental refresh rejects outer joins on ranges.
+CREATE OR REPLACE DYNAMIC TABLE LOT_CUSTODY_INTERVALS
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
+  COMMENT = 'Lot custody intervals (at, next_at]; the first row per lot is the grower from the start (event_id NULL).'
+AS
+WITH events AS (
+  SELECT c.event_id, c.lot_id, c.at, c.to_party_id, c.site_id FROM LOT_CUSTODY c
+  UNION ALL
+  SELECT NULL, l.lot_id, '1900-01-01 00:00:00 +00:00'::TIMESTAMP_TZ, l.grower_party_id, NULL FROM LOTS l
+)
+SELECT e.event_id, e.lot_id, e.at, e.to_party_id, e.site_id,
+       LEAD(e.at) OVER (PARTITION BY e.lot_id ORDER BY e.at, e.event_id) AS next_at
+FROM events e;
+
 -- One row per PRIMARY probe reading, with its lot, its custody holder at that moment and its physics.
 CREATE OR REPLACE DYNAMIC TABLE TELEMETRY_ASSIGNED
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
-  COMMENT = 'Pulp readings -> lot (ASOF device assignment) -> custody holder (ASOF custody), with per-reading physics.'
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
+  COMMENT = 'Pulp readings -> lot (device assignment interval) -> custody holder (custody interval), with per-reading physics.'
 AS
 WITH probe AS (
   SELECT t.device_id, t.reading_ts, t.interval_s, t.readings:pulp_c::FLOAT AS pulp_c,
          t.received_at, t.idempotency_key, a.target_id AS lot_id, a.assignment_id
   FROM BBC_OS.RAW.TELEMETRY t
-  ASOF JOIN DEVICE_ASSIGNMENTS a
-    MATCH_CONDITION (t.reading_ts > a.assigned_from)
+  JOIN DEVICE_ASSIGNMENT_INTERVALS a
     ON t.device_id = a.device_id
+   AND t.reading_ts > a.assigned_from
+   AND (a.next_from IS NULL OR t.reading_ts <= a.next_from)
   WHERE a.target_type = 'LOT' AND a.role = 'PRIMARY'
     AND (a.assigned_to IS NULL OR t.reading_ts <= a.assigned_to)
     AND t.readings:pulp_c IS NOT NULL
@@ -53,9 +81,10 @@ WITH probe AS (
 held AS (
   SELECT p.*, c.to_party_id AS custody_party_id, c.site_id AS custody_site_id, c.event_id AS custody_event_id
   FROM probe p
-  ASOF JOIN LOT_CUSTODY c
-    MATCH_CONDITION (p.reading_ts > c.at)
+  JOIN LOT_CUSTODY_INTERVALS c
     ON p.lot_id = c.lot_id
+   AND p.reading_ts > c.at
+   AND (c.next_at IS NULL OR p.reading_ts <= c.next_at)
 )
 SELECT
   h.lot_id, h.reading_ts, h.interval_s, h.pulp_c, h.device_id, h.assignment_id, h.idempotency_key, h.received_at,
@@ -82,8 +111,8 @@ LEFT JOIN (
 
 -- Reefer unit readings per shipment: evidence for forensics (setpoint, air, door, alarms, position).
 CREATE OR REPLACE DYNAMIC TABLE REEFER_TELEMETRY
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
-  COMMENT = 'Reefer readings -> shipment (ASOF device assignment, role REEFER).'
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
+  COMMENT = 'Reefer readings -> shipment (device assignment interval, role REEFER).'
 AS
 SELECT
   a.target_id AS shipment_id, t.device_id, t.reading_ts, t.interval_s,
@@ -98,15 +127,16 @@ SELECT
   t.readings:lon::FLOAT          AS lon,
   t.received_at
 FROM BBC_OS.RAW.TELEMETRY t
-ASOF JOIN DEVICE_ASSIGNMENTS a
-  MATCH_CONDITION (t.reading_ts > a.assigned_from)
+JOIN DEVICE_ASSIGNMENT_INTERVALS a
   ON t.device_id = a.device_id
+ AND t.reading_ts > a.assigned_from
+ AND (a.next_from IS NULL OR t.reading_ts <= a.next_from)
 WHERE a.target_type = 'SHIPMENT' AND a.role = 'REEFER'
   AND (a.assigned_to IS NULL OR t.reading_ts <= a.assigned_to);
 
 -- Lot x custody holder x 15 minutes: cheap continuous detection over high-volume telemetry.
 CREATE OR REPLACE DYNAMIC TABLE LOT_THERMAL_BUCKETS
-  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = AUTO
+  TARGET_LAG = '1 minute' WAREHOUSE = BBC_TRANSFORM_WH REFRESH_MODE = INCREMENTAL
   COMMENT = 'Per lot, holder and 15-minute bucket: reading/breach minutes, degree-minutes, consumed and excess life, max pulp.'
 AS
 SELECT
@@ -193,20 +223,3 @@ SELECT
 FROM LOT_THERMAL_BUCKETS b
 LEFT JOIN BBC_OS.REF.PARTIES p ON p.party_id = b.holder_party_id AND p.is_current
 GROUP BY b.lot_id, b.holder_party_id, p.party_type;
-
--- -----------------------------------------------------------------------------
--- FALLBACK for spike S1 (use only if ASOF JOIN blocked incremental refresh):
--- turn assignments and custody events into intervals, then range-join.
---
--- CREATE OR REPLACE DYNAMIC TABLE DEVICE_ASSIGNMENT_INTERVALS ... AS
--- SELECT *, COALESCE(assigned_to,
---          LEAD(assigned_from) OVER (PARTITION BY device_id ORDER BY assigned_from),
---          '9999-12-31'::TIMESTAMP_TZ) AS valid_to
--- FROM DEVICE_ASSIGNMENTS;
--- CREATE OR REPLACE DYNAMIC TABLE LOT_CUSTODY_INTERVALS ... AS
--- SELECT *, COALESCE(LEAD(at) OVER (PARTITION BY lot_id ORDER BY at), '9999-12-31'::TIMESTAMP_TZ) AS valid_to
--- FROM LOT_CUSTODY;
--- ...then in TELEMETRY_ASSIGNED / REEFER_TELEMETRY replace each ASOF JOIN with
---   JOIN <intervals> x ON x.<key> = t.<key> AND t.reading_ts > x.<start> AND t.reading_ts <= x.valid_to
--- and LEFT JOIN for custody (no event yet = the grower holds the lot).
--- -----------------------------------------------------------------------------

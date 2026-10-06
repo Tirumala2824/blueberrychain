@@ -26,8 +26,8 @@ CREATE OR REPLACE PROCEDURE BBC_OS.LEDGER.APPEND(
   PACKAGES = ('snowflake-snowpark-python', 'jsonschema')
   IMPORTS = ('@BBC_OS.GOV.CODE/bbc_toolkit/0.1.0/bbc_toolkit-0.1.0.zip')
   HANDLER = 'bbc_toolkit.snow.proc_ledger_append'
-  EXECUTE AS OWNER
-  COMMENT = 'Internal only - no runtime role has USAGE.';
+  COMMENT = 'Internal only - no runtime role has USAGE.'
+  EXECUTE AS OWNER;
 
 CREATE OR REPLACE PROCEDURE BBC_OS.API.APPLY_REFERENCE_CHANGE(ENTITY_TYPE STRING, RECORDS VARIANT, REASON STRING)
   RETURNS VARIANT
@@ -36,8 +36,8 @@ CREATE OR REPLACE PROCEDURE BBC_OS.API.APPLY_REFERENCE_CHANGE(ENTITY_TYPE STRING
   PACKAGES = ('snowflake-snowpark-python', 'jsonschema')
   IMPORTS = ('@BBC_OS.GOV.CODE/bbc_toolkit/0.1.0/bbc_toolkit-0.1.0.zip')
   HANDLER = 'bbc_toolkit.snow.proc_apply_reference_change'
-  EXECUTE AS OWNER
-  COMMENT = 'Validate a reference batch against its contract and write new versions for changed records (ledgered).';
+  COMMENT = 'Validate a reference batch against its contract and write new versions for changed records (ledgered).'
+  EXECUTE AS OWNER;
 
 CREATE OR REPLACE PROCEDURE BBC_OS.API.DRAFT_POLICY(DOCUMENT VARIANT)
   RETURNS VARIANT
@@ -46,8 +46,8 @@ CREATE OR REPLACE PROCEDURE BBC_OS.API.DRAFT_POLICY(DOCUMENT VARIANT)
   PACKAGES = ('snowflake-snowpark-python', 'jsonschema')
   IMPORTS = ('@BBC_OS.GOV.CODE/bbc_toolkit/0.1.0/bbc_toolkit-0.1.0.zip')
   HANDLER = 'bbc_toolkit.snow.proc_draft_policy'
-  EXECUTE AS OWNER
-  COMMENT = 'Validate a policy document (schema + semantics) and store it as a DRAFT (ledgered).';
+  COMMENT = 'Validate a policy document (schema + semantics) and store it as a DRAFT (ledgered).'
+  EXECUTE AS OWNER;
 
 CREATE OR REPLACE PROCEDURE BBC_OS.API.ACTIVATE_POLICY(POLICY_VERSION STRING, REASON STRING)
   RETURNS VARIANT
@@ -56,8 +56,8 @@ CREATE OR REPLACE PROCEDURE BBC_OS.API.ACTIVATE_POLICY(POLICY_VERSION STRING, RE
   PACKAGES = ('snowflake-snowpark-python', 'jsonschema')
   IMPORTS = ('@BBC_OS.GOV.CODE/bbc_toolkit/0.1.0/bbc_toolkit-0.1.0.zip')
   HANDLER = 'bbc_toolkit.snow.proc_activate_policy'
-  EXECUTE AS OWNER
-  COMMENT = 'Activate a DRAFT policy; the drafter cannot activate it (ledgered).';
+  COMMENT = 'Activate a DRAFT policy; the drafter cannot activate it (ledgered).'
+  EXECUTE AS OWNER;
 
 -- Grants: governance admin drafts reference changes and activates policy; auditors read the ledger.
 GRANT USAGE ON PROCEDURE BBC_OS.API.APPLY_REFERENCE_CHANGE(STRING, VARIANT, STRING) TO ROLE BBC_GOVERNANCE_ADMIN;

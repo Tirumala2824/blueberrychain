@@ -61,6 +61,17 @@
           "type": "null"
         }
       ]
+    },
+    "sales_channel": {
+      "description": "Channel a customer or processor buys through (prices: REF.CHANNEL_PRICES); re-route destinations are priced by it.",
+      "oneOf": [
+        {
+          "$ref": "../common.json#/$defs/sales_channel"
+        },
+        {
+          "type": "null"
+        }
+      ]
     }
   }
 }
