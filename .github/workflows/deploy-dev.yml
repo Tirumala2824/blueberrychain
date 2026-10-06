@@ -1,0 +1,74 @@
+name: deploy-dev
+
+# Build -> scan -> deploy to Cloud Run on every push to the dev branch.
+# Auth is keyless (Workload Identity Federation); no service-account keys are stored in GitHub.
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: autoclaw-agent
+  REGION: europe-west1
+  REPO: blueberrychain
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - service: blueberrychain-control-tower-dev
+            image: control-tower
+            dockerfile: Dockerfile
+          - service: blueberrychain-engine-api-dev
+            image: engine-api
+            dockerfile: services/engine-api/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SERVICE_ACCOUNT }}
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build image (tagged with commit SHA)
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${{ matrix.image }}:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+          docker build -f "${{ matrix.dockerfile }}" -t "${IMAGE}" .
+
+      - name: Scan image (fail on HIGH/CRITICAL with a fix available)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.IMAGE }}
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+
+      - name: Push image
+        run: docker push "${IMAGE}"
+
+      - name: Deploy to Cloud Run (IAM-authenticated)
+        run: |
+          gcloud run deploy "${{ matrix.service }}" \
+            --image "${IMAGE}" \
+            --project "${PROJECT_ID}" --region "${REGION}" \
+            --port 8080 --no-allow-unauthenticated \
+            --labels "env=dev,git-sha=${GITHUB_SHA::12}" \
+            --quiet
