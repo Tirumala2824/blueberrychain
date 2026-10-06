@@ -56,12 +56,13 @@ jobs:
           docker build -f "${{ matrix.dockerfile }}" -t "${IMAGE}" .
 
       - name: Scan image (fail on HIGH/CRITICAL with a fix available)
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          image-ref: ${{ env.IMAGE }}
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          exit-code: "1"
+        run: |
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --exit-code 1 \
+            "${IMAGE}"
 
       - name: Push image
         run: docker push "${IMAGE}"
